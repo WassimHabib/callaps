@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -11,4 +5,134 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+enum UserRole {
+  admin
+  client
+}
+
+enum CampaignStatus {
+  draft
+  scheduled
+  running
+  paused
+  completed
+}
+
+enum CallStatus {
+  pending
+  in_progress
+  completed
+  failed
+  no_answer
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  name      String
+  role      UserRole @default(client)
+  company   String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  agents    Agent[]
+  campaigns Campaign[]
+  integrations Integration[]
+
+  @@map("users")
+}
+
+model Agent {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  systemPrompt  String
+  voiceId       String?
+  language      String   @default("fr-FR")
+  config        Json     @default("{}")
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  campaigns Campaign[]
+
+  @@map("agents")
+}
+
+model Campaign {
+  id          String         @id @default(cuid())
+  name        String
+  description String?
+  status      CampaignStatus @default(draft)
+  scheduledAt DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agentId     String
+  agent       Agent          @relation(fields: [agentId], references: [id])
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  contacts Contact[]
+  calls    Call[]
+
+  @@map("campaigns")
+}
+
+model Contact {
+  id         String   @id @default(cuid())
+  name       String
+  phone      String
+  email      String?
+  metadata   Json     @default("{}")
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  calls Call[]
+
+  @@map("contacts")
+}
+
+model Call {
+  id            String     @id @default(cuid())
+  status        CallStatus @default(pending)
+  twilioSid     String?    @unique
+  duration      Int?
+  startedAt     DateTime?
+  endedAt       DateTime?
+  transcript    String?
+  summary       String?
+  sentiment     String?
+  outcome       String?
+  recordingUrl  String?
+  metadata      Json       @default("{}")
+  campaignId    String
+  campaign      Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  contactId     String
+  contact       Contact    @relation(fields: [contactId], references: [id])
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@map("calls")
+}
+
+model Integration {
+  id        String   @id @default(cuid())
+  type      String
+  name      String
+  config    Json     @default("{}")
+  enabled   Boolean  @default(true)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("integrations")
 }
