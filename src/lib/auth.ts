@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import type { OrgRole } from "@/lib/permissions";
@@ -54,8 +54,22 @@ export async function getOrgContext(): Promise<OrgContext> {
     throw new Error("Unauthorized");
   }
 
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-  if (!user) throw new Error("User not found");
+  let user = await prisma.user.findUnique({ where: { clerkId } });
+
+  // Auto-create user if they exist in Clerk but not in DB (webhook may not have fired)
+  if (!user) {
+    const clerkUser = await currentUser();
+    if (!clerkUser) throw new Error("User not found");
+
+    user = await prisma.user.create({
+      data: {
+        clerkId,
+        email: clerkUser.emailAddresses[0]?.emailAddress ?? "",
+        name: `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() || "Utilisateur",
+        role: "client",
+      },
+    });
+  }
 
   // Check if super_admin
   if (user.role === "super_admin") {
