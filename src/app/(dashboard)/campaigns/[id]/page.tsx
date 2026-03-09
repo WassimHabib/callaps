@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/table";
 import { notFound } from "next/navigation";
 import { Bot, Phone, Users, Clock } from "lucide-react";
+import { WorkflowEditor } from "@/components/campaigns/workflow-editor";
+import type { WorkflowRule } from "@/lib/workflows";
 
 const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   draft: { label: "Brouillon", variant: "secondary" },
@@ -210,6 +212,12 @@ export default async function CampaignDetailPage({
             </Table>
           </CardContent>
         </Card>
+
+        {/* Workflows */}
+        <WorkflowEditor
+          campaignId={campaign.id}
+          initialWorkflows={(campaign.workflows as unknown as WorkflowRule[]) || []}
+        />
       </div>
     </div>
   );
