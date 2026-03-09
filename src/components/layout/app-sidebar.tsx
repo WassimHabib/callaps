@@ -13,6 +13,7 @@ import {
   Plug,
   Settings,
   Users,
+  Building2,
   ChevronRight,
 } from "lucide-react";
 
@@ -28,6 +29,7 @@ const clientLinks = [
 
 const adminLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/organizations", label: "Organisations", icon: Building2 },
   { href: "/admin/clients", label: "Clients", icon: Users },
   { href: "/admin/agents", label: "Agents IA", icon: Bot },
   { href: "/admin/campaigns", label: "Campagnes", icon: Megaphone },
@@ -64,11 +66,13 @@ export function AppSidebar({ role }: AppSidebarProps) {
       {role !== "admin" && (
         <div className="px-3 pb-2">
           <OrganizationSwitcher
+            hidePersonal
             appearance={{
               elements: {
                 rootBox: "w-full",
                 organizationSwitcherTrigger:
                   "w-full rounded-xl bg-slate-800/50 px-3 py-2 text-sm text-slate-300 hover:bg-slate-700/50",
+                organizationSwitcherPopoverActionButton__createOrganization: "hidden",
               },
             }}
           />
