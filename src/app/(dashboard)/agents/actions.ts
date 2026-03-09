@@ -4,6 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import {
+  createAssistant,
+  updateAssistant,
+  deleteAssistant as deleteVapiAssistant,
+} from "@/lib/vapi";
 
 function extractAgentData(formData: FormData) {
   return {
@@ -30,6 +35,21 @@ function extractAgentData(formData: FormData) {
   };
 }
 
+function langToTranscriberLang(lang: string): string {
+  const map: Record<string, string> = {
+    "fr-FR": "fr",
+    "en-US": "en",
+    "en-GB": "en",
+    "es-ES": "es",
+    "de-DE": "de",
+    "ar-SA": "ar",
+    "pt-BR": "pt",
+    "it-IT": "it",
+    "nl-NL": "nl",
+  };
+  return map[lang] || "fr";
+}
+
 export async function createAgent(formData: FormData) {
   const clerkId = await requireAuth();
   const user = await prisma.user.findUnique({ where: { clerkId } });
@@ -52,10 +72,32 @@ export async function updateAgent(id: string, formData: FormData) {
 
   const data = extractAgentData(formData);
 
-  await prisma.agent.update({
+  const agent = await prisma.agent.update({
     where: { id, userId: user.id },
     data,
   });
+
+  // Si déjà publié sur Vapi, sync les changements
+  if (agent.vapiAssistantId) {
+    await updateAssistant(agent.vapiAssistantId, {
+      name: data.name,
+      model: {
+        provider: "openai",
+        model: data.llmModel,
+        systemMessage: data.systemPrompt,
+      },
+      voice: {
+        provider: data.voiceProvider,
+        voiceId: data.voiceId || "camille",
+        speed: data.voiceSpeed,
+        stability: data.voiceStability,
+      },
+      firstMessage: data.firstMessage || undefined,
+      maxDurationSeconds: data.maxCallDuration,
+      silenceTimeoutSeconds: data.silenceTimeout,
+      recordingEnabled: data.enableRecording,
+    });
+  }
 
   revalidatePath(`/agents/${id}`);
   revalidatePath("/agents");
@@ -66,9 +108,72 @@ export async function publishAgent(id: string) {
   const user = await prisma.user.findUnique({ where: { clerkId } });
   if (!user) throw new Error("User not found");
 
+  const agent = await prisma.agent.findFirst({
+    where: { id, userId: user.id },
+  });
+  if (!agent) throw new Error("Agent not found");
+
+  let vapiAssistantId = agent.vapiAssistantId;
+
+  if (!vapiAssistantId) {
+    // Créer l'assistant sur Vapi
+    const vapiAssistant = await createAssistant({
+      name: agent.name,
+      model: {
+        provider: "openai",
+        model: agent.llmModel,
+        systemMessage: agent.systemPrompt,
+      },
+      voice: {
+        provider: agent.voiceProvider,
+        voiceId: agent.voiceId || "camille",
+        speed: agent.voiceSpeed,
+        stability: agent.voiceStability,
+      },
+      firstMessage: agent.firstMessage || undefined,
+      firstMessageMode: agent.firstMessageMode,
+      transcriber: {
+        provider: "deepgram",
+        language: langToTranscriberLang(agent.language),
+      },
+      maxDurationSeconds: agent.maxCallDuration,
+      silenceTimeoutSeconds: agent.silenceTimeout,
+      recordingEnabled: agent.enableRecording,
+      ...(agent.postCallAnalysis && agent.postCallPrompt
+        ? {
+            analysisPlan: {
+              summaryPrompt: agent.postCallPrompt,
+            },
+          }
+        : {}),
+    });
+
+    vapiAssistantId = vapiAssistant.id;
+  } else {
+    // Mettre à jour l'assistant existant
+    await updateAssistant(vapiAssistantId, {
+      name: agent.name,
+      model: {
+        provider: "openai",
+        model: agent.llmModel,
+        systemMessage: agent.systemPrompt,
+      },
+      voice: {
+        provider: agent.voiceProvider,
+        voiceId: agent.voiceId || "camille",
+        speed: agent.voiceSpeed,
+        stability: agent.voiceStability,
+      },
+      firstMessage: agent.firstMessage || undefined,
+      maxDurationSeconds: agent.maxCallDuration,
+      silenceTimeoutSeconds: agent.silenceTimeout,
+      recordingEnabled: agent.enableRecording,
+    });
+  }
+
   await prisma.agent.update({
     where: { id, userId: user.id },
-    data: { published: true },
+    data: { published: true, vapiAssistantId },
   });
 
   revalidatePath(`/agents/${id}`);
@@ -80,9 +185,21 @@ export async function deleteAgent(id: string) {
   const user = await prisma.user.findUnique({ where: { clerkId } });
   if (!user) throw new Error("User not found");
 
-  await prisma.agent.delete({
+  const agent = await prisma.agent.findFirst({
     where: { id, userId: user.id },
   });
+  if (!agent) throw new Error("Agent not found");
+
+  // Supprimer sur Vapi si publié
+  if (agent.vapiAssistantId) {
+    try {
+      await deleteVapiAssistant(agent.vapiAssistantId);
+    } catch {
+      // Ignore si déjà supprimé sur Vapi
+    }
+  }
+
+  await prisma.agent.delete({ where: { id, userId: user.id } });
 
   revalidatePath("/agents");
   redirect("/agents");

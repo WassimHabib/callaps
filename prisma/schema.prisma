@@ -71,6 +71,7 @@ model Agent {
   functions        Json     @default("[]")
   mcpConfig        Json     @default("[]")
   config           Json     @default("{}")
+  vapiAssistantId  String?  @unique
   published        Boolean  @default(false)
   userId           String
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -121,7 +122,7 @@ model Contact {
 model Call {
   id            String     @id @default(cuid())
   status        CallStatus @default(pending)
-  twilioSid     String?    @unique
+  vapiCallId    String?    @unique
   duration      Int?
   startedAt     DateTime?
   endedAt       DateTime?
