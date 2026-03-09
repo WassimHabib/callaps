@@ -1,64 +1,136 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/lib/auth";
+import { getOrgContext, orgFilter } from "@/lib/auth";
+import { hasPermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
-  createAssistant,
-  updateAssistant,
-  deleteAssistant as deleteVapiAssistant,
-} from "@/lib/vapi";
+  createRetellLlm,
+  updateRetellLlm,
+  deleteRetellLlm,
+  createAgent as createRetellAgent,
+  updateAgent as updateRetellAgent,
+  deleteAgent as deleteRetellAgent,
+  createWebCall,
+} from "@/lib/retell";
 
 function extractAgentData(formData: FormData) {
+  const get = (key: string) => (formData.get(key) as string | null) ?? "";
+
   return {
-    name: formData.get("name") as string,
-    description: (formData.get("description") as string) || null,
-    systemPrompt: formData.get("systemPrompt") as string,
-    firstMessage: (formData.get("firstMessage") as string) || null,
-    firstMessageMode: (formData.get("firstMessageMode") as string) || "dynamic",
-    llmModel: (formData.get("llmModel") as string) || "gpt-4.1",
-    voiceProvider: (formData.get("voiceProvider") as string) || "elevenlabs",
-    voiceId: (formData.get("voiceId") as string) || null,
-    voiceSpeed: parseFloat((formData.get("voiceSpeed") as string) || "1.0"),
-    voiceStability: parseFloat((formData.get("voiceStability") as string) || "0.5"),
-    language: (formData.get("language") as string) || "fr-FR",
-    maxCallDuration: parseInt((formData.get("maxCallDuration") as string) || "300", 10),
-    silenceTimeout: parseInt((formData.get("silenceTimeout") as string) || "10", 10),
-    endCallOnSilence: formData.get("endCallOnSilence") === "on",
-    enableRecording: formData.get("enableRecording") === "on",
-    postCallAnalysis: formData.get("postCallAnalysis") === "on",
-    postCallPrompt: (formData.get("postCallPrompt") as string) || null,
-    postCallWebhook: (formData.get("postCallWebhook") as string) || null,
-    safetyMessage: (formData.get("safetyMessage") as string) || null,
-    maxSafetyRetries: parseInt((formData.get("maxSafetyRetries") as string) || "3", 10),
+    name: get("name") || "Nouvel agent",
+    description: get("description") || null,
+    systemPrompt: get("systemPrompt") || "Tu es un assistant vocal.",
+    firstMessage: get("firstMessage") || null,
+    firstMessageMode: get("firstMessageMode") || "dynamic",
+    llmModel: get("llmModel") || "gpt-4.1",
+    voiceId: get("voiceId") || "minimax-Camille",
+    voiceSpeed: Number(get("voiceSpeed")) || 1.0,
+    voiceTemperature: Number(get("voiceTemperature")) || 1.0,
+    language: get("language") || "fr-FR",
+    maxCallDuration: Number(get("maxCallDuration")) || 300,
+    silenceTimeout: Number(get("silenceTimeout")) || 10,
+    endCallOnSilence: get("endCallOnSilence") === "on" || get("endCallOnSilence") === "true",
+    enableRecording: get("enableRecording") === "on" || get("enableRecording") === "true",
+    postCallAnalysis: get("postCallAnalysis") === "on" || get("postCallAnalysis") === "true",
+    postCallPrompt: get("postCallPrompt") || null,
+    postCallWebhook: get("postCallWebhook") || null,
+    safetyMessage: get("safetyMessage") || null,
+    maxSafetyRetries: Number(get("maxSafetyRetries")) || 3,
+    config: (() => {
+      try { return JSON.parse(get("config_json") || "{}"); } catch { return {}; }
+    })(),
   };
 }
 
-function langToTranscriberLang(lang: string): string {
+function mapLanguageToRetell(lang: string): string {
   const map: Record<string, string> = {
-    "fr-FR": "fr",
-    "en-US": "en",
-    "en-GB": "en",
-    "es-ES": "es",
-    "de-DE": "de",
-    "ar-SA": "ar",
-    "pt-BR": "pt",
-    "it-IT": "it",
-    "nl-NL": "nl",
+    "fr-FR": "fr-FR",
+    "en-US": "en-US",
+    "en-GB": "en-GB",
+    "es-ES": "es-ES",
+    "de-DE": "de-DE",
+    "ar-SA": "ar-SA",
+    "tr-TR": "tr-TR",
+    "pt-BR": "pt-BR",
+    "it-IT": "it-IT",
+    "nl-NL": "nl-NL",
+    "pl-PL": "pl-PL",
+    "ru-RU": "ru-RU",
+    "ja-JP": "ja-JP",
+    "zh-CN": "zh-CN",
+    "ko-KR": "ko-KR",
+    "multi": "multi",
   };
-  return map[lang] || "fr";
+  return map[lang] || "fr-FR";
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildRetellLlmParams(agent: any) {
+  return {
+    general_prompt: agent.systemPrompt,
+    begin_message: agent.firstMessage || undefined,
+    model: agent.llmModel,
+    start_speaker: agent.firstMessageMode === "user_first" ? "agent" as const : "agent" as const,
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildRetellAgentParams(agent: any, llmId: string) {
+  const config = (typeof agent.config === "object" && agent.config !== null ? agent.config : {}) as Record<string, unknown>;
+
+  return {
+    agent_name: agent.name,
+    voice_id: agent.voiceId || "minimax-Camille",
+    language: mapLanguageToRetell(agent.language),
+    response_engine: {
+      type: "retell-llm" as const,
+      llm_id: llmId,
+    },
+    voice_speed: agent.voiceSpeed,
+    voice_temperature: agent.voiceTemperature,
+    ...(config.responsiveness !== undefined ? { responsiveness: config.responsiveness as number } : {}),
+    ...(config.interruptionSensitivity !== undefined ? { interruption_sensitivity: config.interruptionSensitivity as number } : {}),
+    ...(config.enableBackchanneling !== undefined ? { enable_backchannel: config.enableBackchanneling as boolean } : {}),
+    max_call_duration_ms: agent.maxCallDuration * 1000,
+    ...(agent.endCallOnSilence ? { end_call_after_silence_ms: agent.silenceTimeout * 1000 } : {}),
+    ...(agent.postCallWebhook ? { webhook_url: agent.postCallWebhook } : {}),
+  };
 }
 
 export async function createAgent(formData: FormData) {
-  const clerkId = await requireAuth();
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-  if (!user) throw new Error("User not found");
+  const ctx = await getOrgContext();
+  if (!hasPermission(ctx.role, "agents:create")) {
+    throw new Error("Permission denied");
+  }
 
   const data = extractAgentData(formData);
 
   const agent = await prisma.agent.create({
-    data: { ...data, userId: user.id },
+    data: {
+      name: data.name,
+      description: data.description,
+      systemPrompt: data.systemPrompt,
+      firstMessage: data.firstMessage,
+      firstMessageMode: data.firstMessageMode,
+      llmModel: data.llmModel,
+      voiceId: data.voiceId,
+      voiceSpeed: data.voiceSpeed,
+      voiceTemperature: data.voiceTemperature,
+      language: data.language,
+      maxCallDuration: data.maxCallDuration,
+      silenceTimeout: data.silenceTimeout,
+      endCallOnSilence: data.endCallOnSilence,
+      enableRecording: data.enableRecording,
+      postCallAnalysis: data.postCallAnalysis,
+      postCallPrompt: data.postCallPrompt,
+      postCallWebhook: data.postCallWebhook,
+      safetyMessage: data.safetyMessage,
+      maxSafetyRetries: data.maxSafetyRetries,
+      userId: ctx.userId,
+      orgId: ctx.orgId,
+    },
   });
 
   revalidatePath("/agents");
@@ -66,37 +138,22 @@ export async function createAgent(formData: FormData) {
 }
 
 export async function updateAgent(id: string, formData: FormData) {
-  const clerkId = await requireAuth();
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-  if (!user) throw new Error("User not found");
+  const ctx = await getOrgContext();
+  if (!hasPermission(ctx.role, "agents:update")) {
+    throw new Error("Permission denied");
+  }
 
   const data = extractAgentData(formData);
 
   const agent = await prisma.agent.update({
-    where: { id, userId: user.id },
+    where: { id, userId: ctx.userId, ...orgFilter(ctx) },
     data,
   });
 
-  // Si déjà publié sur Vapi, sync les changements
-  if (agent.vapiAssistantId) {
-    await updateAssistant(agent.vapiAssistantId, {
-      name: data.name,
-      model: {
-        provider: "openai",
-        model: data.llmModel,
-        systemMessage: data.systemPrompt,
-      },
-      voice: {
-        provider: data.voiceProvider,
-        voiceId: data.voiceId || "camille",
-        speed: data.voiceSpeed,
-        stability: data.voiceStability,
-      },
-      firstMessage: data.firstMessage || undefined,
-      maxDurationSeconds: data.maxCallDuration,
-      silenceTimeoutSeconds: data.silenceTimeout,
-      recordingEnabled: data.enableRecording,
-    });
+  // Si déjà publié sur Retell, sync
+  if (agent.retellAgentId && agent.retellLlmId) {
+    await updateRetellLlm(agent.retellLlmId, buildRetellLlmParams(agent));
+    await updateRetellAgent(agent.retellAgentId, buildRetellAgentParams(agent, agent.retellLlmId));
   }
 
   revalidatePath(`/agents/${id}`);
@@ -104,76 +161,38 @@ export async function updateAgent(id: string, formData: FormData) {
 }
 
 export async function publishAgent(id: string) {
-  const clerkId = await requireAuth();
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-  if (!user) throw new Error("User not found");
+  const ctx = await getOrgContext();
+  if (!hasPermission(ctx.role, "agents:publish")) {
+    throw new Error("Permission denied");
+  }
 
   const agent = await prisma.agent.findFirst({
-    where: { id, userId: user.id },
+    where: { id, userId: ctx.userId, ...orgFilter(ctx) },
   });
   if (!agent) throw new Error("Agent not found");
 
-  let vapiAssistantId = agent.vapiAssistantId;
+  let retellLlmId = agent.retellLlmId;
+  let retellAgentId = agent.retellAgentId;
 
-  if (!vapiAssistantId) {
-    // Créer l'assistant sur Vapi
-    const vapiAssistant = await createAssistant({
-      name: agent.name,
-      model: {
-        provider: "openai",
-        model: agent.llmModel,
-        systemMessage: agent.systemPrompt,
-      },
-      voice: {
-        provider: agent.voiceProvider,
-        voiceId: agent.voiceId || "camille",
-        speed: agent.voiceSpeed,
-        stability: agent.voiceStability,
-      },
-      firstMessage: agent.firstMessage || undefined,
-      firstMessageMode: agent.firstMessageMode,
-      transcriber: {
-        provider: "deepgram",
-        language: langToTranscriberLang(agent.language),
-      },
-      maxDurationSeconds: agent.maxCallDuration,
-      silenceTimeoutSeconds: agent.silenceTimeout,
-      recordingEnabled: agent.enableRecording,
-      ...(agent.postCallAnalysis && agent.postCallPrompt
-        ? {
-            analysisPlan: {
-              summaryPrompt: agent.postCallPrompt,
-            },
-          }
-        : {}),
-    });
-
-    vapiAssistantId = vapiAssistant.id;
+  if (!retellLlmId) {
+    // Create LLM first
+    const llm = await createRetellLlm(buildRetellLlmParams(agent));
+    retellLlmId = llm.llm_id;
   } else {
-    // Mettre à jour l'assistant existant
-    await updateAssistant(vapiAssistantId, {
-      name: agent.name,
-      model: {
-        provider: "openai",
-        model: agent.llmModel,
-        systemMessage: agent.systemPrompt,
-      },
-      voice: {
-        provider: agent.voiceProvider,
-        voiceId: agent.voiceId || "camille",
-        speed: agent.voiceSpeed,
-        stability: agent.voiceStability,
-      },
-      firstMessage: agent.firstMessage || undefined,
-      maxDurationSeconds: agent.maxCallDuration,
-      silenceTimeoutSeconds: agent.silenceTimeout,
-      recordingEnabled: agent.enableRecording,
-    });
+    await updateRetellLlm(retellLlmId, buildRetellLlmParams(agent));
+  }
+
+  if (!retellAgentId) {
+    // Create Agent linked to LLM
+    const retellAgent = await createRetellAgent(buildRetellAgentParams(agent, retellLlmId!));
+    retellAgentId = retellAgent.agent_id;
+  } else {
+    await updateRetellAgent(retellAgentId, buildRetellAgentParams(agent, retellLlmId!));
   }
 
   await prisma.agent.update({
-    where: { id, userId: user.id },
-    data: { published: true, vapiAssistantId },
+    where: { id, userId: ctx.userId },
+    data: { published: true, retellAgentId, retellLlmId },
   });
 
   revalidatePath(`/agents/${id}`);
@@ -181,26 +200,49 @@ export async function publishAgent(id: string) {
 }
 
 export async function deleteAgent(id: string) {
-  const clerkId = await requireAuth();
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-  if (!user) throw new Error("User not found");
+  const ctx = await getOrgContext();
+  if (!hasPermission(ctx.role, "agents:delete")) {
+    throw new Error("Permission denied");
+  }
 
   const agent = await prisma.agent.findFirst({
-    where: { id, userId: user.id },
+    where: { id, userId: ctx.userId, ...orgFilter(ctx) },
   });
   if (!agent) throw new Error("Agent not found");
 
-  // Supprimer sur Vapi si publié
-  if (agent.vapiAssistantId) {
+  // Supprimer sur Retell si publié
+  if (agent.retellAgentId) {
     try {
-      await deleteVapiAssistant(agent.vapiAssistantId);
+      await deleteRetellAgent(agent.retellAgentId);
     } catch {
-      // Ignore si déjà supprimé sur Vapi
+      // Ignore si déjà supprimé
+    }
+  }
+  if (agent.retellLlmId) {
+    try {
+      await deleteRetellLlm(agent.retellLlmId);
+    } catch {
+      // Ignore si déjà supprimé
     }
   }
 
-  await prisma.agent.delete({ where: { id, userId: user.id } });
+  await prisma.agent.delete({ where: { id } });
 
   revalidatePath("/agents");
   redirect("/agents");
+}
+
+export async function getWebCallToken(agentId: string) {
+  const ctx = await getOrgContext();
+  if (!hasPermission(ctx.role, "agents:read")) {
+    throw new Error("Permission denied");
+  }
+
+  const agent = await prisma.agent.findFirst({
+    where: { id: agentId, userId: ctx.userId, ...orgFilter(ctx) },
+  });
+  if (!agent?.retellAgentId) throw new Error("Agent not published");
+
+  const webCall = await createWebCall({ agent_id: agent.retellAgentId });
+  return { access_token: webCall.access_token };
 }
