@@ -102,8 +102,9 @@ export const getOrgContext = cache(async (): Promise<OrgContext> => {
   }
 
   // Regular user — use Clerk org
-  const orgId = clerkOrgId || null;
-  const role = (orgRole as OrgRole) || "viewer";
+  // If no org is active (Clerk Organizations not set up yet), give full access
+  const orgId = clerkOrgId || user.id; // fallback orgId = userId for legacy mode
+  const role = (orgRole as OrgRole) || "org_admin";
 
   return {
     userId: user.id,
