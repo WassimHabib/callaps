@@ -11,55 +11,16 @@ export interface OrgContext {
   userId: string;       // DB user ID
   clerkId: string;      // Clerk user ID
   userName: string;     // DB user name
+  userRole: UserRole;   // DB user role (admin/client/super_admin)
   orgId: string | null; // Clerk org ID (null for super_admin without impersonation)
   role: EffectiveRole;
   isImpersonating: boolean;
   isSuperAdmin: boolean;
 }
 
-export async function getUserRole(): Promise<UserRole> {
-  const { sessionClaims, userId: clerkId } = await auth();
-  const clerkRole = (sessionClaims?.metadata as { role?: UserRole })?.role;
-  if (clerkRole) return clerkRole;
-
-  // Fallback: check DB role (for super_admin set directly in DB)
-  if (clerkId) {
-    const user = await prisma.user.findUnique({
-      where: { clerkId },
-      select: { role: true },
-    });
-    if (user?.role === "super_admin") return "super_admin";
-    if (user?.role === "admin") return "admin";
-  }
-
-  return "client";
-}
-
-export async function requireAdmin() {
-  const role = await getUserRole();
-  if (role !== "admin" && role !== "super_admin") {
-    throw new Error("Unauthorized: admin access required");
-  }
-}
-
-export async function requireSuperAdmin() {
-  const role = await getUserRole();
-  if (role !== "super_admin") {
-    throw new Error("Unauthorized: super admin access required");
-  }
-}
-
-export async function requireAuth() {
-  const { userId } = await auth();
-  if (!userId) {
-    throw new Error("Unauthorized");
-  }
-  return userId;
-}
-
 /**
- * Get the organization context for the current request.
- * Cached per request — calling this multiple times in the same render is free.
+ * Core auth function — cached per request.
+ * One single DB query for the entire request lifecycle.
  */
 export const getOrgContext = cache(async (): Promise<OrgContext> => {
   const { userId: clerkId, orgId: clerkOrgId, orgRole } = await auth();
@@ -70,7 +31,7 @@ export const getOrgContext = cache(async (): Promise<OrgContext> => {
 
   let user = await prisma.user.findUnique({ where: { clerkId } });
 
-  // Auto-create user if they exist in Clerk but not in DB (webhook may not have fired)
+  // Auto-create user if they exist in Clerk but not in DB
   if (!user) {
     const clerkUser = await currentUser();
     if (!clerkUser) throw new Error("User not found");
@@ -85,7 +46,7 @@ export const getOrgContext = cache(async (): Promise<OrgContext> => {
     });
   }
 
-  // Check if super_admin
+  // Super admin
   if (user.role === "super_admin") {
     const cookieStore = await cookies();
     const impersonatedOrg = cookieStore.get("impersonate_org")?.value;
@@ -94,6 +55,7 @@ export const getOrgContext = cache(async (): Promise<OrgContext> => {
       userId: user.id,
       clerkId,
       userName: user.name,
+      userRole: "super_admin",
       orgId: impersonatedOrg || null,
       role: "super_admin",
       isImpersonating: !!impersonatedOrg,
@@ -101,15 +63,29 @@ export const getOrgContext = cache(async (): Promise<OrgContext> => {
     };
   }
 
-  // Regular user — use Clerk org
-  // If no org is active (Clerk Organizations not set up yet), give full access
-  const orgId = clerkOrgId || user.id; // fallback orgId = userId for legacy mode
+  // Admin
+  if (user.role === "admin") {
+    return {
+      userId: user.id,
+      clerkId,
+      userName: user.name,
+      userRole: "admin",
+      orgId: clerkOrgId || user.id,
+      role: "org_admin",
+      isImpersonating: false,
+      isSuperAdmin: false,
+    };
+  }
+
+  // Regular user — use Clerk org if available, else legacy mode
+  const orgId = clerkOrgId || user.id;
   const role = (orgRole as OrgRole) || "org_admin";
 
   return {
     userId: user.id,
     clerkId,
     userName: user.name,
+    userRole: "client",
     orgId,
     role,
     isImpersonating: false,
@@ -118,15 +94,50 @@ export const getOrgContext = cache(async (): Promise<OrgContext> => {
 });
 
 /**
+ * Get user role — uses cached getOrgContext (no extra DB query).
+ */
+export async function getUserRole(): Promise<UserRole> {
+  try {
+    const ctx = await getOrgContext();
+    return ctx.userRole;
+  } catch {
+    // Fallback if getOrgContext fails (e.g., user not authenticated)
+    const { sessionClaims } = await auth();
+    return (sessionClaims?.metadata as { role?: UserRole })?.role || "client";
+  }
+}
+
+export async function requireAdmin() {
+  const ctx = await getOrgContext();
+  if (ctx.userRole !== "admin" && ctx.userRole !== "super_admin") {
+    throw new Error("Unauthorized: admin access required");
+  }
+}
+
+export async function requireSuperAdmin() {
+  const ctx = await getOrgContext();
+  if (ctx.userRole !== "super_admin") {
+    throw new Error("Unauthorized: super admin access required");
+  }
+}
+
+export async function requireAuth() {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+  return userId;
+}
+
+/**
  * Build a Prisma `where` filter scoped to the current org.
- * Super admins without impersonation see everything (returns {}).
  */
 export function orgFilter(ctx: OrgContext): { orgId?: string } {
   if (ctx.isSuperAdmin && !ctx.isImpersonating) {
-    return {}; // No filter — super admin sees all
+    return {};
   }
   if (!ctx.orgId) {
-    return { orgId: "___none___" }; // Safety: no org = no data
+    return { orgId: "___none___" };
   }
   return { orgId: ctx.orgId };
 }
