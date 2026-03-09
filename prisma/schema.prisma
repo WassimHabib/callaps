@@ -10,6 +10,7 @@ datasource db {
 enum UserRole {
   admin
   client
+  super_admin
 }
 
 enum CampaignStatus {
@@ -54,10 +55,9 @@ model Agent {
   firstMessage     String?
   firstMessageMode String   @default("dynamic")
   llmModel         String   @default("gpt-4.1")
-  voiceProvider    String   @default("elevenlabs")
-  voiceId          String?
+  voiceId          String   @default("minimax-Camille")
   voiceSpeed       Float    @default(1.0)
-  voiceStability   Float    @default(0.5)
+  voiceTemperature Float    @default(1.0)
   language         String   @default("fr-FR")
   maxCallDuration  Int      @default(300)
   silenceTimeout   Int      @default(10)
@@ -71,9 +71,11 @@ model Agent {
   functions        Json     @default("[]")
   mcpConfig        Json     @default("[]")
   config           Json     @default("{}")
-  vapiAssistantId  String?  @unique
+  retellAgentId    String?  @unique
+  retellLlmId      String?  @unique
   published        Boolean  @default(false)
   userId           String
+  orgId            String?
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -84,19 +86,34 @@ model Agent {
 }
 
 model Campaign {
-  id          String         @id @default(cuid())
-  name        String
-  description String?
-  status      CampaignStatus @default(draft)
-  scheduledAt DateTime?
-  startedAt   DateTime?
-  completedAt DateTime?
-  userId      String
-  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  agentId     String
-  agent       Agent          @relation(fields: [agentId], references: [id])
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  id              String         @id @default(cuid())
+  name            String
+  description     String?
+  status          CampaignStatus @default(draft)
+  scheduledAt     DateTime?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  // Scheduling
+  callDays        Json           @default("[1,2,3,4,5]") // array of day numbers (0=Sunday..6=Saturday)
+  callStartTime   String         @default("09:00")
+  callEndTime     String         @default("17:00")
+  timezoneMode    String         @default("fixed") // "auto" or "fixed"
+  timezone        String         @default("Europe/Paris")
+  // Retry
+  maxRetries      Int            @default(1)
+  retryIntervalH  Int            @default(1)
+  // Call rate
+  callRateCount   Int            @default(20)
+  callRateMinutes Int            @default(1)
+  // Phone numbers
+  phoneNumberIds  Json           @default("[]") // array of phone number IDs
+  userId          String
+  orgId           String?
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agentId         String
+  agent           Agent          @relation(fields: [agentId], references: [id])
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
   contacts Contact[]
   calls    Call[]
@@ -122,7 +139,7 @@ model Contact {
 model Call {
   id            String     @id @default(cuid())
   status        CallStatus @default(pending)
-  vapiCallId    String?    @unique
+  retellCallId  String?    @unique
   duration      Int?
   startedAt     DateTime?
   endedAt       DateTime?
