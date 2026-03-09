@@ -11,6 +11,7 @@ import {
   Plug,
   Settings,
   Users,
+  ChevronRight,
 } from "lucide-react";
 
 const clientLinks = [
@@ -40,16 +41,27 @@ export function AppSidebar({ role }: AppSidebarProps) {
   const links = role === "admin" ? adminLinks : clientLinks;
 
   return (
-    <aside className="flex h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar">
-      <div className="flex h-16 items-center gap-2.5 border-b border-sidebar-border px-6">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-          <Bot className="h-4 w-4 text-primary-foreground" />
+    <aside className="flex h-screen w-[260px] flex-col bg-[#0f172a]">
+      {/* Logo */}
+      <div className="flex h-[72px] items-center gap-3 px-6">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 shadow-lg shadow-indigo-500/20">
+          <Bot className="h-[18px] w-[18px] text-white" />
         </div>
-        <span className="text-lg font-bold tracking-tight text-sidebar-foreground">
-          Wevlap
-        </span>
+        <div>
+          <span className="text-[15px] font-bold tracking-tight text-white">
+            Wevlap
+          </span>
+          <p className="text-[10px] font-medium uppercase tracking-widest text-slate-500">
+            {role === "admin" ? "Admin" : "Platform"}
+          </p>
+        </div>
       </div>
-      <nav className="flex-1 space-y-1 p-3">
+
+      {/* Navigation */}
+      <nav className="flex-1 space-y-0.5 px-3 pt-2">
+        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+          Menu
+        </p>
         {links.map((link) => {
           const Icon = link.icon;
           const isActive =
@@ -62,22 +74,48 @@ export function AppSidebar({ role }: AppSidebarProps) {
               key={link.href}
               href={link.href}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                "group flex items-center justify-between rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-200",
                 isActive
-                  ? "bg-sidebar-primary/10 text-sidebar-primary shadow-sm"
-                  : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  ? "bg-gradient-to-r from-indigo-500/15 to-violet-500/10 text-white shadow-sm"
+                  : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
               )}
             >
-              <Icon className="h-4 w-4" />
-              {link.label}
+              <div className="flex items-center gap-3">
+                <div
+                  className={cn(
+                    "flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-200",
+                    isActive
+                      ? "bg-gradient-to-br from-indigo-500 to-violet-500 shadow-md shadow-indigo-500/25"
+                      : "bg-slate-800/50 group-hover:bg-slate-700/50"
+                  )}
+                >
+                  <Icon
+                    className={cn(
+                      "h-4 w-4 transition-colors",
+                      isActive ? "text-white" : "text-slate-400 group-hover:text-slate-300"
+                    )}
+                  />
+                </div>
+                {link.label}
+              </div>
+              {isActive && (
+                <ChevronRight className="h-3.5 w-3.5 text-indigo-400" />
+              )}
             </Link>
           );
         })}
       </nav>
-      <div className="border-t border-sidebar-border p-3">
-        <p className="px-3 text-xs text-sidebar-foreground/40">
-          {role === "admin" ? "Administration" : "Espace client"}
-        </p>
+
+      {/* Footer */}
+      <div className="border-t border-slate-800 p-4">
+        <div className="rounded-xl bg-gradient-to-r from-indigo-500/10 to-violet-500/10 p-3">
+          <p className="text-[11px] font-medium text-slate-300">
+            Wevlap Pro
+          </p>
+          <p className="mt-0.5 text-[10px] text-slate-500">
+            Appels illimités
+          </p>
+        </div>
       </div>
     </aside>
   );

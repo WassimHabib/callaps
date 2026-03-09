@@ -1,7 +1,7 @@
 import { requireAdmin } from "@/lib/auth";
 import { Header } from "@/components/layout/header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Bot, Megaphone, Phone } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Users, Bot, Megaphone, Phone, ArrowUpRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminDashboardPage() {
@@ -19,54 +19,64 @@ export default async function AdminDashboardPage() {
       title: "Clients",
       value: userCount,
       icon: Users,
-      color: "text-blue-500",
-      bg: "bg-blue-500/10",
+      gradient: "from-blue-500 to-cyan-400",
+      shadow: "shadow-blue-500/20",
     },
     {
       title: "Agents IA",
       value: agentCount,
       icon: Bot,
-      color: "text-violet-500",
-      bg: "bg-violet-500/10",
+      gradient: "from-indigo-500 to-violet-400",
+      shadow: "shadow-indigo-500/20",
     },
     {
       title: "Campagnes",
       value: campaignCount,
       icon: Megaphone,
-      color: "text-amber-500",
-      bg: "bg-amber-500/10",
+      gradient: "from-amber-500 to-orange-400",
+      shadow: "shadow-amber-500/20",
     },
     {
       title: "Appels totaux",
       value: callCount,
       icon: Phone,
-      color: "text-emerald-500",
-      bg: "bg-emerald-500/10",
+      gradient: "from-emerald-500 to-teal-400",
+      shadow: "shadow-emerald-500/20",
     },
   ];
 
   return (
-    <div>
+    <div className="min-h-screen bg-slate-50/50">
       <Header title="Administration" description="Vue d'ensemble de la plateforme" />
-      <div className="space-y-6 p-6">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="space-y-8 p-8">
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
               <Card
                 key={stat.title}
-                className="transition-shadow duration-200 hover:shadow-md"
+                className="group border-0 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
               >
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    {stat.title}
-                  </CardTitle>
-                  <div className={`rounded-lg p-2 ${stat.bg}`}>
-                    <Icon className={`h-4 w-4 ${stat.color}`} />
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-[13px] font-medium text-slate-500">
+                        {stat.title}
+                      </p>
+                      <p className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+                        {stat.value}
+                      </p>
+                    </div>
+                    <div
+                      className={`flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${stat.gradient} shadow-lg ${stat.shadow}`}
+                    >
+                      <Icon className="h-5 w-5 text-white" />
+                    </div>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <div className="mt-4 flex items-center gap-1 text-[12px] text-slate-400">
+                    <ArrowUpRight className="h-3 w-3" />
+                    Mis à jour en temps réel
+                  </div>
                 </CardContent>
               </Card>
             );

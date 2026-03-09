@@ -1,7 +1,7 @@
 import { requireAuth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Header } from "@/components/layout/header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Globe, Webhook, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,8 @@ const availableIntegrations = [
     name: "Google Calendar",
     description: "Synchronisez les RDV pris par vos agents avec Google Calendar",
     icon: Calendar,
+    gradient: "from-blue-500 to-cyan-400",
+    shadow: "shadow-blue-500/20",
     available: false,
   },
   {
@@ -19,6 +21,8 @@ const availableIntegrations = [
     name: "Webhooks",
     description: "Recevez les événements en temps réel sur votre serveur",
     icon: Webhook,
+    gradient: "from-indigo-500 to-violet-400",
+    shadow: "shadow-indigo-500/20",
     available: true,
   },
   {
@@ -26,6 +30,8 @@ const availableIntegrations = [
     name: "Zapier / Make",
     description: "Connectez vos agents à des milliers d'applications",
     icon: Globe,
+    gradient: "from-amber-500 to-orange-400",
+    shadow: "shadow-amber-500/20",
     available: false,
   },
 ];
@@ -36,10 +42,10 @@ export default async function IntegrationsPage() {
 
   if (!user) {
     return (
-      <div>
+      <div className="min-h-screen bg-slate-50/50">
         <Header title="Intégrations" />
         <div className="flex items-center justify-center p-12">
-          <p className="text-muted-foreground">Compte en cours de configuration...</p>
+          <p className="text-slate-500">Compte en cours de configuration...</p>
         </div>
       </div>
     );
@@ -50,10 +56,10 @@ export default async function IntegrationsPage() {
   });
 
   return (
-    <div>
+    <div className="min-h-screen bg-slate-50/50">
       <Header title="Intégrations" description="Connectez vos outils" />
-      <div className="p-6">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="p-8">
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {availableIntegrations.map((integration) => {
             const Icon = integration.icon;
             const isConnected = userIntegrations.some(
@@ -62,31 +68,41 @@ export default async function IntegrationsPage() {
             return (
               <Card
                 key={integration.type}
-                className="transition-shadow duration-200 hover:shadow-md"
+                className="group border-0 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
               >
-                <CardHeader className="flex flex-row items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                      <Icon className="h-5 w-5 text-primary" />
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${integration.gradient} shadow-lg ${integration.shadow}`}
+                      >
+                        <Icon className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-slate-900">
+                          {integration.name}
+                        </h3>
+                      </div>
                     </div>
-                    <div>
-                      <CardTitle className="text-base">
-                        {integration.name}
-                      </CardTitle>
-                    </div>
+                    {isConnected ? (
+                      <Badge className="rounded-lg border-0 bg-emerald-50 text-[11px] font-medium text-emerald-600">
+                        Connecté
+                      </Badge>
+                    ) : !integration.available ? (
+                      <Badge className="rounded-lg border-0 bg-slate-100 text-[11px] font-medium text-slate-500">
+                        Bientôt
+                      </Badge>
+                    ) : null}
                   </div>
-                  {isConnected ? (
-                    <Badge>Connecté</Badge>
-                  ) : !integration.available ? (
-                    <Badge variant="secondary">Bientôt</Badge>
-                  ) : null}
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
+                  <p className="mt-3 text-sm text-slate-500">
                     {integration.description}
                   </p>
                   {integration.available && !isConnected && (
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-4 rounded-lg border-slate-200"
+                    >
                       <Plus className="mr-2 h-3 w-3" />
                       Configurer
                     </Button>
