@@ -47,17 +47,35 @@ model User {
 }
 
 model Agent {
-  id            String   @id @default(cuid())
-  name          String
-  description   String?
-  systemPrompt  String
-  voiceId       String?
-  language      String   @default("fr-FR")
-  config        Json     @default("{}")
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id               String   @id @default(cuid())
+  name             String
+  description      String?
+  systemPrompt     String
+  firstMessage     String?
+  firstMessageMode String   @default("dynamic")
+  llmModel         String   @default("gpt-4.1")
+  voiceProvider    String   @default("elevenlabs")
+  voiceId          String?
+  voiceSpeed       Float    @default(1.0)
+  voiceStability   Float    @default(0.5)
+  language         String   @default("fr-FR")
+  maxCallDuration  Int      @default(300)
+  silenceTimeout   Int      @default(10)
+  endCallOnSilence Boolean  @default(true)
+  enableRecording  Boolean  @default(true)
+  postCallAnalysis Boolean  @default(false)
+  postCallPrompt   String?
+  postCallWebhook  String?
+  safetyMessage    String?
+  maxSafetyRetries Int      @default(3)
+  functions        Json     @default("[]")
+  mcpConfig        Json     @default("[]")
+  config           Json     @default("{}")
+  published        Boolean  @default(false)
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   campaigns Campaign[]
 

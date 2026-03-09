@@ -1,7 +1,6 @@
 import { requireAuth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { Header } from "@/components/layout/header";
-import { AgentForm } from "@/components/agents/agent-form";
+import { AgentSettings } from "@/components/agents/agent-settings";
 import { notFound } from "next/navigation";
 
 export default async function EditAgentPage({
@@ -21,11 +20,8 @@ export default async function EditAgentPage({
   if (!agent) notFound();
 
   return (
-    <div>
-      <Header title="Modifier l'agent" description={agent.name} />
-      <div className="mx-auto max-w-2xl p-6">
-        <AgentForm agent={agent} />
-      </div>
+    <div className="min-h-screen bg-slate-50/50">
+      <AgentSettings agent={agent} />
     </div>
   );
 }
