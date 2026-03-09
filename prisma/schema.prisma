@@ -107,6 +107,8 @@ model Campaign {
   callRateMinutes Int            @default(1)
   // Phone numbers
   phoneNumberIds  Json           @default("[]") // array of phone number IDs
+  // Post-call workflows
+  workflows       Json           @default("[]") // Array of workflow rules
   userId          String
   orgId           String?
   user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -122,14 +124,18 @@ model Campaign {
 }
 
 model Contact {
-  id         String   @id @default(cuid())
-  name       String
-  phone      String
-  email      String?
-  metadata   Json     @default("{}")
-  campaignId String
-  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+  id          String   @id @default(cuid())
+  name        String
+  phone       String
+  email       String?
+  metadata    Json     @default("{}")
+  score       Int?
+  scoreLabel  String?
+  scoreReason String?
+  nextAction  String?
+  campaignId  String
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
 
   calls Call[]
 

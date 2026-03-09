@@ -16,19 +16,49 @@ import { Bot, Phone, Users, Clock } from "lucide-react";
 
 const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   draft: { label: "Brouillon", variant: "secondary" },
-  scheduled: { label: "Planifiée", variant: "outline" },
+  scheduled: { label: "Planifiee", variant: "outline" },
   running: { label: "En cours", variant: "default" },
   paused: { label: "En pause", variant: "secondary" },
-  completed: { label: "Terminée", variant: "outline" },
+  completed: { label: "Terminee", variant: "outline" },
 };
 
 const callStatusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   pending: { label: "En attente", variant: "secondary" },
   in_progress: { label: "En cours", variant: "default" },
-  completed: { label: "Terminé", variant: "outline" },
-  failed: { label: "Échoué", variant: "destructive" },
-  no_answer: { label: "Sans réponse", variant: "secondary" },
+  completed: { label: "Termine", variant: "outline" },
+  failed: { label: "Echoue", variant: "destructive" },
+  no_answer: { label: "Sans reponse", variant: "secondary" },
 };
+
+function ScoreBadge({ label, score }: { label: string | null; score: number | null }) {
+  if (!label || score === null) {
+    return <span className="text-xs text-muted-foreground">--</span>;
+  }
+
+  const config: Record<string, { className: string; text: string }> = {
+    hot: {
+      className: "bg-gradient-to-r from-red-500 to-orange-400 text-white border-0",
+      text: "Chaud",
+    },
+    warm: {
+      className: "bg-amber-100 text-amber-700 border-0",
+      text: "Tiede",
+    },
+    cold: {
+      className: "bg-slate-100 text-slate-500 border-0",
+      text: "Froid",
+    },
+  };
+
+  const c = config[label] ?? config.cold;
+
+  return (
+    <div className="flex items-center gap-2">
+      <Badge className={c.className}>{c.text}</Badge>
+      <span className="text-xs text-muted-foreground">{score}/100</span>
+    </div>
+  );
+}
 
 export default async function CampaignDetailPage({
   params,
@@ -46,7 +76,7 @@ export default async function CampaignDetailPage({
         include: {
           calls: { orderBy: { createdAt: "desc" }, take: 1 },
         },
-        orderBy: { createdAt: "asc" },
+        orderBy: { score: { sort: "desc", nulls: "last" } },
       },
       _count: { select: { calls: true, contacts: true } },
     },
@@ -123,16 +153,18 @@ export default async function CampaignDetailPage({
               <TableHeader>
                 <TableRow>
                   <TableHead>Nom</TableHead>
-                  <TableHead>Téléphone</TableHead>
+                  <TableHead>Telephone</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Statut appel</TableHead>
+                  <TableHead>Score</TableHead>
+                  <TableHead>Prochaine action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {campaign.contacts.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={4}
+                      colSpan={6}
                       className="py-8 text-center text-muted-foreground"
                     >
                       Aucun contact. Importez des contacts pour lancer la campagne.
@@ -150,7 +182,7 @@ export default async function CampaignDetailPage({
                           {contact.name}
                         </TableCell>
                         <TableCell>{contact.phone}</TableCell>
-                        <TableCell>{contact.email || "—"}</TableCell>
+                        <TableCell>{contact.email || "--"}</TableCell>
                         <TableCell>
                           {callStatus ? (
                             <Badge variant={callStatus.variant}>
@@ -158,9 +190,17 @@ export default async function CampaignDetailPage({
                             </Badge>
                           ) : (
                             <span className="text-xs text-muted-foreground">
-                              Non appelé
+                              Non appele
                             </span>
                           )}
+                        </TableCell>
+                        <TableCell>
+                          <ScoreBadge label={contact.scoreLabel} score={contact.score} />
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-xs text-muted-foreground">
+                            {contact.nextAction || "--"}
+                          </span>
                         </TableCell>
                       </TableRow>
                     );
