@@ -1,4 +1,4 @@
-import { requireAuth } from "@/lib/auth";
+import { getOrgContext, orgFilter } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,22 +34,10 @@ const statusConfig: Record<
 };
 
 export default async function CampaignsPage() {
-  const clerkId = await requireAuth();
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-slate-50/50">
-        <Header title="Campagnes" />
-        <div className="flex items-center justify-center p-12">
-          <p className="text-slate-500">Compte en cours de configuration...</p>
-        </div>
-      </div>
-    );
-  }
+  const ctx = await getOrgContext();
 
   const campaigns = await prisma.campaign.findMany({
-    where: { userId: user.id },
+    where: { ...orgFilter(ctx) },
     include: {
       agent: { select: { name: true } },
       _count: { select: { contacts: true, calls: true } },

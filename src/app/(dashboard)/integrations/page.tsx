@@ -1,4 +1,4 @@
-import { requireAuth } from "@/lib/auth";
+import { getOrgContext, orgFilter } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent } from "@/components/ui/card";
@@ -37,22 +37,10 @@ const availableIntegrations = [
 ];
 
 export default async function IntegrationsPage() {
-  const clerkId = await requireAuth();
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-slate-50/50">
-        <Header title="Intégrations" />
-        <div className="flex items-center justify-center p-12">
-          <p className="text-slate-500">Compte en cours de configuration...</p>
-        </div>
-      </div>
-    );
-  }
+  const ctx = await getOrgContext();
 
   const userIntegrations = await prisma.integration.findMany({
-    where: { userId: user.id },
+    where: { userId: ctx.userId },
   });
 
   return (

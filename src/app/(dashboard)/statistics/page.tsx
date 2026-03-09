@@ -1,8 +1,8 @@
-import { requireAuth } from "@/lib/auth";
+import { getOrgContext, orgFilter } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent } from "@/components/ui/card";
-import { getUserStats } from "@/lib/stats";
+import { getOrgStats } from "@/lib/stats";
 import {
   Phone,
   CheckCircle,
@@ -14,21 +14,9 @@ import {
 } from "lucide-react";
 
 export default async function StatisticsPage() {
-  const clerkId = await requireAuth();
-  const user = await prisma.user.findUnique({ where: { clerkId } });
+  const ctx = await getOrgContext();
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-slate-50/50">
-        <Header title="Statistiques" />
-        <div className="flex items-center justify-center p-12">
-          <p className="text-slate-500">Compte en cours de configuration...</p>
-        </div>
-      </div>
-    );
-  }
-
-  const stats = await getUserStats(user.id);
+  const stats = await getOrgStats(orgFilter(ctx));
 
   const cards = [
     {

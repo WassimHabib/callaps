@@ -1,20 +1,26 @@
 import { prisma } from "./prisma";
 
 export async function getUserStats(userId: string) {
+  return getOrgStats({ userId });
+}
+
+export async function getOrgStats(filter: { orgId?: string; userId?: string }) {
+  const campaignFilter = filter.orgId !== undefined ? { orgId: filter.orgId } : filter.userId ? { userId: filter.userId } : {};
+
   const [totalCalls, completedCalls, failedCalls, noAnswerCalls, totalDuration] =
     await Promise.all([
-      prisma.call.count({ where: { campaign: { userId } } }),
+      prisma.call.count({ where: { campaign: { ...campaignFilter } } }),
       prisma.call.count({
-        where: { campaign: { userId }, status: "completed" },
+        where: { campaign: { ...campaignFilter }, status: "completed" },
       }),
       prisma.call.count({
-        where: { campaign: { userId }, status: "failed" },
+        where: { campaign: { ...campaignFilter }, status: "failed" },
       }),
       prisma.call.count({
-        where: { campaign: { userId }, status: "no_answer" },
+        where: { campaign: { ...campaignFilter }, status: "no_answer" },
       }),
       prisma.call.aggregate({
-        where: { campaign: { userId }, duration: { not: null } },
+        where: { campaign: { ...campaignFilter }, duration: { not: null } },
         _sum: { duration: true },
         _avg: { duration: true },
       }),

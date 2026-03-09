@@ -1,4 +1,4 @@
-import { requireAuth } from "@/lib/auth";
+import { getOrgContext, orgFilter } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,12 +36,10 @@ export default async function CampaignDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const clerkId = await requireAuth();
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-  if (!user) throw new Error("User not found");
+  const ctx = await getOrgContext();
 
   const campaign = await prisma.campaign.findFirst({
-    where: { id, userId: user.id },
+    where: { id, ...orgFilter(ctx) },
     include: {
       agent: { select: { name: true } },
       contacts: {

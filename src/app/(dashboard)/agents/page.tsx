@@ -1,4 +1,4 @@
-import { requireAuth } from "@/lib/auth";
+import { getOrgContext, orgFilter } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,22 +8,10 @@ import { Bot, Plus, Settings, Globe } from "lucide-react";
 import Link from "next/link";
 
 export default async function AgentsPage() {
-  const clerkId = await requireAuth();
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-slate-50/50">
-        <Header title="Agents IA" />
-        <div className="flex items-center justify-center p-12">
-          <p className="text-slate-500">Compte en cours de configuration...</p>
-        </div>
-      </div>
-    );
-  }
+  const ctx = await getOrgContext();
 
   const agents = await prisma.agent.findMany({
-    where: { userId: user.id },
+    where: { ...orgFilter(ctx) },
     include: { _count: { select: { campaigns: true } } },
     orderBy: { createdAt: "desc" },
   });

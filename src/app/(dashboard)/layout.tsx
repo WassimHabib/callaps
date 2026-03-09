@@ -7,10 +7,11 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const role = await getUserRole();
+  const sidebarRole = role === "super_admin" ? "admin" : role;
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <AppSidebar role={role} />
+      <AppSidebar role={sidebarRole as "admin" | "client"} />
       <main className="flex-1 overflow-auto">{children}</main>
     </div>
   );

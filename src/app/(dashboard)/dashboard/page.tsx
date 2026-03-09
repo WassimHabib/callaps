@@ -1,4 +1,4 @@
-import { requireAuth } from "@/lib/auth";
+import { getOrgContext, orgFilter } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,41 +15,22 @@ import {
 import Link from "next/link";
 
 export default async function DashboardPage() {
-  const clerkId = await requireAuth();
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-slate-50">
-        <Header title="Dashboard" />
-        <div className="flex items-center justify-center p-20">
-          <div className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 shadow-lg shadow-indigo-500/25">
-              <Bot className="h-8 w-8 text-white" />
-            </div>
-            <h2 className="text-lg font-semibold text-slate-900">Configuration en cours</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Votre compte est en cours de configuration...
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const ctx = await getOrgContext();
+  const user = await prisma.user.findUnique({ where: { id: ctx.userId }, select: { name: true } });
 
   const [totalCalls, activeCalls, completedCalls, campaignsCount, agentsCount] =
     await Promise.all([
       prisma.call.count({
-        where: { campaign: { userId: user.id } },
+        where: { campaign: { ...orgFilter(ctx) } },
       }),
       prisma.call.count({
-        where: { campaign: { userId: user.id }, status: "in_progress" },
+        where: { campaign: { ...orgFilter(ctx) }, status: "in_progress" },
       }),
       prisma.call.count({
-        where: { campaign: { userId: user.id }, status: "completed" },
+        where: { campaign: { ...orgFilter(ctx) }, status: "completed" },
       }),
-      prisma.campaign.count({ where: { userId: user.id } }),
-      prisma.agent.count({ where: { userId: user.id } }),
+      prisma.campaign.count({ where: { ...orgFilter(ctx) } }),
+      prisma.agent.count({ where: { ...orgFilter(ctx) } }),
     ]);
 
   const conversionRate =
@@ -93,7 +74,7 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen bg-slate-50/50">
       <Header
-        title={`Bonjour, ${user.name.split(" ")[0]}`}
+        title={`Bonjour, ${user?.name?.split(" ")[0] ?? ""}`}
         description="Voici un aperçu de votre activité"
       />
       <div className="space-y-8 p-8">
