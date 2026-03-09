@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { OrganizationSwitcher } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   Bot,
   Megaphone,
   BarChart3,
+  Phone,
   Plug,
   Settings,
   Users,
@@ -18,6 +20,7 @@ const clientLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/agents", label: "Agents IA", icon: Bot },
   { href: "/campaigns", label: "Campagnes", icon: Megaphone },
+  { href: "/phone-numbers", label: "Numéros de téléphone", icon: Phone },
   { href: "/statistics", label: "Statistiques", icon: BarChart3 },
   { href: "/integrations", label: "Intégrations", icon: Plug },
   { href: "/settings", label: "Paramètres", icon: Settings },
@@ -56,6 +59,21 @@ export function AppSidebar({ role }: AppSidebarProps) {
           </p>
         </div>
       </div>
+
+      {/* Organization Switcher */}
+      {role !== "admin" && (
+        <div className="px-3 pb-2">
+          <OrganizationSwitcher
+            appearance={{
+              elements: {
+                rootBox: "w-full",
+                organizationSwitcherTrigger:
+                  "w-full rounded-xl bg-slate-800/50 px-3 py-2 text-sm text-slate-300 hover:bg-slate-700/50",
+              },
+            }}
+          />
+        </div>
+      )}
 
       {/* Navigation */}
       <nav className="flex-1 space-y-0.5 px-3 pt-2">
