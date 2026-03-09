@@ -16,21 +16,15 @@ import Link from "next/link";
 
 export default async function DashboardPage() {
   const ctx = await getOrgContext();
-  const user = await prisma.user.findUnique({ where: { id: ctx.userId }, select: { name: true } });
+  const filter = orgFilter(ctx);
 
   const [totalCalls, activeCalls, completedCalls, campaignsCount, agentsCount] =
     await Promise.all([
-      prisma.call.count({
-        where: { campaign: { ...orgFilter(ctx) } },
-      }),
-      prisma.call.count({
-        where: { campaign: { ...orgFilter(ctx) }, status: "in_progress" },
-      }),
-      prisma.call.count({
-        where: { campaign: { ...orgFilter(ctx) }, status: "completed" },
-      }),
-      prisma.campaign.count({ where: { ...orgFilter(ctx) } }),
-      prisma.agent.count({ where: { ...orgFilter(ctx) } }),
+      prisma.call.count({ where: { campaign: { ...filter } } }),
+      prisma.call.count({ where: { campaign: { ...filter }, status: "in_progress" } }),
+      prisma.call.count({ where: { campaign: { ...filter }, status: "completed" } }),
+      prisma.campaign.count({ where: { ...filter } }),
+      prisma.agent.count({ where: { ...filter } }),
     ]);
 
   const conversionRate =
@@ -74,7 +68,7 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen bg-slate-50/50">
       <Header
-        title={`Bonjour, ${user?.name?.split(" ")[0] ?? ""}`}
+        title={`Bonjour, ${ctx.userName?.split(" ")[0] ?? ""}`}
         description="Voici un aperçu de votre activité"
       />
       <div className="space-y-8 p-8">

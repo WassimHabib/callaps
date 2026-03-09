@@ -2,6 +2,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import type { OrgRole } from "@/lib/permissions";
+import { cache } from "react";
 
 export type UserRole = "admin" | "client" | "super_admin";
 export type EffectiveRole = OrgRole | "super_admin";
@@ -9,6 +10,7 @@ export type EffectiveRole = OrgRole | "super_admin";
 export interface OrgContext {
   userId: string;       // DB user ID
   clerkId: string;      // Clerk user ID
+  userName: string;     // DB user name
   orgId: string | null; // Clerk org ID (null for super_admin without impersonation)
   role: EffectiveRole;
   isImpersonating: boolean;
@@ -16,8 +18,21 @@ export interface OrgContext {
 }
 
 export async function getUserRole(): Promise<UserRole> {
-  const { sessionClaims } = await auth();
-  return (sessionClaims?.metadata as { role?: UserRole })?.role || "client";
+  const { sessionClaims, userId: clerkId } = await auth();
+  const clerkRole = (sessionClaims?.metadata as { role?: UserRole })?.role;
+  if (clerkRole) return clerkRole;
+
+  // Fallback: check DB role (for super_admin set directly in DB)
+  if (clerkId) {
+    const user = await prisma.user.findUnique({
+      where: { clerkId },
+      select: { role: true },
+    });
+    if (user?.role === "super_admin") return "super_admin";
+    if (user?.role === "admin") return "admin";
+  }
+
+  return "client";
 }
 
 export async function requireAdmin() {
@@ -44,10 +59,9 @@ export async function requireAuth() {
 
 /**
  * Get the organization context for the current request.
- * For super_admin: returns impersonated org if cookie is set, otherwise orgId is null.
- * For regular users: returns their active Clerk organization and role.
+ * Cached per request — calling this multiple times in the same render is free.
  */
-export async function getOrgContext(): Promise<OrgContext> {
+export const getOrgContext = cache(async (): Promise<OrgContext> => {
   const { userId: clerkId, orgId: clerkOrgId, orgRole } = await auth();
 
   if (!clerkId) {
@@ -79,6 +93,7 @@ export async function getOrgContext(): Promise<OrgContext> {
     return {
       userId: user.id,
       clerkId,
+      userName: user.name,
       orgId: impersonatedOrg || null,
       role: "super_admin",
       isImpersonating: !!impersonatedOrg,
@@ -93,12 +108,13 @@ export async function getOrgContext(): Promise<OrgContext> {
   return {
     userId: user.id,
     clerkId,
+    userName: user.name,
     orgId,
     role,
     isImpersonating: false,
     isSuperAdmin: false,
   };
-}
+});
 
 /**
  * Build a Prisma `where` filter scoped to the current org.
