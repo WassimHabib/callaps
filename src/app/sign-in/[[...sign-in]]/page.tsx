@@ -52,10 +52,17 @@ export default function SignInPage() {
 
           <div className="flex items-center gap-6">
             <div className="flex -space-x-2">
-              {[...Array(4)].map((_, i) => (
-                <div
+              {[
+                "https://i.pravatar.cc/40?img=12",
+                "https://i.pravatar.cc/40?img=32",
+                "https://i.pravatar.cc/40?img=44",
+                "https://i.pravatar.cc/40?img=52",
+              ].map((src, i) => (
+                <img
                   key={i}
-                  className="h-8 w-8 rounded-full border-2 border-indigo-600 bg-gradient-to-br from-white/30 to-white/10"
+                  src={src}
+                  alt=""
+                  className="h-8 w-8 rounded-full border-2 border-indigo-600 object-cover"
                 />
               ))}
             </div>
