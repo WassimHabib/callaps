@@ -263,3 +263,68 @@ model Appointment {
 
   @@map("appointments")
 }
+
+enum SubscriptionStatus {
+  active
+  paused
+  cancelled
+}
+
+enum FreeTrialType {
+  none
+  subscription_only
+  minutes_only
+  both
+}
+
+enum InvoiceStatus {
+  draft
+  sent
+  paid
+  overdue
+}
+
+model Subscription {
+  id              String             @id @default(cuid())
+  orgId           String             @unique
+  monthlyPrice    Int                // centimes (ex: 29900 = 299€)
+  pricePerMinute  Int                // centimes (ex: 15 = 0.15€)
+  freeTrialType   FreeTrialType      @default(none)
+  freeTrialMonths Int                @default(1)
+  startDate       DateTime           @default(now())
+  status          SubscriptionStatus @default(active)
+  companyName     String
+  companyAddress  String?
+  companySiret    String?
+  companyVat      String?
+  notes           String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  invoices Invoice[]
+
+  @@map("subscriptions")
+}
+
+model Invoice {
+  id                 String        @id @default(cuid())
+  invoiceNumber      String        @unique // INV-2026-0001
+  orgId              String
+  subscriptionId     String
+  subscription       Subscription  @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  periodMonth        Int           // 1-12
+  periodYear         Int
+  subscriptionAmount Int           // centimes
+  minutesUsed        Int           // secondes totales
+  minutesAmount      Int           // centimes
+  totalHT            Int           // centimes
+  tvaRate            Int           @default(2000) // 2000 = 20.00%
+  tvaAmount          Int           // centimes
+  totalTTC           Int           // centimes
+  status             InvoiceStatus @default(draft)
+  paidAt             DateTime?
+  createdAt          DateTime      @default(now())
+
+  @@unique([orgId, periodMonth, periodYear])
+  @@map("invoices")
+}

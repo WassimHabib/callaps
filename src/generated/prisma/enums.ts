@@ -38,3 +38,32 @@ export const CallStatus = {
 } as const
 
 export type CallStatus = (typeof CallStatus)[keyof typeof CallStatus]
+
+
+export const SubscriptionStatus = {
+  active: 'active',
+  paused: 'paused',
+  cancelled: 'cancelled'
+} as const
+
+export type SubscriptionStatus = (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus]
+
+
+export const FreeTrialType = {
+  none: 'none',
+  subscription_only: 'subscription_only',
+  minutes_only: 'minutes_only',
+  both: 'both'
+} as const
+
+export type FreeTrialType = (typeof FreeTrialType)[keyof typeof FreeTrialType]
+
+
+export const InvoiceStatus = {
+  draft: 'draft',
+  sent: 'sent',
+  paid: 'paid',
+  overdue: 'overdue'
+} as const
+
+export type InvoiceStatus = (typeof InvoiceStatus)[keyof typeof InvoiceStatus]

@@ -67,3 +67,13 @@ export type Integration = Prisma.IntegrationModel
  * 
  */
 export type Appointment = Prisma.AppointmentModel
+/**
+ * Model Subscription
+ * 
+ */
+export type Subscription = Prisma.SubscriptionModel
+/**
+ * Model Invoice
+ * 
+ */
+export type Invoice = Prisma.InvoiceModel

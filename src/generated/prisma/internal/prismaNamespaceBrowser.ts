@@ -60,7 +60,9 @@ export const ModelName = {
   WebhookConfig: 'WebhookConfig',
   WebhookLog: 'WebhookLog',
   Integration: 'Integration',
-  Appointment: 'Appointment'
+  Appointment: 'Appointment',
+  Subscription: 'Subscription',
+  Invoice: 'Invoice'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -296,6 +298,49 @@ export const AppointmentScalarFieldEnum = {
 } as const
 
 export type AppointmentScalarFieldEnum = (typeof AppointmentScalarFieldEnum)[keyof typeof AppointmentScalarFieldEnum]
+
+
+export const SubscriptionScalarFieldEnum = {
+  id: 'id',
+  orgId: 'orgId',
+  monthlyPrice: 'monthlyPrice',
+  pricePerMinute: 'pricePerMinute',
+  freeTrialType: 'freeTrialType',
+  freeTrialMonths: 'freeTrialMonths',
+  startDate: 'startDate',
+  status: 'status',
+  companyName: 'companyName',
+  companyAddress: 'companyAddress',
+  companySiret: 'companySiret',
+  companyVat: 'companyVat',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum]
+
+
+export const InvoiceScalarFieldEnum = {
+  id: 'id',
+  invoiceNumber: 'invoiceNumber',
+  orgId: 'orgId',
+  subscriptionId: 'subscriptionId',
+  periodMonth: 'periodMonth',
+  periodYear: 'periodYear',
+  subscriptionAmount: 'subscriptionAmount',
+  minutesUsed: 'minutesUsed',
+  minutesAmount: 'minutesAmount',
+  totalHT: 'totalHT',
+  tvaRate: 'tvaRate',
+  tvaAmount: 'tvaAmount',
+  totalTTC: 'totalTTC',
+  status: 'status',
+  paidAt: 'paidAt',
+  createdAt: 'createdAt'
+} as const
+
+export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
 
 
 export const SortOrder = {
