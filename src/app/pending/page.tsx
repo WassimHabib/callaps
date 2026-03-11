@@ -2,13 +2,12 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Image from "next/image";
-import { Clock, Mail, ArrowLeft } from "lucide-react";
-import { SignOutButton } from "@clerk/nextjs";
+import { Clock, Mail } from "lucide-react";
+import Link from "next/link";
 
 export default async function PendingPage() {
   const { userId: clerkId } = await auth();
 
-  // Not logged in → sign in
   if (!clerkId) redirect("/sign-in");
 
   // Find or create user in DB
@@ -18,14 +17,16 @@ export default async function PendingPage() {
     const clerkUser = await currentUser();
     if (!clerkUser) redirect("/sign-in");
 
-    user = await prisma.user.create({
-      data: {
+    user = await prisma.user.upsert({
+      where: { clerkId },
+      create: {
         clerkId,
         email: clerkUser.emailAddresses[0]?.emailAddress ?? "",
         name: `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() || "Utilisateur",
         role: "client",
         approved: false,
       },
+      update: {},
     });
   }
 
@@ -61,19 +62,17 @@ export default async function PendingPage() {
 
           <div className="mt-6 rounded-xl bg-slate-50 p-4">
             <div className="flex items-center justify-center gap-2 text-sm text-slate-600">
-              <Mail className="h-4 w-4" />
-              <span>Vous serez notifié par email une fois votre compte activé.</span>
+              <Mail className="h-4 w-4 shrink-0" />
+              <span>Vous serez notifié une fois votre compte activé.</span>
             </div>
           </div>
 
-          <div className="mt-6 flex flex-col gap-3">
-            <SignOutButton>
-              <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50">
-                <ArrowLeft className="h-4 w-4" />
-                Se déconnecter
-              </button>
-            </SignOutButton>
-          </div>
+          <Link
+            href="/sign-in"
+            className="mt-6 inline-block rounded-xl border border-slate-200 px-6 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+          >
+            Retour à la connexion
+          </Link>
         </div>
 
         <p className="mt-6 text-xs text-slate-400">
