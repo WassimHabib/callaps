@@ -121,6 +121,24 @@ export async function deleteClientCampaign(campaignId: string) {
   revalidatePath(`/admin/clients/${campaign.userId}`);
 }
 
+export async function approveClient(clientId: string) {
+  await requireSuperAdmin();
+  await prisma.user.update({
+    where: { id: clientId },
+    data: { approved: true },
+  });
+  revalidatePath("/admin/clients");
+}
+
+export async function rejectClient(clientId: string) {
+  await requireSuperAdmin();
+  await prisma.user.update({
+    where: { id: clientId },
+    data: { approved: false },
+  });
+  revalidatePath("/admin/clients");
+}
+
 export async function updateClientRole(clientId: string, role: "admin" | "client") {
   await requireSuperAdmin();
   await prisma.user.update({

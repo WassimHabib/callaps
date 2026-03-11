@@ -1,5 +1,6 @@
-import { getUserRole } from "@/lib/auth";
+import { getOrgContext } from "@/lib/auth";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { ImpersonationBanner } from "@/components/layout/impersonation-banner";
 import { clerkClient } from "@clerk/nextjs/server";
@@ -29,7 +30,14 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const role = await getUserRole();
+  const ctx = await getOrgContext();
+  const role = ctx.userRole;
+
+  // Redirect unapproved users to pending page
+  if (!ctx.approved) {
+    redirect("/pending");
+  }
+
   // Only super_admin sees admin sidebar. admin = client with full permissions.
   const sidebarRole = role === "super_admin" ? "admin" : "client";
 

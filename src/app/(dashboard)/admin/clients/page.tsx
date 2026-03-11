@@ -12,9 +12,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Users, Bot, Megaphone, Eye, Phone } from "lucide-react";
+import { Users, Bot, Megaphone, Eye, Phone, CheckCircle2, XCircle } from "lucide-react";
 import Link from "next/link";
 import { ImpersonateButton } from "@/components/admin/impersonate-button";
+import { ApproveButton } from "./approve-button";
 
 export default async function AdminClientsPage() {
   await requireSuperAdmin();
@@ -106,6 +107,7 @@ export default async function AdminClientsPage() {
                 <TableHead className="text-xs font-semibold text-slate-500 text-center">Agents</TableHead>
                 <TableHead className="text-xs font-semibold text-slate-500 text-center">Campagnes</TableHead>
                 <TableHead className="text-xs font-semibold text-slate-500 text-center">Appels</TableHead>
+                <TableHead className="text-xs font-semibold text-slate-500 text-center">Statut</TableHead>
                 <TableHead className="text-xs font-semibold text-slate-500">Inscription</TableHead>
                 <TableHead className="text-xs font-semibold text-slate-500 text-right">Actions</TableHead>
               </TableRow>
@@ -113,7 +115,7 @@ export default async function AdminClientsPage() {
             <TableBody>
               {clients.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-12 text-center text-sm text-slate-400">
+                  <TableCell colSpan={8} className="py-12 text-center text-sm text-slate-400">
                     Aucun client pour le moment
                   </TableCell>
                 </TableRow>
@@ -143,6 +145,15 @@ export default async function AdminClientsPage() {
                       <Badge className="border-0 bg-emerald-50 text-emerald-600 text-xs font-semibold">
                         {callCountByClient[client.id] || 0}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {client.approved ? (
+                        <Badge className="border-0 bg-emerald-50 text-emerald-600 text-xs">
+                          Actif
+                        </Badge>
+                      ) : (
+                        <ApproveButton clientId={client.id} clientName={client.name} />
+                      )}
                     </TableCell>
                     <TableCell>
                       <span className="text-xs text-slate-400">

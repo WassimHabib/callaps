@@ -987,10 +987,6 @@ export type IntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type AgentCreateNestedOneWithoutCampaignsInput = {
   create?: Prisma.XOR<Prisma.AgentCreateWithoutCampaignsInput, Prisma.AgentUncheckedCreateWithoutCampaignsInput>
   connectOrCreate?: Prisma.AgentCreateOrConnectWithoutCampaignsInput

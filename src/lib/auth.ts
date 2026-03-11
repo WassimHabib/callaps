@@ -16,6 +16,7 @@ export interface OrgContext {
   role: EffectiveRole;
   isImpersonating: boolean;
   isSuperAdmin: boolean;
+  approved: boolean;
 }
 
 /**
@@ -60,6 +61,7 @@ export const getOrgContext = cache(async (): Promise<OrgContext> => {
       role: "super_admin",
       isImpersonating: !!impersonatedOrg,
       isSuperAdmin: true,
+      approved: true,
     };
   }
 
@@ -74,6 +76,7 @@ export const getOrgContext = cache(async (): Promise<OrgContext> => {
       role: "org_admin",
       isImpersonating: false,
       isSuperAdmin: false,
+      approved: user.approved,
     };
   }
 
@@ -94,6 +97,7 @@ export const getOrgContext = cache(async (): Promise<OrgContext> => {
     role,
     isImpersonating: false,
     isSuperAdmin: false,
+    approved: user.approved,
   };
 });
 
