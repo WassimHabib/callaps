@@ -20,7 +20,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { Header } from "@/components/layout/header";
-import { formatCentimes } from "@/lib/billing";
+import { formatCentimes } from "@/lib/billing-utils";
 
 // ---------------------------------------------------------------------------
 // Types

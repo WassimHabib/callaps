@@ -36,7 +36,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  CreditCard,
+  Wallet,
   TrendingUp,
   AlertCircle,
   Plus,
@@ -48,7 +48,7 @@ import {
   Receipt,
 } from "lucide-react";
 import { Header } from "@/components/layout/header";
-import { formatCentimes } from "@/lib/billing";
+import { formatCentimes } from "@/lib/billing-utils";
 import {
   upsertSubscription,
   pauseSubscription,
@@ -325,7 +325,7 @@ export function BillingAdmin({
                   </p>
                 </div>
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 shadow-lg shadow-blue-500/20">
-                  <CreditCard className="h-5 w-5 text-white" />
+                  <Wallet className="h-5 w-5 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -605,7 +605,7 @@ export function BillingAdmin({
             {!editingSub && (
               <div className="grid gap-2">
                 <Label htmlFor="orgId">Organisation</Label>
-                <Select value={formOrgId} onValueChange={setFormOrgId}>
+                <Select value={formOrgId} onValueChange={(v) => v && setFormOrgId(v)}>
                   <SelectTrigger className="rounded-lg">
                     <SelectValue placeholder="Sélectionner une organisation" />
                   </SelectTrigger>
@@ -691,7 +691,7 @@ export function BillingAdmin({
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="freeTrialType">Type essai gratuit</Label>
-                <Select value={formFreeTrialType} onValueChange={setFormFreeTrialType}>
+                <Select value={formFreeTrialType} onValueChange={(v) => v && setFormFreeTrialType(v)}>
                   <SelectTrigger className="rounded-lg">
                     <SelectValue />
                   </SelectTrigger>
@@ -762,7 +762,7 @@ export function BillingAdmin({
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="genMonth">Mois</Label>
-              <Select value={genMonth} onValueChange={setGenMonth}>
+              <Select value={genMonth} onValueChange={(v) => v && setGenMonth(v)}>
                 <SelectTrigger className="rounded-lg">
                   <SelectValue />
                 </SelectTrigger>

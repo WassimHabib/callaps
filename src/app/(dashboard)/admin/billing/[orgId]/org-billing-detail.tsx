@@ -41,7 +41,7 @@ import {
   Plus,
 } from "lucide-react";
 import { Header } from "@/components/layout/header";
-import { formatCentimes } from "@/lib/billing";
+import { formatCentimes } from "@/lib/billing-utils";
 import {
   upsertSubscription,
   pauseSubscription,
@@ -695,7 +695,7 @@ export function OrgBillingDetail({
                 <Label htmlFor="freeTrialType">Type essai gratuit</Label>
                 <Select
                   value={formFreeTrialType}
-                  onValueChange={setFormFreeTrialType}
+                  onValueChange={(v) => v && setFormFreeTrialType(v)}
                 >
                   <SelectTrigger className="rounded-lg">
                     <SelectValue />
@@ -772,7 +772,7 @@ export function OrgBillingDetail({
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="genMonth">Mois</Label>
-              <Select value={genMonth} onValueChange={setGenMonth}>
+              <Select value={genMonth} onValueChange={(v) => v && setGenMonth(v)}>
                 <SelectTrigger className="rounded-lg">
                   <SelectValue />
                 </SelectTrigger>
