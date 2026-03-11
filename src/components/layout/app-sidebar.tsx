@@ -19,6 +19,7 @@ import {
   Contact2,
   PhoneCall,
   CalendarCheck,
+  Receipt,
 } from "lucide-react";
 
 const clientLinks = [
@@ -30,6 +31,7 @@ const clientLinks = [
   { href: "/calls", label: "Historique appels", icon: PhoneCall },
   { href: "/appointments", label: "Rendez-vous", icon: CalendarCheck },
   { href: "/statistics", label: "Statistiques", icon: BarChart3 },
+  { href: "/billing", label: "Facturation", icon: Receipt },
   { href: "/integrations", label: "Intégrations", icon: Plug },
   { href: "/settings", label: "Paramètres", icon: Settings },
 ];
@@ -40,6 +42,7 @@ const adminLinks = [
   { href: "/admin/clients", label: "Clients", icon: Users },
   { href: "/admin/agents", label: "Agents IA", icon: Bot },
   { href: "/admin/campaigns", label: "Campagnes", icon: Megaphone },
+  { href: "/admin/billing", label: "Facturation", icon: Receipt },
   { href: "/admin/statistics", label: "Statistiques", icon: BarChart3 },
   { href: "/admin/settings", label: "Paramètres", icon: Settings },
 ];
@@ -59,7 +62,7 @@ export function AppSidebar({ role, hideOrgSwitcher }: AppSidebarProps) {
       <div className="flex h-[130px] shrink-0 items-center justify-center px-1">
         <Image
           src="/logo.png"
-          alt="Wevlap"
+          alt="Callaps"
           width={250}
           height={110}
           className="h-28 w-auto object-contain"
@@ -139,7 +142,7 @@ export function AppSidebar({ role, hideOrgSwitcher }: AppSidebarProps) {
       <div className="border-t border-slate-800 p-4">
         <div className="rounded-xl bg-gradient-to-r from-indigo-500/10 to-violet-500/10 p-3">
           <p className="text-[11px] font-medium text-slate-300">
-            Wevlap Pro
+            Callaps Pro
           </p>
           <p className="mt-0.5 text-[10px] text-slate-500">
             Appels illimités
