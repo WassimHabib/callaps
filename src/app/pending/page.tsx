@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Image from "next/image";
@@ -11,10 +11,27 @@ export default async function PendingPage() {
   // Not logged in → sign in
   if (!clerkId) redirect("/sign-in");
 
-  // Check if user is already approved
-  const user = await prisma.user.findUnique({ where: { clerkId } });
-  if (user?.approved) redirect("/dashboard");
-  if (user?.role === "super_admin") redirect("/dashboard");
+  // Find or create user in DB
+  let user = await prisma.user.findUnique({ where: { clerkId } });
+
+  if (!user) {
+    const clerkUser = await currentUser();
+    if (!clerkUser) redirect("/sign-in");
+
+    user = await prisma.user.create({
+      data: {
+        clerkId,
+        email: clerkUser.emailAddresses[0]?.emailAddress ?? "",
+        name: `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() || "Utilisateur",
+        role: "client",
+        approved: false,
+      },
+    });
+  }
+
+  // Already approved → dashboard
+  if (user.approved) redirect("/dashboard");
+  if (user.role === "super_admin") redirect("/dashboard");
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50">
