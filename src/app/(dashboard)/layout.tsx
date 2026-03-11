@@ -30,7 +30,13 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const ctx = await getOrgContext();
+  let ctx;
+  try {
+    ctx = await getOrgContext();
+  } catch {
+    redirect("/pending");
+  }
+
   const role = ctx.userRole;
 
   // Redirect unapproved users to pending page

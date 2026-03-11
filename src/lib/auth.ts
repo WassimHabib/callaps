@@ -37,13 +37,20 @@ export const getOrgContext = cache(async (): Promise<OrgContext> => {
     const clerkUser = await currentUser();
     if (!clerkUser) throw new Error("User not found");
 
-    user = await prisma.user.create({
-      data: {
+    const email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
+    const name = `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() || "Utilisateur";
+
+    // Use upsert to handle race condition with Clerk webhook
+    user = await prisma.user.upsert({
+      where: { clerkId },
+      create: {
         clerkId,
-        email: clerkUser.emailAddresses[0]?.emailAddress ?? "",
-        name: `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() || "Utilisateur",
+        email,
+        name,
         role: "client",
+        approved: false,
       },
+      update: {},
     });
   }
 
