@@ -19,6 +19,10 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Wevlap - Plateforme d'Agents IA",
   description: "Lancez des campagnes d'appels intelligents avec des agents IA",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

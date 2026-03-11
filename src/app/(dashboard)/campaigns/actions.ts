@@ -5,7 +5,6 @@ import { getOrgContext, orgFilter } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createPhoneCall } from "@/lib/retell";
 
 export async function createCampaign(formData: FormData) {
   const ctx = await getOrgContext();
@@ -136,65 +135,31 @@ export async function launchCampaign(campaignId: string) {
     where: { id: campaignId, userId: ctx.userId, ...orgFilter(ctx) },
     include: {
       agent: true,
-      contacts: {
-        where: {
-          calls: { none: {} },
-        },
-      },
+      _count: { select: { contacts: true } },
     },
   });
 
   if (!campaign) throw new Error("Campaign not found");
   if (!campaign.agent.retellAgentId) {
-    throw new Error("L'agent doit être publié avant de lancer la campagne");
+    throw new Error("L'agent doit etre publie avant de lancer la campagne");
   }
-  if (campaign.contacts.length === 0) {
-    throw new Error("Aucun contact à appeler");
+  if (campaign._count.contacts === 0) {
+    throw new Error("Aucun contact a appeler");
   }
 
-  // Get phone numbers for the campaign
   const phoneNumberIds = (campaign.phoneNumberIds as string[]) || [];
   if (phoneNumberIds.length === 0) {
-    throw new Error("Aucun numéro de téléphone configuré pour cette campagne");
+    throw new Error("Aucun numero de telephone configure pour cette campagne");
   }
-  const fromNumber = phoneNumberIds[0]; // Use first phone number
 
-  // Mettre la campagne en running
+  // Set campaign to running — the engine will handle batching
   await prisma.campaign.update({
     where: { id: campaignId },
     data: { status: "running", startedAt: new Date() },
   });
 
-  // Lancer les appels via Retell
-  for (const contact of campaign.contacts) {
-    try {
-      const retellCall = await createPhoneCall({
-        from_number: fromNumber,
-        to_number: contact.phone,
-        override_agent_id: campaign.agent.retellAgentId,
-      });
-
-      await prisma.call.create({
-        data: {
-          retellCallId: retellCall.call_id,
-          status: "pending",
-          campaignId,
-          contactId: contact.id,
-        },
-      });
-    } catch (error) {
-      await prisma.call.create({
-        data: {
-          status: "failed",
-          campaignId,
-          contactId: contact.id,
-          metadata: { error: String(error) },
-        },
-      });
-    }
-  }
-
   revalidatePath(`/campaigns/${campaignId}`);
+  revalidatePath("/campaigns");
 }
 
 export async function pauseCampaign(campaignId: string) {
@@ -209,4 +174,135 @@ export async function pauseCampaign(campaignId: string) {
   });
 
   revalidatePath(`/campaigns/${campaignId}`);
+  revalidatePath("/campaigns");
+}
+
+export async function resumeCampaign(campaignId: string) {
+  const ctx = await getOrgContext();
+  if (!hasPermission(ctx.role, "campaigns:launch")) {
+    throw new Error("Permission denied");
+  }
+
+  const campaign = await prisma.campaign.findFirst({
+    where: { id: campaignId, userId: ctx.userId, ...orgFilter(ctx) },
+  });
+
+  if (!campaign) throw new Error("Campaign not found");
+  if (campaign.status !== "paused") {
+    throw new Error("La campagne n'est pas en pause");
+  }
+
+  await prisma.campaign.update({
+    where: { id: campaignId },
+    data: { status: "running" },
+  });
+
+  revalidatePath(`/campaigns/${campaignId}`);
+  revalidatePath("/campaigns");
+}
+
+export async function getCampaignStats(campaignId: string) {
+  const ctx = await getOrgContext();
+  if (!hasPermission(ctx.role, "campaigns:read")) {
+    throw new Error("Permission denied");
+  }
+
+  const campaign = await prisma.campaign.findFirst({
+    where: { id: campaignId, ...orgFilter(ctx) },
+  });
+  if (!campaign) throw new Error("Campaign not found");
+
+  const totalContacts = await prisma.contact.count({
+    where: { campaignId },
+  });
+
+  const [completed, failed, noAnswer, pending, inProgress] = await Promise.all([
+    prisma.call.count({ where: { campaignId, status: "completed" } }),
+    prisma.call.count({ where: { campaignId, status: "failed" } }),
+    prisma.call.count({ where: { campaignId, status: "no_answer" } }),
+    prisma.call.count({ where: { campaignId, status: "pending" } }),
+    prisma.call.count({ where: { campaignId, status: "in_progress" } }),
+  ]);
+
+  // Contacts that have been called at least once
+  const calledContacts = await prisma.contact.count({
+    where: {
+      campaignId,
+      calls: { some: { campaignId } },
+    },
+  });
+
+  // Average duration of completed calls
+  const avgDurationResult = await prisma.call.aggregate({
+    where: { campaignId, status: "completed", duration: { not: null } },
+    _avg: { duration: true },
+  });
+
+  // Score breakdown
+  const [hot, warm, cold] = await Promise.all([
+    prisma.contact.count({ where: { campaignId, scoreLabel: "hot" } }),
+    prisma.contact.count({ where: { campaignId, scoreLabel: "warm" } }),
+    prisma.contact.count({ where: { campaignId, scoreLabel: "cold" } }),
+  ]);
+
+  const totalAttempted = completed + failed + noAnswer;
+  const successRate = totalAttempted > 0 ? Math.round((completed / totalAttempted) * 100) : 0;
+  const completionPercent = totalContacts > 0 ? Math.round((calledContacts / totalContacts) * 100) : 0;
+
+  return {
+    totalContacts,
+    calledContacts,
+    completed,
+    failed,
+    noAnswer,
+    pending,
+    inProgress,
+    avgDuration: Math.round(avgDurationResult._avg.duration || 0),
+    successRate,
+    completionPercent,
+    hot,
+    warm,
+    cold,
+  };
+}
+
+export async function addContactsToCampaign(
+  campaignId: string,
+  contactIds: string[]
+) {
+  const ctx = await getOrgContext();
+  if (!hasPermission(ctx.role, "campaigns:update")) {
+    throw new Error("Permission denied");
+  }
+
+  const campaign = await prisma.campaign.findFirst({
+    where: { id: campaignId, userId: ctx.userId, ...orgFilter(ctx) },
+  });
+  if (!campaign) throw new Error("Campaign not found");
+
+  // Update existing CRM contacts to link them to this campaign
+  await prisma.contact.updateMany({
+    where: {
+      id: { in: contactIds },
+      // Ensure contacts belong to the same org
+      ...(ctx.orgId ? { orgId: ctx.orgId } : {}),
+    },
+    data: { campaignId },
+  });
+
+  revalidatePath(`/campaigns/${campaignId}`);
+  revalidatePath("/campaigns");
+}
+
+export async function deleteCampaignAction(id: string) {
+  const ctx = await getOrgContext();
+  if (!hasPermission(ctx.role, "campaigns:delete")) {
+    throw new Error("Permission denied");
+  }
+
+  await prisma.campaign.delete({
+    where: { id, userId: ctx.userId, ...orgFilter(ctx) },
+  });
+
+  revalidatePath("/campaigns");
 }

@@ -1,11 +1,11 @@
 "use server";
 
-import { requireAdmin } from "@/lib/auth";
+import { requireSuperAdmin } from "@/lib/auth";
 import { clerkClient } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
 export async function getOrganizations() {
-  await requireAdmin();
+  await requireSuperAdmin();
   const client = await clerkClient();
   const { data: orgs } = await client.organizations.getOrganizationList({
     limit: 100,
@@ -22,7 +22,7 @@ export async function getOrganizations() {
 }
 
 export async function createOrganization(formData: FormData) {
-  await requireAdmin();
+  await requireSuperAdmin();
   const client = await clerkClient();
 
   const name = formData.get("name") as string;
@@ -38,14 +38,14 @@ export async function createOrganization(formData: FormData) {
 }
 
 export async function deleteOrganization(orgId: string) {
-  await requireAdmin();
+  await requireSuperAdmin();
   const client = await clerkClient();
   await client.organizations.deleteOrganization(orgId);
   revalidatePath("/admin/organizations");
 }
 
 export async function getOrganizationMembers(orgId: string) {
-  await requireAdmin();
+  await requireSuperAdmin();
   const client = await clerkClient();
   const { data: members } = await client.organizations.getOrganizationMembershipList({
     organizationId: orgId,
@@ -64,7 +64,7 @@ export async function getOrganizationMembers(orgId: string) {
 }
 
 export async function addMemberToOrganization(orgId: string, formData: FormData) {
-  await requireAdmin();
+  await requireSuperAdmin();
   const client = await clerkClient();
 
   const email = formData.get("email") as string;
@@ -91,7 +91,7 @@ export async function addMemberToOrganization(orgId: string, formData: FormData)
 }
 
 export async function removeMemberFromOrganization(orgId: string, userId: string) {
-  await requireAdmin();
+  await requireSuperAdmin();
   const client = await clerkClient();
   await client.organizations.deleteOrganizationMembership({
     organizationId: orgId,
@@ -101,7 +101,7 @@ export async function removeMemberFromOrganization(orgId: string, userId: string
 }
 
 export async function updateMemberRole(orgId: string, userId: string, role: string) {
-  await requireAdmin();
+  await requireSuperAdmin();
   const client = await clerkClient();
   await client.organizations.updateOrganizationMembership({
     organizationId: orgId,

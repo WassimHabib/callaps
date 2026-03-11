@@ -1,5 +1,6 @@
 import { SignIn } from "@clerk/nextjs";
-import { Bot, Zap, BarChart3, Globe } from "lucide-react";
+import Image from "next/image";
+import { Zap, BarChart3, Globe, Bot } from "lucide-react";
 
 export default function SignInPage() {
   return (
@@ -7,11 +8,15 @@ export default function SignInPage() {
       {/* Left - Branding */}
       <div className="hidden w-1/2 flex-col justify-between bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] p-12 lg:flex">
         <div>
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500">
-              <Bot className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-white">Wevlap</span>
+          <div className="flex items-center">
+            <Image
+              src="/logo.png"
+              alt="Wevlap"
+              width={200}
+              height={60}
+              className="object-contain"
+              priority
+            />
           </div>
         </div>
 
@@ -58,11 +63,15 @@ export default function SignInPage() {
       <div className="flex w-full items-center justify-center bg-slate-50 px-4 lg:w-1/2">
         <div className="w-full max-w-md space-y-6">
           <div className="text-center lg:hidden">
-            <div className="mb-4 flex items-center justify-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500">
-                <Bot className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-xl font-bold">Wevlap</span>
+            <div className="mb-4 flex items-center justify-center">
+              <Image
+                src="/logo.png"
+                alt="Wevlap"
+                width={180}
+                height={54}
+                className="object-contain"
+                priority
+              />
             </div>
           </div>
           <SignIn

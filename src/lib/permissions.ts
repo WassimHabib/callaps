@@ -21,7 +21,13 @@ export type Permission =
   | "phone_numbers:read"
   | "phone_numbers:manage"
   | "integrations:read"
-  | "integrations:manage";
+  | "integrations:manage"
+  | "contacts:read"
+  | "contacts:create"
+  | "contacts:update"
+  | "contacts:delete"
+  | "appointments:read"
+  | "appointments:manage";
 
 const ROLE_PERMISSIONS: Record<OrgRole, Permission[]> = {
   org_admin: [
@@ -32,6 +38,8 @@ const ROLE_PERMISSIONS: Record<OrgRole, Permission[]> = {
     "billing:read", "billing:manage",
     "phone_numbers:read", "phone_numbers:manage",
     "integrations:read", "integrations:manage",
+    "contacts:read", "contacts:create", "contacts:update", "contacts:delete",
+    "appointments:read", "appointments:manage",
   ],
   manager: [
     "agents:read", "agents:create", "agents:update", "agents:delete", "agents:publish",
@@ -39,17 +47,23 @@ const ROLE_PERMISSIONS: Record<OrgRole, Permission[]> = {
     "analytics:read",
     "phone_numbers:read", "phone_numbers:manage",
     "integrations:read", "integrations:manage",
+    "contacts:read", "contacts:create", "contacts:update", "contacts:delete",
+    "appointments:read", "appointments:manage",
   ],
   operator: [
     "agents:read",
     "campaigns:read", "campaigns:launch",
     "analytics:read",
     "phone_numbers:read",
+    "contacts:read",
+    "appointments:read",
   ],
   viewer: [
     "agents:read",
     "campaigns:read",
     "analytics:read",
+    "contacts:read",
+    "appointments:read",
   ],
 };
 

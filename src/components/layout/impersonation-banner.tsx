@@ -8,9 +8,10 @@ import { useRouter } from "next/navigation";
 
 interface ImpersonationBannerProps {
   orgId: string;
+  orgName?: string;
 }
 
-export function ImpersonationBanner({ orgId }: ImpersonationBannerProps) {
+export function ImpersonationBanner({ orgId, orgName }: ImpersonationBannerProps) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -24,7 +25,7 @@ export function ImpersonationBanner({ orgId }: ImpersonationBannerProps) {
   return (
     <div className="flex items-center justify-between bg-red-600 px-4 py-2 text-sm text-white">
       <span>
-        Mode impersonation — Organisation: <strong>{orgId}</strong>
+        Connecté en tant que : <strong>{orgName || orgId}</strong>
       </span>
       <Button
         onClick={handleStop}

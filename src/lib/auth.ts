@@ -79,7 +79,11 @@ export const getOrgContext = cache(async (): Promise<OrgContext> => {
 
   // Regular user — use Clerk org if available, else legacy mode
   const orgId = clerkOrgId || user.id;
-  const role = (orgRole as OrgRole) || "org_admin";
+  // Clerk roles have "org:" prefix (e.g. "org:org_admin") — strip it
+  const rawRole = orgRole ? String(orgRole).replace(/^org:/, "") : null;
+  // Only accept known roles, fallback to org_admin for unknown/missing roles
+  const VALID_ROLES: string[] = ["org_admin", "manager", "operator", "viewer"];
+  const role = (rawRole && VALID_ROLES.includes(rawRole) ? rawRole : "org_admin") as OrgRole;
 
   return {
     userId: user.id,

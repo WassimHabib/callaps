@@ -1,4 +1,4 @@
-import { requireAdmin } from "@/lib/auth";
+import { requireSuperAdmin } from "@/lib/auth";
 import { Header } from "@/components/layout/header";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,9 +15,10 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getOrganizations } from "./actions";
 import { CreateOrgForm } from "@/components/admin/create-org-form";
+import { ImpersonateButton } from "@/components/admin/impersonate-button";
 
 export default async function AdminOrganizationsPage() {
-  await requireAdmin();
+  await requireSuperAdmin();
   const organizations = await getOrganizations();
 
   return (
@@ -129,16 +130,22 @@ export default async function AdminOrganizationsPage() {
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Link href={`/admin/organizations/${org.id}`}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="rounded-lg text-xs opacity-0 transition-opacity group-hover:opacity-100"
-                        >
-                          <Eye className="mr-1 h-3.5 w-3.5" />
-                          Gérer
-                        </Button>
-                      </Link>
+                      <div className="flex items-center justify-end gap-2">
+                        <ImpersonateButton
+                          orgId={org.id}
+                          label="Se connecter en tant que"
+                        />
+                        <Link href={`/admin/organizations/${org.id}`}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="rounded-lg text-xs opacity-0 transition-opacity group-hover:opacity-100"
+                          >
+                            <Eye className="mr-1 h-3.5 w-3.5" />
+                            Gérer
+                          </Button>
+                        </Link>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

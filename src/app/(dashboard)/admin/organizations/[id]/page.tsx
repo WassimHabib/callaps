@@ -1,4 +1,4 @@
-import { requireAdmin } from "@/lib/auth";
+import { requireSuperAdmin } from "@/lib/auth";
 import { Header } from "@/components/layout/header";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { OrgMemberActions } from "@/components/admin/org-member-actions";
 import { AddMemberForm } from "@/components/admin/add-member-form";
 import { DeleteOrgButton } from "@/components/admin/delete-org-button";
+import { ImpersonateButton } from "@/components/admin/impersonate-button";
 
 const ROLE_LABELS: Record<string, string> = {
   "org:admin": "Admin",
@@ -31,7 +32,7 @@ export default async function OrgDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireAdmin();
+  await requireSuperAdmin();
   const { id } = await params;
 
   const client = await clerkClient();
@@ -82,7 +83,12 @@ export default async function OrgDetailPage({
                 })}
               </p>
             </div>
-            <div className="mt-3">
+            <div className="mt-3 flex items-center gap-2">
+              <ImpersonateButton
+                orgId={id}
+                label="Se connecter en tant que"
+                alwaysVisible
+              />
               <DeleteOrgButton orgId={id} orgName={org.name} />
             </div>
           </Card>

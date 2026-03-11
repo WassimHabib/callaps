@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { OrganizationSwitcher } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import {
   LayoutDashboard,
   Bot,
@@ -15,6 +16,9 @@ import {
   Users,
   Building2,
   ChevronRight,
+  Contact2,
+  PhoneCall,
+  CalendarCheck,
 } from "lucide-react";
 
 const clientLinks = [
@@ -22,6 +26,9 @@ const clientLinks = [
   { href: "/agents", label: "Agents IA", icon: Bot },
   { href: "/campaigns", label: "Campagnes", icon: Megaphone },
   { href: "/phone-numbers", label: "Numéros de téléphone", icon: Phone },
+  { href: "/contacts", label: "Contacts", icon: Contact2 },
+  { href: "/calls", label: "Historique appels", icon: PhoneCall },
+  { href: "/appointments", label: "Rendez-vous", icon: CalendarCheck },
   { href: "/statistics", label: "Statistiques", icon: BarChart3 },
   { href: "/integrations", label: "Intégrations", icon: Plug },
   { href: "/settings", label: "Paramètres", icon: Settings },
@@ -39,40 +46,40 @@ const adminLinks = [
 
 interface AppSidebarProps {
   role: "admin" | "client";
+  hideOrgSwitcher?: boolean;
 }
 
-export function AppSidebar({ role }: AppSidebarProps) {
+export function AppSidebar({ role, hideOrgSwitcher }: AppSidebarProps) {
   const pathname = usePathname();
   const links = role === "admin" ? adminLinks : clientLinks;
 
   return (
     <aside className="flex h-screen w-[260px] flex-col bg-[#0f172a]">
       {/* Logo */}
-      <div className="flex h-[72px] items-center gap-3 px-6">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 shadow-lg shadow-indigo-500/20">
-          <Bot className="h-[18px] w-[18px] text-white" />
-        </div>
-        <div>
-          <span className="text-[15px] font-bold tracking-tight text-white">
-            Wevlap
-          </span>
-          <p className="text-[10px] font-medium uppercase tracking-widest text-slate-500">
-            {role === "admin" ? "Admin" : "Platform"}
-          </p>
-        </div>
+      <div className="flex h-[130px] shrink-0 items-center justify-center px-1">
+        <Image
+          src="/logo.png"
+          alt="Wevlap"
+          width={250}
+          height={110}
+          className="h-28 w-auto object-contain"
+          priority
+        />
       </div>
 
-      {/* Organization Switcher */}
-      {role !== "admin" && (
-        <div className="px-3 pb-2">
+      {/* Organization Switcher — hidden for admin sidebar and admin users (locked to their org) */}
+      {role !== "admin" && !hideOrgSwitcher && (
+        <div className="px-3 pb-2 [&_.cl-organizationSwitcherTrigger]:!text-white [&_.cl-organizationSwitcherTrigger]:!bg-slate-700/60 [&_.cl-organizationSwitcherTrigger]:!border-slate-600/50 [&_.cl-organizationSwitcherTrigger]:!border [&_.cl-organizationSwitcherTrigger]:rounded-xl [&_button]:!text-white [&_span]:!text-white [&_p]:!text-white [&_svg]:!text-slate-400">
           <OrganizationSwitcher
             hidePersonal
             appearance={{
               elements: {
                 rootBox: "w-full",
                 organizationSwitcherTrigger:
-                  "w-full rounded-xl bg-slate-800/50 px-3 py-2 text-sm text-slate-300 hover:bg-slate-700/50",
+                  "w-full rounded-xl bg-slate-700/60 border border-slate-600/50 px-3 py-2.5 text-sm text-white hover:bg-slate-600/60",
                 organizationSwitcherPopoverActionButton__createOrganization: "hidden",
+                organizationPreview: "text-white",
+                organizationSwitcherTriggerIcon: "text-slate-400",
               },
             }}
           />

@@ -1,4 +1,4 @@
-import { requireAdmin } from "@/lib/auth";
+import { requireSuperAdmin } from "@/lib/auth";
 import { Header } from "@/components/layout/header";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
@@ -17,7 +17,7 @@ import Link from "next/link";
 import { ImpersonateButton } from "@/components/admin/impersonate-button";
 
 export default async function AdminClientsPage() {
-  await requireAdmin();
+  await requireSuperAdmin();
 
   const clients = await prisma.user.findMany({
     where: { role: "client" },

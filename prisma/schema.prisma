@@ -128,14 +128,22 @@ model Contact {
   name        String
   phone       String
   email       String?
+  company     String?
+  notes       String?
+  tags        String[] @default([])
   metadata    Json     @default("{}")
   score       Int?
   scoreLabel  String?
   scoreReason String?
   nextAction  String?
-  campaignId  String
-  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  // Contacts can belong to a campaign (legacy) or be standalone CRM contacts
+  campaignId  String?
+  campaign    Campaign? @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  // CRM ownership
+  userId      String?
+  orgId       String?
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
 
   calls Call[]
 
@@ -155,14 +163,69 @@ model Call {
   outcome       String?
   recordingUrl  String?
   metadata      Json       @default("{}")
-  campaignId    String
-  campaign      Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  contactId     String
-  contact       Contact    @relation(fields: [contactId], references: [id])
+  campaignId    String?
+  campaign      Campaign?  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  contactId     String?
+  contact       Contact?   @relation(fields: [contactId], references: [id])
+  // For standalone calls (not campaign-related)
+  userId        String?
+  orgId         String?
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
   @@map("calls")
+}
+
+model CompanyProfile {
+  id          String   @id @default(cuid())
+  name        String
+  activity    String   // ex: "Agence immobiliere", "Cabinet dentaire"
+  description String?  // description libre de l'activite
+  address     String?
+  city        String?
+  zipCode     String?
+  country     String   @default("France")
+  phone       String?
+  email       String?
+  website     String?
+  openingHours String? // ex: "Lundi-Vendredi 9h-18h"
+  tone        String   @default("professionnel") // professionnel, amical, formel
+  targetAudience String? // ex: "Particuliers et PME"
+  uniqueValue String?  // proposition de valeur unique
+  orgId       String   @unique
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("company_profiles")
+}
+
+model WebhookConfig {
+  id        String   @id @default(cuid())
+  name      String
+  url       String
+  secret    String?
+  events    String[] @default([]) // call_ended, call_analyzed, lead_hot, lead_warm, campaign_completed
+  enabled   Boolean  @default(true)
+  userId    String
+  orgId     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("webhook_configs")
+}
+
+model WebhookLog {
+  id            String   @id @default(cuid())
+  webhookId     String
+  event         String
+  payload       Json     @default("{}")
+  statusCode    Int?
+  response      String?
+  success       Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  @@map("webhook_logs")
 }
 
 model Integration {
@@ -177,4 +240,26 @@ model Integration {
   updatedAt DateTime @updatedAt
 
   @@map("integrations")
+}
+
+model Appointment {
+  id            String   @id @default(cuid())
+  patientName   String
+  patientPhone  String
+  patientEmail  String?
+  practitioner  String   // nom du praticien
+  motif         String   // motif de consultation
+  date          DateTime
+  duration      Int      @default(30) // minutes
+  status        String   @default("confirmed") // confirmed, cancelled, completed, no_show
+  source        String   @default("agent_ia") // agent_ia, manual, doctolib_sync
+  notes         String?
+  externalId    String?  // ID Doctolib ou autre systeme
+  callId        String?  // lien vers l'appel qui a genere le RDV
+  userId        String
+  orgId         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("appointments")
 }

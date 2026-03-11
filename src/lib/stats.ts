@@ -1,26 +1,43 @@
 import { prisma } from "./prisma";
 
+// Build a Prisma where filter for calls: matches both campaign calls and standalone calls
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildCallFilter(filter: { orgId?: string; userId?: string }): any {
+  if (filter.orgId !== undefined) {
+    return {
+      OR: [
+        { campaign: { orgId: filter.orgId } },
+        { orgId: filter.orgId },
+      ],
+    };
+  }
+  if (filter.userId) {
+    return {
+      OR: [
+        { campaign: { userId: filter.userId } },
+        { userId: filter.userId },
+      ],
+    };
+  }
+  return {};
+}
+
 export async function getUserStats(userId: string) {
   return getOrgStats({ userId });
 }
 
 export async function getOrgStats(filter: { orgId?: string; userId?: string }) {
-  const campaignFilter = filter.orgId !== undefined ? { orgId: filter.orgId } : filter.userId ? { userId: filter.userId } : {};
+  // Build a filter that matches calls from campaigns OR standalone calls
+  const callFilter = buildCallFilter(filter);
 
   const [totalCalls, completedCalls, failedCalls, noAnswerCalls, totalDuration] =
     await Promise.all([
-      prisma.call.count({ where: { campaign: { ...campaignFilter } } }),
-      prisma.call.count({
-        where: { campaign: { ...campaignFilter }, status: "completed" },
-      }),
-      prisma.call.count({
-        where: { campaign: { ...campaignFilter }, status: "failed" },
-      }),
-      prisma.call.count({
-        where: { campaign: { ...campaignFilter }, status: "no_answer" },
-      }),
+      prisma.call.count({ where: callFilter }),
+      prisma.call.count({ where: { ...callFilter, status: "completed" } }),
+      prisma.call.count({ where: { ...callFilter, status: "failed" } }),
+      prisma.call.count({ where: { ...callFilter, status: "no_answer" } }),
       prisma.call.aggregate({
-        where: { campaign: { ...campaignFilter }, duration: { not: null } },
+        where: { ...callFilter, duration: { not: null } },
         _sum: { duration: true },
         _avg: { duration: true },
       }),
@@ -71,9 +88,10 @@ export async function getOrgCallsPerDay(filter: { orgId?: string }, days: number
   const since = new Date();
   since.setDate(since.getDate() - days);
 
+  const callFilter = buildCallFilter(filter);
   const calls = await prisma.call.findMany({
     where: {
-      campaign: { ...filter },
+      ...callFilter,
       createdAt: { gte: since },
     },
     select: { createdAt: true, status: true, duration: true },
@@ -97,8 +115,9 @@ export async function getOrgCallsPerDay(filter: { orgId?: string }, days: number
 
 // Get sentiment distribution
 export async function getOrgSentimentDistribution(filter: { orgId?: string }) {
+  const callFilter = buildCallFilter(filter);
   const calls = await prisma.call.findMany({
-    where: { campaign: { ...filter }, sentiment: { not: null } },
+    where: { ...callFilter, sentiment: { not: null } },
     select: { sentiment: true },
   });
 
@@ -114,8 +133,9 @@ export async function getOrgSentimentDistribution(filter: { orgId?: string }) {
 
 // Get hourly call distribution (best time to call)
 export async function getOrgCallsByHour(filter: { orgId?: string }) {
+  const callFilter = buildCallFilter(filter);
   const calls = await prisma.call.findMany({
-    where: { campaign: { ...filter }, startedAt: { not: null } },
+    where: { ...callFilter, startedAt: { not: null } },
     select: { startedAt: true, status: true },
   });
 
@@ -138,8 +158,9 @@ export async function getOrgCallsByHour(filter: { orgId?: string }) {
 
 // Get duration distribution
 export async function getOrgDurationDistribution(filter: { orgId?: string }) {
+  const callFilter = buildCallFilter(filter);
   const calls = await prisma.call.findMany({
-    where: { campaign: { ...filter }, duration: { not: null, gt: 0 } },
+    where: { ...callFilter, duration: { not: null, gt: 0 } },
     select: { duration: true },
   });
 

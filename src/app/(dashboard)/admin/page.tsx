@@ -1,11 +1,11 @@
-import { requireAdmin } from "@/lib/auth";
+import { requireSuperAdmin } from "@/lib/auth";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, Bot, Megaphone, Phone, ArrowUpRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminDashboardPage() {
-  await requireAdmin();
+  await requireSuperAdmin();
 
   const [userCount, agentCount, campaignCount, callCount] = await Promise.all([
     prisma.user.count({ where: { role: "client" } }),
