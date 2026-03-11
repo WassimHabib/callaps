@@ -17,17 +17,22 @@ export default async function PendingPage() {
     const clerkUser = await currentUser();
     if (!clerkUser) redirect("/sign-in");
 
-    user = await prisma.user.upsert({
-      where: { clerkId },
-      create: {
-        clerkId,
-        email: clerkUser.emailAddresses[0]?.emailAddress ?? "",
-        name: `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() || "Utilisateur",
-        role: "client",
-        approved: false,
-      },
-      update: {},
-    });
+    const email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
+    const name = `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() || "Utilisateur";
+
+    // Check if email already exists (previous account with different clerkId)
+    const existingByEmail = await prisma.user.findUnique({ where: { email } });
+    if (existingByEmail) {
+      // Link existing account to new Clerk ID
+      user = await prisma.user.update({
+        where: { email },
+        data: { clerkId, name },
+      });
+    } else {
+      user = await prisma.user.create({
+        data: { clerkId, email, name, role: "client", approved: false },
+      });
+    }
   }
 
   if (user.approved) redirect("/dashboard");

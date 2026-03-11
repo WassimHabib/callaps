@@ -40,18 +40,18 @@ export const getOrgContext = cache(async (): Promise<OrgContext> => {
     const email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
     const name = `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() || "Utilisateur";
 
-    // Use upsert to handle race condition with Clerk webhook
-    user = await prisma.user.upsert({
-      where: { clerkId },
-      create: {
-        clerkId,
-        email,
-        name,
-        role: "client",
-        approved: false,
-      },
-      update: {},
-    });
+    // Check if email already exists (previous account with different clerkId)
+    const existingByEmail = await prisma.user.findUnique({ where: { email } });
+    if (existingByEmail) {
+      user = await prisma.user.update({
+        where: { email },
+        data: { clerkId, name },
+      });
+    } else {
+      user = await prisma.user.create({
+        data: { clerkId, email, name, role: "client", approved: false },
+      });
+    }
   }
 
   // Super admin
