@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "postinstall": "prisma generate",
-    "build": "echo DB_URL=$DATABASE_URL | head -c 30 && prisma db push --url \"$DATABASE_URL\" && next build",
+    "build": "prisma generate && prisma db push && next build",
     "start": "next start",
     "lint": "eslint"
   },
