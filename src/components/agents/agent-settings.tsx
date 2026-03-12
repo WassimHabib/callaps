@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { updateAgent, publishAgent } from "@/app/(dashboard)/agents/actions";
 import {
+  Bell,
   Bot,
   Pencil,
   Copy,
@@ -89,6 +90,8 @@ interface AgentSettingsProps {
     functions: unknown;
     mcpConfig: unknown;
     config: unknown;
+    notificationEmail: string | null;
+    notificationPhone: string | null;
     published: boolean;
     retellAgentId: string | null;
   };
@@ -1056,6 +1059,42 @@ export function AgentSettings({ agent }: AgentSettingsProps) {
                   max={10}
                   className="h-9 rounded-lg border-slate-200 bg-slate-50 text-[12px]"
                 />
+              </div>
+            </div>
+          </AccordionSection>
+
+          {/* ── Notifications ── */}
+          <AccordionSection icon={Bell} title="Notifications">
+            <div className="space-y-5">
+              <p className="text-[12px] text-slate-500">
+                Configurez ou envoyer les notifications et recapitulatifs d&apos;appel,
+                et le numero a contacter pour les transferts.
+              </p>
+              <div className="space-y-2">
+                <Label className="text-[12px] font-medium text-slate-700">Email de notification</Label>
+                <Input
+                  name="notificationEmail"
+                  type="email"
+                  defaultValue={agent.notificationEmail ?? ""}
+                  placeholder="contact@entreprise.fr"
+                  className="h-9 rounded-lg border-slate-200 bg-slate-50 text-[12px]"
+                />
+                <p className="text-[11px] text-slate-400">
+                  Les recapitulatifs d&apos;appel seront envoyes a cette adresse.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[12px] font-medium text-slate-700">Telephone de notification</Label>
+                <Input
+                  name="notificationPhone"
+                  type="tel"
+                  defaultValue={agent.notificationPhone ?? ""}
+                  placeholder="+33612345678"
+                  className="h-9 rounded-lg border-slate-200 bg-slate-50 text-[12px]"
+                />
+                <p className="text-[11px] text-slate-400">
+                  Numero utilise pour les transferts d&apos;appel vers un commercial ou responsable.
+                </p>
               </div>
             </div>
           </AccordionSection>

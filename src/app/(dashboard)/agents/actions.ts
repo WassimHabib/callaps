@@ -38,6 +38,8 @@ function extractAgentData(formData: FormData) {
     postCallWebhook: get("postCallWebhook") || null,
     safetyMessage: get("safetyMessage") || null,
     maxSafetyRetries: Number(get("maxSafetyRetries")) || 3,
+    notificationEmail: get("notificationEmail") || null,
+    notificationPhone: get("notificationPhone") || null,
     config: (() => {
       try { return JSON.parse(get("config_json") || "{}"); } catch { return {}; }
     })(),
