@@ -75,6 +75,49 @@ async function getCallUserId(retellCallId: string): Promise<string | null> {
   return call.userId || call.campaign?.userId || null;
 }
 
+async function extractCallDemands(retellCallId: string) {
+  const call = await prisma.call.findUnique({
+    where: { retellCallId },
+    select: {
+      id: true,
+      transcript: true,
+      orgId: true,
+      campaign: { select: { orgId: true } },
+    },
+  });
+  if (!call || !call.transcript) return;
+
+  const orgId = call.orgId || call.campaign?.orgId;
+  if (!orgId) return;
+
+  // Get company activity for context
+  const company = await prisma.companyProfile.findUnique({
+    where: { orgId },
+    select: { activity: true },
+  });
+
+  const { extractDemandsFromTranscript } = await import(
+    "@/lib/demand-extraction"
+  );
+  const demands = await extractDemandsFromTranscript(
+    call.transcript,
+    company?.activity ?? null
+  );
+
+  if (demands.length > 0) {
+    await prisma.callDemand.createMany({
+      data: demands.map((d) => ({
+        callId: call.id,
+        category: d.category,
+        label: d.label,
+        details: d.details,
+        urgency: d.urgency,
+        orgId,
+      })),
+    });
+  }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildCallPayload(call: any): Record<string, unknown> {
   return {
@@ -198,6 +241,11 @@ export async function POST(req: Request) {
 
       // Re-execute workflows with updated analysis
       await runPostCallWorkflows(callId);
+
+      // Extract demands from transcript (async, non-blocking)
+      extractCallDemands(callId).catch((err) =>
+        console.error("[webhook] demand extraction failed:", err)
+      );
       break;
     }
   }
