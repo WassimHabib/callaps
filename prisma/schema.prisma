@@ -72,6 +72,8 @@ model Agent {
   functions        Json     @default("[]")
   mcpConfig        Json     @default("[]")
   config           Json     @default("{}")
+  notificationEmail String?
+  notificationPhone String?
   retellAgentId    String?  @unique
   retellLlmId      String?  @unique
   published        Boolean  @default(false)
