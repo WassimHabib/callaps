@@ -46,6 +46,10 @@ export interface AgentFunction {
   responseVars?: { key: string; value: string }[];
   speakDuring?: boolean;
   speakAfter?: boolean;
+  // Transfer call fields
+  transferPhone?: string;
+  transferType?: "cold_transfer" | "warm_transfer";
+  transferMessage?: string;
 }
 
 // ─── Predefined templates ────────────────────────────────────
@@ -242,6 +246,77 @@ function FunctionDialog({
             />
           </div>
 
+          {fn.type === "transfer_call" && (
+            <>
+              {/* Transfer phone */}
+              <div className="space-y-1.5">
+                <Label className="text-[12px] font-semibold text-slate-700">Transférer vers</Label>
+                <p className="text-[11px] text-slate-400">
+                  Saisissez un numéro de téléphone statique.
+                </p>
+                <Input
+                  value={fn.transferPhone ?? ""}
+                  onChange={(e) => setFn({ ...fn, transferPhone: e.target.value })}
+                  placeholder="+33651370395"
+                  className="h-9 rounded-lg border-slate-200 bg-slate-50 text-[13px]"
+                />
+              </div>
+
+              {/* Transfer type */}
+              <div className="space-y-1.5">
+                <Label className="text-[12px] font-semibold text-slate-700">Type de transfert</Label>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2.5">
+                    <input
+                      type="radio"
+                      name="transferType"
+                      checked={fn.transferType === "cold_transfer"}
+                      onChange={() => setFn({ ...fn, transferType: "cold_transfer" })}
+                      className="h-4 w-4 accent-indigo-500"
+                    />
+                    <span className="text-[12px] text-slate-700">Transfert à froid</span>
+                  </label>
+                  <label className="flex items-center gap-2.5">
+                    <input
+                      type="radio"
+                      name="transferType"
+                      checked={fn.transferType !== "cold_transfer"}
+                      onChange={() => setFn({ ...fn, transferType: "warm_transfer" })}
+                      className="h-4 w-4 accent-indigo-500"
+                    />
+                    <span className="text-[12px] text-slate-700">Transfert à chaud</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Transfer message (warm only) */}
+              {fn.transferType !== "cold_transfer" && (
+                <div className="space-y-1.5">
+                  <Label className="text-[12px] font-semibold text-slate-700">Message de transfert</Label>
+                  <Select
+                    value={fn.speakDuring ? "prompt" : "static"}
+                    onValueChange={(v) => setFn({ ...fn, speakDuring: v === "prompt" })}
+                  >
+                    <SelectTrigger className="h-9 rounded-lg border-slate-200 bg-slate-50 text-[12px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="prompt">Rapide</SelectItem>
+                      <SelectItem value="static">Texte statique</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Textarea
+                    value={fn.transferMessage ?? ""}
+                    onChange={(e) => setFn({ ...fn, transferMessage: e.target.value })}
+                    rows={2}
+                    placeholder="Dites bonjour à l'agent et résumez-lui le problème de l'utilisateur."
+                    className="rounded-lg border-slate-200 bg-slate-50 text-[12px] transition-colors focus:bg-white"
+                  />
+                </div>
+              )}
+            </>
+          )}
+
           {!isSimple && (
             <>
               {/* API endpoint */}
@@ -404,6 +479,7 @@ export function FunctionEditor({ functions, onChange }: FunctionEditorProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [newFnDefaults, setNewFnDefaults] = useState<Partial<AgentFunction> | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
@@ -420,8 +496,15 @@ export function FunctionEditor({ functions, onChange }: FunctionEditorProps) {
 
   const addFromTemplate = (tpl: (typeof TEMPLATES)[number]) => {
     setMenuOpen(false);
-    if (tpl.type === "custom") {
+    if (tpl.type === "custom" || tpl.type === "transfer_call") {
       setEditingIndex(null);
+      setNewFnDefaults({
+        type: tpl.type,
+        name: tpl.name,
+        description: tpl.defaults.description ?? "",
+        ...tpl.defaults,
+        ...(tpl.type === "transfer_call" ? { transferType: "warm_transfer" as const } : {}),
+      });
       setDialogOpen(true);
       return;
     }
@@ -533,8 +616,11 @@ export function FunctionEditor({ functions, onChange }: FunctionEditorProps) {
       {/* Edit dialog */}
       <FunctionDialog
         open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        initial={editingIndex !== null ? functions[editingIndex] : null}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) setNewFnDefaults(null);
+        }}
+        initial={editingIndex !== null ? functions[editingIndex] : newFnDefaults ? (newFnDefaults as AgentFunction) : null}
         onSave={handleSave}
       />
     </div>

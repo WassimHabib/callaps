@@ -15,6 +15,7 @@ export interface CreateLlmParams {
   model?: string;
   model_temperature?: number;
   start_speaker?: "user" | "agent";
+  general_tools?: Array<Record<string, unknown>>;
 }
 
 export async function createRetellLlm(params: CreateLlmParams) {
@@ -30,6 +31,9 @@ export async function createRetellLlm(params: CreateLlmParams) {
         : {}),
       ...(params.start_speaker
         ? { start_speaker: params.start_speaker }
+        : {}),
+      ...(params.general_tools
+        ? { general_tools: params.general_tools }
         : {}),
     }),
   });
@@ -56,6 +60,8 @@ export async function updateRetellLlm(
     body.model_temperature = params.model_temperature;
   if (params.start_speaker !== undefined)
     body.start_speaker = params.start_speaker;
+  if (params.general_tools !== undefined)
+    body.general_tools = params.general_tools;
 
   const res = await fetch(`${RETELL_BASE_URL}/update-retell-llm/${llmId}`, {
     method: "PATCH",

@@ -68,6 +68,69 @@ function mapLanguageToRetell(lang: string): string {
   return map[lang] || "fr-FR";
 }
 
+function formatPhoneE164(phone: string): string {
+  return phone.startsWith("+") ? phone : `+33${phone.replace(/^0/, "")}`;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildRetellTools(agent: any): Record<string, unknown>[] {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://callaps.ai";
+  const baseToolUrl = `${appUrl}/api/agents/${agent.id}`;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const functions = (Array.isArray(agent.functions) ? agent.functions : []) as any[];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return functions.map((fn: any) => {
+    if (fn.type === "end_call") {
+      return {
+        type: "end_call",
+        name: fn.name || "end_call",
+        description: fn.description || "Termine l'appel.",
+        speak_after_execution: fn.speakAfter ?? true,
+      };
+    }
+
+    if (fn.type === "transfer_call") {
+      const isWarm = fn.transferType !== "cold_transfer";
+      return {
+        type: "transfer_call",
+        name: fn.name || "transfer_call",
+        description: fn.description || "Transfère l'appel.",
+        transfer_destination: {
+          type: "predefined",
+          number: formatPhoneE164(fn.transferPhone || ""),
+        },
+        transfer_option: {
+          type: fn.transferType || "warm_transfer",
+          ...(isWarm && fn.transferMessage ? {
+            prompt: fn.transferMessage,
+          } : {}),
+          show_transferee_as_caller: false,
+        },
+        speak_during_execution: fn.speakDuring ?? true,
+      };
+    }
+
+    if (fn.type === "custom") {
+      let params;
+      try { params = fn.parameters ? JSON.parse(fn.parameters) : undefined; } catch { params = undefined; }
+      return {
+        type: "custom",
+        name: fn.name,
+        description: fn.description || "",
+        url: fn.apiUrl || `${baseToolUrl}/${fn.name}`,
+        method: fn.apiMethod || "POST",
+        speak_during_execution: fn.speakDuring ?? false,
+        speak_after_execution: fn.speakAfter ?? true,
+        ...(params ? { parameters: params } : {}),
+      };
+    }
+
+    // Fallback: pass as-is
+    return { type: fn.type, name: fn.name, description: fn.description || "" };
+  });
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildRetellLlmParams(agent: any) {
   return {
@@ -75,6 +138,7 @@ function buildRetellLlmParams(agent: any) {
     begin_message: agent.firstMessage || undefined,
     model: agent.llmModel,
     start_speaker: agent.firstMessageMode === "user_first" ? "agent" as const : "agent" as const,
+    general_tools: buildRetellTools(agent),
   };
 }
 

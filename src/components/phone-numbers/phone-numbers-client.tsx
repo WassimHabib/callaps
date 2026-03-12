@@ -214,10 +214,15 @@ export function PhoneNumbersClient({
         ? null
         : (agents.find((a) => a.id === agentId)?.retellAgentId ?? null);
     startTransition(async () => {
-      await updatePhoneNumberAction(phoneNumber, {
-        inbound_agent_id: retellAgId,
-      });
-      router.refresh();
+      try {
+        await updatePhoneNumberAction(phoneNumber, {
+          inbound_agent_id: retellAgId,
+        });
+        router.refresh();
+        showToast("success", "Agent entrant mis à jour");
+      } catch {
+        showToast("error", "Erreur lors de la mise à jour de l'agent entrant");
+      }
     });
   };
 
