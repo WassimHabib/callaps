@@ -1,6 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-const anthropic = new Anthropic();
+function getAnthropic() {
+  return new Anthropic();
+}
 
 interface WeeklyData {
   orgId: string;
@@ -71,7 +73,7 @@ Retourne UNIQUEMENT un JSON valide (pas de markdown) :
 [{ "title": "...", "description": "...", "priority": "high|medium|low", "type": "optimization|opportunity|alert" }]`;
 
   try {
-    const response = await anthropic.messages.create({
+    const response = await getAnthropic().messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 2048,
       messages: [{ role: "user", content: prompt }],
@@ -118,7 +120,7 @@ export async function inferProfession(
   if (topCategories.length === 0) return "professionnel";
 
   try {
-    const response = await anthropic.messages.create({
+    const response = await getAnthropic().messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 100,
       messages: [

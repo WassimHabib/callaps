@@ -1,7 +1,9 @@
 import { Resend } from "resend";
 import { prisma } from "./prisma";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 interface ReportForEmail {
   id: string;
@@ -113,7 +115,7 @@ export async function sendWeeklyReportEmail(report: ReportForEmail) {
   const periodStr = `${new Date(report.periodStart).toLocaleDateString("fr-FR")} — ${new Date(report.periodEnd).toLocaleDateString("fr-FR")}`;
 
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: process.env.RESEND_FROM_EMAIL ?? "Callaps <insights@callaps.com>",
       to: users.map((u) => u.email),
       subject: `Bilan hebdomadaire — ${periodStr}`,

@@ -1,6 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-const anthropic = new Anthropic();
+function getAnthropic() {
+  return new Anthropic();
+}
 
 interface ExtractedDemand {
   category: string;
@@ -24,7 +26,7 @@ export async function extractDemandsFromTranscript(
     : "Le type d'activité du professionnel n'est pas précisé.";
 
   try {
-    const response = await anthropic.messages.create({
+    const response = await getAnthropic().messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 1024,
       messages: [
