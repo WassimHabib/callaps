@@ -56,6 +56,8 @@ export const ModelName = {
   Campaign: 'Campaign',
   Contact: 'Contact',
   Call: 'Call',
+  CallDemand: 'CallDemand',
+  WeeklyReport: 'WeeklyReport',
   CompanyProfile: 'CompanyProfile',
   WebhookConfig: 'WebhookConfig',
   WebhookLog: 'WebhookLog',
@@ -209,6 +211,39 @@ export const CallScalarFieldEnum = {
 export type CallScalarFieldEnum = (typeof CallScalarFieldEnum)[keyof typeof CallScalarFieldEnum]
 
 
+export const CallDemandScalarFieldEnum = {
+  id: 'id',
+  callId: 'callId',
+  category: 'category',
+  label: 'label',
+  details: 'details',
+  urgency: 'urgency',
+  orgId: 'orgId',
+  createdAt: 'createdAt'
+} as const
+
+export type CallDemandScalarFieldEnum = (typeof CallDemandScalarFieldEnum)[keyof typeof CallDemandScalarFieldEnum]
+
+
+export const WeeklyReportScalarFieldEnum = {
+  id: 'id',
+  orgId: 'orgId',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  totalCalls: 'totalCalls',
+  totalDemands: 'totalDemands',
+  topCategories: 'topCategories',
+  kpis: 'kpis',
+  recommendations: 'recommendations',
+  profession: 'profession',
+  rawAnalysis: 'rawAnalysis',
+  emailSentAt: 'emailSentAt',
+  createdAt: 'createdAt'
+} as const
+
+export type WeeklyReportScalarFieldEnum = (typeof WeeklyReportScalarFieldEnum)[keyof typeof WeeklyReportScalarFieldEnum]
+
+
 export const CompanyProfileScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -357,6 +392,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {

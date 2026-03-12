@@ -318,6 +318,7 @@ export type CallWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Call"> | Date | string
   campaign?: Prisma.XOR<Prisma.CampaignNullableScalarRelationFilter, Prisma.CampaignWhereInput> | null
   contact?: Prisma.XOR<Prisma.ContactNullableScalarRelationFilter, Prisma.ContactWhereInput> | null
+  demands?: Prisma.CallDemandListRelationFilter
 }
 
 export type CallOrderByWithRelationInput = {
@@ -341,6 +342,7 @@ export type CallOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   campaign?: Prisma.CampaignOrderByWithRelationInput
   contact?: Prisma.ContactOrderByWithRelationInput
+  demands?: Prisma.CallDemandOrderByRelationAggregateInput
 }
 
 export type CallWhereUniqueInput = Prisma.AtLeast<{
@@ -367,6 +369,7 @@ export type CallWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Call"> | Date | string
   campaign?: Prisma.XOR<Prisma.CampaignNullableScalarRelationFilter, Prisma.CampaignWhereInput> | null
   contact?: Prisma.XOR<Prisma.ContactNullableScalarRelationFilter, Prisma.ContactWhereInput> | null
+  demands?: Prisma.CallDemandListRelationFilter
 }, "id" | "retellCallId">
 
 export type CallOrderByWithAggregationInput = {
@@ -438,6 +441,7 @@ export type CallCreateInput = {
   updatedAt?: Date | string
   campaign?: Prisma.CampaignCreateNestedOneWithoutCallsInput
   contact?: Prisma.ContactCreateNestedOneWithoutCallsInput
+  demands?: Prisma.CallDemandCreateNestedManyWithoutCallInput
 }
 
 export type CallUncheckedCreateInput = {
@@ -459,6 +463,7 @@ export type CallUncheckedCreateInput = {
   orgId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  demands?: Prisma.CallDemandUncheckedCreateNestedManyWithoutCallInput
 }
 
 export type CallUpdateInput = {
@@ -480,6 +485,7 @@ export type CallUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   campaign?: Prisma.CampaignUpdateOneWithoutCallsNestedInput
   contact?: Prisma.ContactUpdateOneWithoutCallsNestedInput
+  demands?: Prisma.CallDemandUpdateManyWithoutCallNestedInput
 }
 
 export type CallUncheckedUpdateInput = {
@@ -501,6 +507,7 @@ export type CallUncheckedUpdateInput = {
   orgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  demands?: Prisma.CallDemandUncheckedUpdateManyWithoutCallNestedInput
 }
 
 export type CallCreateManyInput = {
@@ -643,6 +650,11 @@ export type CallSumOrderByAggregateInput = {
   duration?: Prisma.SortOrder
 }
 
+export type CallScalarRelationFilter = {
+  is?: Prisma.CallWhereInput
+  isNot?: Prisma.CallWhereInput
+}
+
 export type CallCreateNestedManyWithoutCampaignInput = {
   create?: Prisma.XOR<Prisma.CallCreateWithoutCampaignInput, Prisma.CallUncheckedCreateWithoutCampaignInput> | Prisma.CallCreateWithoutCampaignInput[] | Prisma.CallUncheckedCreateWithoutCampaignInput[]
   connectOrCreate?: Prisma.CallCreateOrConnectWithoutCampaignInput | Prisma.CallCreateOrConnectWithoutCampaignInput[]
@@ -731,6 +743,20 @@ export type EnumCallStatusFieldUpdateOperationsInput = {
   set?: $Enums.CallStatus
 }
 
+export type CallCreateNestedOneWithoutDemandsInput = {
+  create?: Prisma.XOR<Prisma.CallCreateWithoutDemandsInput, Prisma.CallUncheckedCreateWithoutDemandsInput>
+  connectOrCreate?: Prisma.CallCreateOrConnectWithoutDemandsInput
+  connect?: Prisma.CallWhereUniqueInput
+}
+
+export type CallUpdateOneRequiredWithoutDemandsNestedInput = {
+  create?: Prisma.XOR<Prisma.CallCreateWithoutDemandsInput, Prisma.CallUncheckedCreateWithoutDemandsInput>
+  connectOrCreate?: Prisma.CallCreateOrConnectWithoutDemandsInput
+  upsert?: Prisma.CallUpsertWithoutDemandsInput
+  connect?: Prisma.CallWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CallUpdateToOneWithWhereWithoutDemandsInput, Prisma.CallUpdateWithoutDemandsInput>, Prisma.CallUncheckedUpdateWithoutDemandsInput>
+}
+
 export type CallCreateWithoutCampaignInput = {
   id?: string
   status?: $Enums.CallStatus
@@ -749,6 +775,7 @@ export type CallCreateWithoutCampaignInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   contact?: Prisma.ContactCreateNestedOneWithoutCallsInput
+  demands?: Prisma.CallDemandCreateNestedManyWithoutCallInput
 }
 
 export type CallUncheckedCreateWithoutCampaignInput = {
@@ -769,6 +796,7 @@ export type CallUncheckedCreateWithoutCampaignInput = {
   orgId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  demands?: Prisma.CallDemandUncheckedCreateNestedManyWithoutCallInput
 }
 
 export type CallCreateOrConnectWithoutCampaignInput = {
@@ -839,6 +867,7 @@ export type CallCreateWithoutContactInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   campaign?: Prisma.CampaignCreateNestedOneWithoutCallsInput
+  demands?: Prisma.CallDemandCreateNestedManyWithoutCallInput
 }
 
 export type CallUncheckedCreateWithoutContactInput = {
@@ -859,6 +888,7 @@ export type CallUncheckedCreateWithoutContactInput = {
   orgId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  demands?: Prisma.CallDemandUncheckedCreateNestedManyWithoutCallInput
 }
 
 export type CallCreateOrConnectWithoutContactInput = {
@@ -885,6 +915,106 @@ export type CallUpdateWithWhereUniqueWithoutContactInput = {
 export type CallUpdateManyWithWhereWithoutContactInput = {
   where: Prisma.CallScalarWhereInput
   data: Prisma.XOR<Prisma.CallUpdateManyMutationInput, Prisma.CallUncheckedUpdateManyWithoutContactInput>
+}
+
+export type CallCreateWithoutDemandsInput = {
+  id?: string
+  status?: $Enums.CallStatus
+  retellCallId?: string | null
+  duration?: number | null
+  startedAt?: Date | string | null
+  endedAt?: Date | string | null
+  transcript?: string | null
+  summary?: string | null
+  sentiment?: string | null
+  outcome?: string | null
+  recordingUrl?: string | null
+  metadata?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  userId?: string | null
+  orgId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  campaign?: Prisma.CampaignCreateNestedOneWithoutCallsInput
+  contact?: Prisma.ContactCreateNestedOneWithoutCallsInput
+}
+
+export type CallUncheckedCreateWithoutDemandsInput = {
+  id?: string
+  status?: $Enums.CallStatus
+  retellCallId?: string | null
+  duration?: number | null
+  startedAt?: Date | string | null
+  endedAt?: Date | string | null
+  transcript?: string | null
+  summary?: string | null
+  sentiment?: string | null
+  outcome?: string | null
+  recordingUrl?: string | null
+  metadata?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  campaignId?: string | null
+  contactId?: string | null
+  userId?: string | null
+  orgId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CallCreateOrConnectWithoutDemandsInput = {
+  where: Prisma.CallWhereUniqueInput
+  create: Prisma.XOR<Prisma.CallCreateWithoutDemandsInput, Prisma.CallUncheckedCreateWithoutDemandsInput>
+}
+
+export type CallUpsertWithoutDemandsInput = {
+  update: Prisma.XOR<Prisma.CallUpdateWithoutDemandsInput, Prisma.CallUncheckedUpdateWithoutDemandsInput>
+  create: Prisma.XOR<Prisma.CallCreateWithoutDemandsInput, Prisma.CallUncheckedCreateWithoutDemandsInput>
+  where?: Prisma.CallWhereInput
+}
+
+export type CallUpdateToOneWithWhereWithoutDemandsInput = {
+  where?: Prisma.CallWhereInput
+  data: Prisma.XOR<Prisma.CallUpdateWithoutDemandsInput, Prisma.CallUncheckedUpdateWithoutDemandsInput>
+}
+
+export type CallUpdateWithoutDemandsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  retellCallId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  transcript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sentiment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadata?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  orgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  campaign?: Prisma.CampaignUpdateOneWithoutCallsNestedInput
+  contact?: Prisma.ContactUpdateOneWithoutCallsNestedInput
+}
+
+export type CallUncheckedUpdateWithoutDemandsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  retellCallId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  transcript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sentiment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadata?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  campaignId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  orgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CallCreateManyCampaignInput = {
@@ -925,6 +1055,7 @@ export type CallUpdateWithoutCampaignInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   contact?: Prisma.ContactUpdateOneWithoutCallsNestedInput
+  demands?: Prisma.CallDemandUpdateManyWithoutCallNestedInput
 }
 
 export type CallUncheckedUpdateWithoutCampaignInput = {
@@ -945,6 +1076,7 @@ export type CallUncheckedUpdateWithoutCampaignInput = {
   orgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  demands?: Prisma.CallDemandUncheckedUpdateManyWithoutCallNestedInput
 }
 
 export type CallUncheckedUpdateManyWithoutCampaignInput = {
@@ -1005,6 +1137,7 @@ export type CallUpdateWithoutContactInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   campaign?: Prisma.CampaignUpdateOneWithoutCallsNestedInput
+  demands?: Prisma.CallDemandUpdateManyWithoutCallNestedInput
 }
 
 export type CallUncheckedUpdateWithoutContactInput = {
@@ -1025,6 +1158,7 @@ export type CallUncheckedUpdateWithoutContactInput = {
   orgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  demands?: Prisma.CallDemandUncheckedUpdateManyWithoutCallNestedInput
 }
 
 export type CallUncheckedUpdateManyWithoutContactInput = {
@@ -1048,6 +1182,35 @@ export type CallUncheckedUpdateManyWithoutContactInput = {
 }
 
 
+/**
+ * Count Type CallCountOutputType
+ */
+
+export type CallCountOutputType = {
+  demands: number
+}
+
+export type CallCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  demands?: boolean | CallCountOutputTypeCountDemandsArgs
+}
+
+/**
+ * CallCountOutputType without action
+ */
+export type CallCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CallCountOutputType
+   */
+  select?: Prisma.CallCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * CallCountOutputType without action
+ */
+export type CallCountOutputTypeCountDemandsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CallDemandWhereInput
+}
+
 
 export type CallSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1070,6 +1233,8 @@ export type CallSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   updatedAt?: boolean
   campaign?: boolean | Prisma.Call$campaignArgs<ExtArgs>
   contact?: boolean | Prisma.Call$contactArgs<ExtArgs>
+  demands?: boolean | Prisma.Call$demandsArgs<ExtArgs>
+  _count?: boolean | Prisma.CallCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["call"]>
 
 export type CallSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1143,6 +1308,8 @@ export type CallOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = run
 export type CallInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   campaign?: boolean | Prisma.Call$campaignArgs<ExtArgs>
   contact?: boolean | Prisma.Call$contactArgs<ExtArgs>
+  demands?: boolean | Prisma.Call$demandsArgs<ExtArgs>
+  _count?: boolean | Prisma.CallCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CallIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   campaign?: boolean | Prisma.Call$campaignArgs<ExtArgs>
@@ -1158,6 +1325,7 @@ export type $CallPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     campaign: Prisma.$CampaignPayload<ExtArgs> | null
     contact: Prisma.$ContactPayload<ExtArgs> | null
+    demands: Prisma.$CallDemandPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1574,6 +1742,7 @@ export interface Prisma__CallClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   campaign<T extends Prisma.Call$campaignArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Call$campaignArgs<ExtArgs>>): Prisma.Prisma__CampaignClient<runtime.Types.Result.GetResult<Prisma.$CampaignPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   contact<T extends Prisma.Call$contactArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Call$contactArgs<ExtArgs>>): Prisma.Prisma__ContactClient<runtime.Types.Result.GetResult<Prisma.$ContactPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  demands<T extends Prisma.Call$demandsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Call$demandsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CallDemandPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2052,6 +2221,30 @@ export type Call$contactArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   include?: Prisma.ContactInclude<ExtArgs> | null
   where?: Prisma.ContactWhereInput
+}
+
+/**
+ * Call.demands
+ */
+export type Call$demandsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CallDemand
+   */
+  select?: Prisma.CallDemandSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CallDemand
+   */
+  omit?: Prisma.CallDemandOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CallDemandInclude<ExtArgs> | null
+  where?: Prisma.CallDemandWhereInput
+  orderBy?: Prisma.CallDemandOrderByWithRelationInput | Prisma.CallDemandOrderByWithRelationInput[]
+  cursor?: Prisma.CallDemandWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CallDemandScalarFieldEnum | Prisma.CallDemandScalarFieldEnum[]
 }
 
 /**

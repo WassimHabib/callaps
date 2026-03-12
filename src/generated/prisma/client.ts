@@ -67,6 +67,16 @@ export type Contact = Prisma.ContactModel
  */
 export type Call = Prisma.CallModel
 /**
+ * Model CallDemand
+ * 
+ */
+export type CallDemand = Prisma.CallDemandModel
+/**
+ * Model WeeklyReport
+ * 
+ */
+export type WeeklyReport = Prisma.WeeklyReportModel
+/**
  * Model CompanyProfile
  * 
  */

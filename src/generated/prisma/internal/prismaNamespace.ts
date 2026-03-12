@@ -389,6 +389,8 @@ export const ModelName = {
   Campaign: 'Campaign',
   Contact: 'Contact',
   Call: 'Call',
+  CallDemand: 'CallDemand',
+  WeeklyReport: 'WeeklyReport',
   CompanyProfile: 'CompanyProfile',
   WebhookConfig: 'WebhookConfig',
   WebhookLog: 'WebhookLog',
@@ -411,7 +413,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "agent" | "campaign" | "contact" | "call" | "companyProfile" | "webhookConfig" | "webhookLog" | "integration" | "appointment" | "subscription" | "invoice"
+    modelProps: "user" | "agent" | "campaign" | "contact" | "call" | "callDemand" | "weeklyReport" | "companyProfile" | "webhookConfig" | "webhookLog" | "integration" | "appointment" | "subscription" | "invoice"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -782,6 +784,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CallCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CallCountAggregateOutputType> | number
+        }
+      }
+    }
+    CallDemand: {
+      payload: Prisma.$CallDemandPayload<ExtArgs>
+      fields: Prisma.CallDemandFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CallDemandFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallDemandPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CallDemandFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallDemandPayload>
+        }
+        findFirst: {
+          args: Prisma.CallDemandFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallDemandPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CallDemandFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallDemandPayload>
+        }
+        findMany: {
+          args: Prisma.CallDemandFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallDemandPayload>[]
+        }
+        create: {
+          args: Prisma.CallDemandCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallDemandPayload>
+        }
+        createMany: {
+          args: Prisma.CallDemandCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CallDemandCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallDemandPayload>[]
+        }
+        delete: {
+          args: Prisma.CallDemandDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallDemandPayload>
+        }
+        update: {
+          args: Prisma.CallDemandUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallDemandPayload>
+        }
+        deleteMany: {
+          args: Prisma.CallDemandDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CallDemandUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CallDemandUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallDemandPayload>[]
+        }
+        upsert: {
+          args: Prisma.CallDemandUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallDemandPayload>
+        }
+        aggregate: {
+          args: Prisma.CallDemandAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCallDemand>
+        }
+        groupBy: {
+          args: Prisma.CallDemandGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CallDemandGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CallDemandCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CallDemandCountAggregateOutputType> | number
+        }
+      }
+    }
+    WeeklyReport: {
+      payload: Prisma.$WeeklyReportPayload<ExtArgs>
+      fields: Prisma.WeeklyReportFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.WeeklyReportFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WeeklyReportPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.WeeklyReportFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WeeklyReportPayload>
+        }
+        findFirst: {
+          args: Prisma.WeeklyReportFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WeeklyReportPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.WeeklyReportFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WeeklyReportPayload>
+        }
+        findMany: {
+          args: Prisma.WeeklyReportFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WeeklyReportPayload>[]
+        }
+        create: {
+          args: Prisma.WeeklyReportCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WeeklyReportPayload>
+        }
+        createMany: {
+          args: Prisma.WeeklyReportCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.WeeklyReportCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WeeklyReportPayload>[]
+        }
+        delete: {
+          args: Prisma.WeeklyReportDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WeeklyReportPayload>
+        }
+        update: {
+          args: Prisma.WeeklyReportUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WeeklyReportPayload>
+        }
+        deleteMany: {
+          args: Prisma.WeeklyReportDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.WeeklyReportUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.WeeklyReportUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WeeklyReportPayload>[]
+        }
+        upsert: {
+          args: Prisma.WeeklyReportUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WeeklyReportPayload>
+        }
+        aggregate: {
+          args: Prisma.WeeklyReportAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWeeklyReport>
+        }
+        groupBy: {
+          args: Prisma.WeeklyReportGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WeeklyReportGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.WeeklyReportCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WeeklyReportCountAggregateOutputType> | number
         }
       }
     }
@@ -1470,6 +1620,39 @@ export const CallScalarFieldEnum = {
 export type CallScalarFieldEnum = (typeof CallScalarFieldEnum)[keyof typeof CallScalarFieldEnum]
 
 
+export const CallDemandScalarFieldEnum = {
+  id: 'id',
+  callId: 'callId',
+  category: 'category',
+  label: 'label',
+  details: 'details',
+  urgency: 'urgency',
+  orgId: 'orgId',
+  createdAt: 'createdAt'
+} as const
+
+export type CallDemandScalarFieldEnum = (typeof CallDemandScalarFieldEnum)[keyof typeof CallDemandScalarFieldEnum]
+
+
+export const WeeklyReportScalarFieldEnum = {
+  id: 'id',
+  orgId: 'orgId',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  totalCalls: 'totalCalls',
+  totalDemands: 'totalDemands',
+  topCategories: 'topCategories',
+  kpis: 'kpis',
+  recommendations: 'recommendations',
+  profession: 'profession',
+  rawAnalysis: 'rawAnalysis',
+  emailSentAt: 'emailSentAt',
+  createdAt: 'createdAt'
+} as const
+
+export type WeeklyReportScalarFieldEnum = (typeof WeeklyReportScalarFieldEnum)[keyof typeof WeeklyReportScalarFieldEnum]
+
+
 export const CompanyProfileScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -1618,6 +1801,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -1911,6 +2102,8 @@ export type GlobalOmitConfig = {
   campaign?: Prisma.CampaignOmit
   contact?: Prisma.ContactOmit
   call?: Prisma.CallOmit
+  callDemand?: Prisma.CallDemandOmit
+  weeklyReport?: Prisma.WeeklyReportOmit
   companyProfile?: Prisma.CompanyProfileOmit
   webhookConfig?: Prisma.WebhookConfigOmit
   webhookLog?: Prisma.WebhookLogOmit
