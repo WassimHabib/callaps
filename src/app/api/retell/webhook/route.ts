@@ -143,30 +143,91 @@ export async function POST(req: Request) {
 
   switch (event) {
     case "call_started": {
-      await prisma.call.updateMany({
+      // Upsert: create the call if it doesn't exist (inbound calls)
+      const existingCall = await prisma.call.findUnique({
         where: { retellCallId: callId },
-        data: {
-          status: "in_progress",
-          startedAt: new Date(),
-        },
       });
+      if (existingCall) {
+        await prisma.call.update({
+          where: { retellCallId: callId },
+          data: { status: "in_progress", startedAt: new Date() },
+        });
+      } else {
+        // Inbound call — find agent by retellAgentId
+        const retellAgentId = call.agent_id;
+        const agent = retellAgentId
+          ? await prisma.agent.findUnique({
+              where: { retellAgentId },
+              select: { id: true, userId: true, orgId: true },
+            })
+          : null;
+
+        await prisma.call.create({
+          data: {
+            retellCallId: callId,
+            status: "in_progress",
+            startedAt: new Date(),
+            userId: agent?.userId ?? null,
+            orgId: agent?.orgId ?? null,
+            metadata: {
+              direction: "inbound",
+              agentId: agent?.id ?? null,
+              retellAgentId: retellAgentId ?? null,
+              fromNumber: call.from_number ?? null,
+              toNumber: call.to_number ?? null,
+            },
+          },
+        });
+      }
       break;
     }
 
     case "call_ended": {
-      await prisma.call.updateMany({
+      const callData = {
+        status: call.disconnection_reason === "no_answer" ? "no_answer" as const : "completed" as const,
+        endedAt: new Date(),
+        duration: call.duration_ms ? Math.round(call.duration_ms / 1000) : null,
+        transcript: call.transcript ?? null,
+        summary: call.call_analysis?.call_summary ?? null,
+        sentiment: call.call_analysis?.user_sentiment ?? null,
+        outcome: call.call_analysis?.call_successful ? "success" : "unknown",
+        recordingUrl: call.recording_url ?? null,
+      };
+
+      const existingEndCall = await prisma.call.findUnique({
         where: { retellCallId: callId },
-        data: {
-          status: call.disconnection_reason === "no_answer" ? "no_answer" : "completed",
-          endedAt: new Date(),
-          duration: call.duration_ms ? Math.round(call.duration_ms / 1000) : null,
-          transcript: call.transcript ?? null,
-          summary: call.call_analysis?.call_summary ?? null,
-          sentiment: call.call_analysis?.user_sentiment ?? null,
-          outcome: call.call_analysis?.call_successful ? "success" : "unknown",
-          recordingUrl: call.recording_url ?? null,
-        },
       });
+      if (existingEndCall) {
+        await prisma.call.update({
+          where: { retellCallId: callId },
+          data: callData,
+        });
+      } else {
+        // Missed call_started — create the call now
+        const retellAgentId = call.agent_id;
+        const agent = retellAgentId
+          ? await prisma.agent.findUnique({
+              where: { retellAgentId },
+              select: { id: true, userId: true, orgId: true },
+            })
+          : null;
+
+        await prisma.call.create({
+          data: {
+            retellCallId: callId,
+            ...callData,
+            userId: agent?.userId ?? null,
+            orgId: agent?.orgId ?? null,
+            metadata: {
+              direction: "inbound",
+              agentId: agent?.id ?? null,
+              retellAgentId: retellAgentId ?? null,
+              fromNumber: call.from_number ?? null,
+              toNumber: call.to_number ?? null,
+            },
+          },
+        });
+      }
 
       // Score the lead after call ends
       const scoreLabel = await scoreContactFromCall(callId);
@@ -218,14 +279,43 @@ export async function POST(req: Request) {
     }
 
     case "call_analyzed": {
-      await prisma.call.updateMany({
+      const analysis = call.call_analysis ?? {};
+      const analysisData = {
+        summary: analysis.call_summary ?? null,
+        sentiment: analysis.user_sentiment ?? null,
+        outcome: analysis.call_successful ? "success" : "unknown",
+      };
+
+      // Merge post-call analysis custom data into metadata
+      const analysisCustomData: Record<string, unknown> = {};
+      if (analysis.custom_analysis_data) {
+        Object.assign(analysisCustomData, analysis.custom_analysis_data);
+      }
+      // Also capture known analysis fields
+      if (analysis.caller_name) analysisCustomData.caller_name = analysis.caller_name;
+      if (analysis.caller_phone) analysisCustomData.caller_phone = analysis.caller_phone;
+      if (analysis.call_reason) analysisCustomData.call_reason = analysis.call_reason;
+
+      const existingAnalyzedCall = await prisma.call.findUnique({
         where: { retellCallId: callId },
-        data: {
-          summary: call.call_analysis?.call_summary ?? null,
-          sentiment: call.call_analysis?.user_sentiment ?? null,
-          outcome: call.call_analysis?.call_successful ? "success" : "unknown",
-        },
       });
+
+      if (existingAnalyzedCall) {
+        const existingMeta = (typeof existingAnalyzedCall.metadata === "object" && existingAnalyzedCall.metadata !== null
+          ? existingAnalyzedCall.metadata : {}) as Record<string, unknown>;
+        await prisma.call.update({
+          where: { retellCallId: callId },
+          data: {
+            ...analysisData,
+            metadata: JSON.parse(JSON.stringify({ ...existingMeta, analysis: analysisCustomData })),
+          },
+        });
+      } else {
+        await prisma.call.updateMany({
+          where: { retellCallId: callId },
+          data: analysisData,
+        });
+      }
 
       // Re-score with updated analysis data
       const analysisScoreLabel = await scoreContactFromCall(callId);
