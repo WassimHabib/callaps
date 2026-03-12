@@ -20,6 +20,7 @@ import {
   PhoneCall,
   CalendarCheck,
   Receipt,
+  Lightbulb,
 } from "lucide-react";
 
 const clientLinks = [
@@ -31,6 +32,7 @@ const clientLinks = [
   { href: "/calls", label: "Historique appels", icon: PhoneCall },
   { href: "/appointments", label: "Rendez-vous", icon: CalendarCheck },
   { href: "/statistics", label: "Statistiques", icon: BarChart3 },
+  { href: "/insights", label: "Insights IA", icon: Lightbulb },
   { href: "/billing", label: "Facturation", icon: Receipt },
   { href: "/integrations", label: "Intégrations", icon: Plug },
   { href: "/settings", label: "Paramètres", icon: Settings },
