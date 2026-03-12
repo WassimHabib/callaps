@@ -137,7 +137,7 @@ export default async function CampaignDetailPage({
   const callRateMin = campaign.callRateMinutes;
 
   return (
-    <div>
+    <div className="min-h-screen bg-slate-50/50">
       <Header
         title={campaign.name}
         description={campaign.description ?? undefined}

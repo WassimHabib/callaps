@@ -28,7 +28,7 @@ export default async function NewCampaignPage() {
   }
 
   return (
-    <div>
+    <div className="min-h-screen bg-slate-50/50">
       <Header
         title="Nouvelle campagne"
         description="Configurez votre campagne d'appels"

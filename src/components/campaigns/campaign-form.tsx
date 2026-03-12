@@ -23,6 +23,9 @@ import {
   Clock,
   RotateCcw,
   Zap,
+  ChevronDown,
+  Bot,
+  FileSpreadsheet,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -43,13 +46,13 @@ interface Lead {
 }
 
 const DAYS = [
-  { value: 0, label: "Dimanche" },
-  { value: 1, label: "Lundi" },
-  { value: 2, label: "Mardi" },
-  { value: 3, label: "Mercredi" },
-  { value: 4, label: "Jeudi" },
-  { value: 5, label: "Vendredi" },
-  { value: 6, label: "Samedi" },
+  { value: 1, label: "Lun" },
+  { value: 2, label: "Mar" },
+  { value: 3, label: "Mer" },
+  { value: 4, label: "Jeu" },
+  { value: 5, label: "Ven" },
+  { value: 6, label: "Sam" },
+  { value: 0, label: "Dim" },
 ];
 
 const TIMEZONES = [
@@ -79,7 +82,7 @@ export function CampaignForm({
   agents: Agent[];
   phoneNumbers: PhoneNumber[];
 }) {
-  const [name, setName] = useState("My Campaign");
+  const [name, setName] = useState("");
   const [startDate, setStartDate] = useState(
     new Date().toISOString().split("T")[0]
   );
@@ -97,8 +100,8 @@ export function CampaignForm({
   const [retryIntervalH, setRetryIntervalH] = useState(1);
   const [callRateCount, setCallRateCount] = useState(20);
   const [callRateMinutes, setCallRateMinutes] = useState(1);
-  const [leadsTab, setLeadsTab] = useState<"all" | "csv">("all");
   const [isDragging, setIsDragging] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -123,7 +126,15 @@ export function CampaignForm({
       ["name", "nom", "prenom", "prénom"].includes(h.trim())
     );
     const phoneIdx = header.findIndex((h) =>
-      ["phone", "telephone", "téléphone", "tel", "numero", "numéro", "number"].includes(h.trim())
+      [
+        "phone",
+        "telephone",
+        "téléphone",
+        "tel",
+        "numero",
+        "numéro",
+        "number",
+      ].includes(h.trim())
     );
     const emailIdx = header.findIndex((h) =>
       ["email", "mail", "e-mail"].includes(h.trim())
@@ -139,7 +150,8 @@ export function CampaignForm({
       parsed.push({
         name: nameIdx >= 0 ? cols[nameIdx]?.trim() || "" : "",
         phone,
-        email: emailIdx >= 0 ? cols[emailIdx]?.trim() || undefined : undefined,
+        email:
+          emailIdx >= 0 ? cols[emailIdx]?.trim() || undefined : undefined,
       });
     }
     setLeads((prev) => [...prev, ...parsed]);
@@ -195,50 +207,38 @@ export function CampaignForm({
   };
 
   return (
-    <div className="mx-auto max-w-5xl p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">
-          Créer une campagne
-        </h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Créez une campagne pour envoyer des messages à vos leads.
-        </p>
-      </div>
+    <div className="mx-auto max-w-2xl p-6 pb-32">
+      <div className="space-y-6">
+        {/* Section 1: Essentials */}
+        <Card className="border-0 shadow-sm">
+          <CardContent className="space-y-5 pt-6">
+            <div className="space-y-2">
+              <Label>Nom de la campagne</Label>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ex: Relance clients mars 2026"
+                className="h-10"
+              />
+            </div>
 
-      <div className="grid grid-cols-3 gap-6">
-        {/* Left column - Form */}
-        <div className="col-span-2 space-y-6">
-          {/* Name + Date + Agent */}
-          <Card>
-            <CardContent className="space-y-4 pt-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Nom de la campagne</Label>
-                  <Input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="My Campaign"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Date de début de la campagne</Label>
-                  <Input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                  />
-                </div>
-              </div>
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Agent IA</Label>
+                <Label className="flex items-center gap-1.5">
+                  <Bot className="h-3.5 w-3.5 text-slate-400" />
+                  Agent IA
+                </Label>
                 {agents.length === 0 ? (
                   <p className="text-sm text-slate-500">
-                    Vous devez d&apos;abord créer un agent IA.
+                    Creez d&apos;abord un agent IA.
                   </p>
                 ) : (
-                  <Select value={agentId} onValueChange={(v) => setAgentId(v ?? agentId)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner un agent" />
+                  <Select
+                    value={agentId}
+                    onValueChange={(v) => setAgentId(v ?? agentId)}
+                  >
+                    <SelectTrigger className="h-10">
+                      <SelectValue placeholder="Selectionner un agent" />
                     </SelectTrigger>
                     <SelectContent>
                       {agents.map((a) => (
@@ -250,256 +250,233 @@ export function CampaignForm({
                   </Select>
                 )}
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Leads */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Users className="h-4 w-4 text-slate-500" />
-                <Label className="text-base font-semibold">
-                  Leads à appeler ({leads.length})
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5">
+                  <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                  Date de debut
                 </Label>
+                <Input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="h-10"
+                />
               </div>
+            </div>
 
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex gap-1 rounded-lg border p-0.5">
-                  <button
-                    type="button"
-                    onClick={() => setLeadsTab("all")}
-                    className={cn(
-                      "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
-                      leadsTab === "all"
-                        ? "bg-indigo-600 text-white"
-                        : "text-slate-600 hover:bg-slate-100"
-                    )}
-                  >
-                    All Leads
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setLeadsTab("csv")}
-                    className={cn(
-                      "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
-                      leadsTab === "csv"
-                        ? "bg-indigo-600 text-white"
-                        : "text-slate-600 hover:bg-slate-100"
-                    )}
-                  >
-                    Télécharger un fichier CSV
-                  </button>
-                </div>
-              </div>
-
-              {leadsTab === "csv" && (
-                <div
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setIsDragging(true);
-                  }}
-                  onDragLeave={() => setIsDragging(false)}
-                  onDrop={handleFileDrop}
-                  onClick={() => fileRef.current?.click()}
-                  className={cn(
-                    "cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors",
-                    isDragging
-                      ? "border-indigo-400 bg-indigo-50"
-                      : "border-slate-200 hover:border-slate-300"
-                  )}
-                >
-                  <Upload className="mx-auto h-8 w-8 text-slate-400" />
-                  <p className="mt-2 text-sm text-slate-600">
-                    Déposez le fichier ici ou cliquez pour parcourir
-                  </p>
-                  <p className="mt-1 text-xs text-slate-400">
-                    CSV avec colonnes: nom, téléphone, email (optionnel)
-                  </p>
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    accept=".csv"
-                    className="hidden"
-                    onChange={handleFileInput}
-                  />
-                </div>
-              )}
-
-              {leadsTab === "all" && leads.length === 0 && (
-                <div className="rounded-lg border-2 border-dashed p-8 text-center">
-                  <Users className="mx-auto h-8 w-8 text-slate-300" />
-                  <p className="mt-2 text-sm text-slate-500">
-                    Aucun lead. Importez un fichier CSV pour ajouter des leads.
-                  </p>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="mt-3"
-                    onClick={() => setLeadsTab("csv")}
-                  >
-                    Importer CSV
-                  </Button>
-                </div>
-              )}
-
-              {leads.length > 0 && leadsTab === "all" && (
-                <div className="max-h-60 overflow-auto rounded-lg border">
-                  <table className="w-full text-sm">
-                    <thead className="bg-slate-50 text-left">
-                      <tr>
-                        <th className="px-3 py-2 font-medium text-slate-600">
-                          Nom
-                        </th>
-                        <th className="px-3 py-2 font-medium text-slate-600">
-                          Téléphone
-                        </th>
-                        <th className="px-3 py-2 font-medium text-slate-600">
-                          Email
-                        </th>
-                        <th className="w-10" />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {leads.map((lead, i) => (
-                        <tr key={i} className="border-t">
-                          <td className="px-3 py-2">{lead.name || "—"}</td>
-                          <td className="px-3 py-2">{lead.phone}</td>
-                          <td className="px-3 py-2 text-slate-500">
-                            {lead.email || "—"}
-                          </td>
-                          <td className="px-3 py-2">
-                            <button
-                              type="button"
-                              onClick={() => removeLead(i)}
-                              className="text-slate-400 hover:text-red-500"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Phone Numbers */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2 mb-1">
-                <Phone className="h-4 w-4 text-slate-500" />
-                <Label className="text-base font-semibold">
-                  Numéros de téléphone
+            {/* Phone numbers */}
+            {phoneNumbers.length > 0 && (
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5">
+                  <Phone className="h-3.5 w-3.5 text-slate-400" />
+                  Numeros de telephone
                 </Label>
-              </div>
-              <p className="mb-4 text-xs text-slate-500">
-                Sélectionnez le numéro de téléphone à utiliser pour passer les
-                appels sortants. Si plusieurs numéros sont sélectionnés, le
-                système les sélectionnera pour passer des appels.
-              </p>
-
-              {phoneNumbers.length === 0 ? (
-                <p className="text-sm text-slate-400">
-                  Aucun numéro de téléphone configuré.
+                <p className="text-xs text-slate-500">
+                  Numeros utilises pour les appels sortants.
                 </p>
-              ) : (
-                <div className="space-y-2">
+                <div className="flex flex-wrap gap-2 mt-1">
                   {phoneNumbers.map((pn) => (
-                    <label
+                    <button
                       key={pn.id}
-                      className="flex items-center gap-3 cursor-pointer"
+                      type="button"
+                      onClick={() => togglePhone(pn.id)}
+                      className={cn(
+                        "rounded-lg border px-3 py-1.5 text-sm transition-all",
+                        selectedPhoneNumbers.includes(pn.id)
+                          ? "border-indigo-300 bg-indigo-50 text-indigo-700 font-medium"
+                          : "border-slate-200 text-slate-600 hover:border-slate-300"
+                      )}
                     >
-                      <input
-                        type="checkbox"
-                        checked={selectedPhoneNumbers.includes(pn.id)}
-                        onChange={() => togglePhone(pn.id)}
-                        className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <span className="text-sm">{pn.number}</span>
-                    </label>
+                      {pn.number}
+                    </button>
                   ))}
                 </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Call Days */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Calendar className="h-4 w-4 text-slate-500" />
-                <Label className="text-base font-semibold">
-                  Jours d&apos;appel
-                </Label>
               </div>
-              <div className="grid grid-cols-4 gap-3">
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Section 2: Contacts */}
+        <Card className="border-0 shadow-sm">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between mb-4">
+              <Label className="flex items-center gap-1.5 text-base font-semibold">
+                <Users className="h-4 w-4 text-slate-400" />
+                Contacts a appeler
+              </Label>
+              {leads.length > 0 && (
+                <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-600">
+                  {leads.length} lead{leads.length > 1 ? "s" : ""}
+                </span>
+              )}
+            </div>
+
+            {/* CSV drop zone */}
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleFileDrop}
+              onClick={() => fileRef.current?.click()}
+              className={cn(
+                "cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition-all",
+                isDragging
+                  ? "border-indigo-400 bg-indigo-50"
+                  : "border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
+              )}
+            >
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100">
+                  <FileSpreadsheet className="h-5 w-5 text-slate-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-600">
+                    Deposez un fichier CSV ici
+                  </p>
+                  <p className="mt-0.5 text-xs text-slate-400">
+                    Colonnes: nom, telephone, email (optionnel)
+                  </p>
+                </div>
+              </div>
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".csv"
+                className="hidden"
+                onChange={handleFileInput}
+              />
+            </div>
+
+            {/* Leads table */}
+            {leads.length > 0 && (
+              <div className="mt-4 max-h-60 overflow-auto rounded-lg border">
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 bg-slate-50 text-left">
+                    <tr>
+                      <th className="px-3 py-2 font-medium text-slate-600">
+                        Nom
+                      </th>
+                      <th className="px-3 py-2 font-medium text-slate-600">
+                        Telephone
+                      </th>
+                      <th className="px-3 py-2 font-medium text-slate-600">
+                        Email
+                      </th>
+                      <th className="w-10" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {leads.map((lead, i) => (
+                      <tr key={i} className="border-t hover:bg-slate-50/50">
+                        <td className="px-3 py-2">{lead.name || "—"}</td>
+                        <td className="px-3 py-2 text-slate-600">
+                          {lead.phone}
+                        </td>
+                        <td className="px-3 py-2 text-slate-400">
+                          {lead.email || "—"}
+                        </td>
+                        <td className="px-3 py-2">
+                          <button
+                            type="button"
+                            onClick={() => removeLead(i)}
+                            className="text-slate-300 hover:text-red-500 transition-colors"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Section 3: Planning */}
+        <Card className="border-0 shadow-sm">
+          <CardContent className="pt-6 space-y-5">
+            <Label className="flex items-center gap-1.5 text-base font-semibold">
+              <Clock className="h-4 w-4 text-slate-400" />
+              Planification
+            </Label>
+
+            {/* Days as pill toggles */}
+            <div className="space-y-2">
+              <Label className="text-sm text-slate-600">Jours d&apos;appel</Label>
+              <div className="flex gap-2">
                 {DAYS.map((day) => (
-                  <label
+                  <button
                     key={day.value}
-                    className="flex items-center gap-2 cursor-pointer"
+                    type="button"
+                    onClick={() => toggleDay(day.value)}
+                    className={cn(
+                      "flex-1 rounded-lg py-2 text-sm font-medium transition-all",
+                      callDays.includes(day.value)
+                        ? "bg-indigo-600 text-white shadow-sm"
+                        : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                    )}
                   >
-                    <input
-                      type="checkbox"
-                      checked={callDays.includes(day.value)}
-                      onChange={() => toggleDay(day.value)}
-                      className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span className="text-sm">{day.label}</span>
-                  </label>
+                    {day.label}
+                  </button>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Call Hours + Timezone */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Clock className="h-4 w-4 text-slate-500" />
-                <Label className="text-base font-semibold">
-                  Heures d&apos;appels
-                </Label>
-              </div>
-              <div className="flex items-center gap-3 mb-6">
+            {/* Hours */}
+            <div className="space-y-2">
+              <Label className="text-sm text-slate-600">
+                Plage horaire
+              </Label>
+              <div className="flex items-center gap-3">
                 <Input
                   type="time"
                   value={callStartTime}
                   onChange={(e) => setCallStartTime(e.target.value)}
-                  className="w-40"
+                  className="h-10 w-32"
                 />
-                <span className="text-slate-400">-</span>
+                <span className="text-slate-400">a</span>
                 <Input
                   type="time"
                   value={callEndTime}
                   onChange={(e) => setCallEndTime(e.target.value)}
-                  className="w-40"
+                  className="h-10 w-32"
                 />
               </div>
+            </div>
 
-              <Label className="text-base font-semibold">Fuseau horaire</Label>
-              <p className="text-xs text-slate-500 mt-1 mb-3">
-                Auto: Appels effectués en fonction du fuseau horaire de chaque
-                prospect.
-                <br />
-                Fixé: Appels effectués en fonction du fuseau horaire sélectionné.
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                <Select value={timezoneMode} onValueChange={(v) => setTimezoneMode(v ?? "fixed")}>
-                  <SelectTrigger>
+            {/* Timezone */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label className="text-sm text-slate-600">
+                  Mode fuseau horaire
+                </Label>
+                <Select
+                  value={timezoneMode}
+                  onValueChange={(v) => setTimezoneMode(v ?? "fixed")}
+                >
+                  <SelectTrigger className="h-10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="fixed">Fixé</SelectItem>
-                    <SelectItem value="auto">Auto</SelectItem>
+                    <SelectItem value="fixed">Fixe</SelectItem>
+                    <SelectItem value="auto">Auto (par contact)</SelectItem>
                   </SelectContent>
                 </Select>
-                {timezoneMode === "fixed" && (
-                  <Select value={timezone} onValueChange={(v) => setTimezone(v ?? "Europe/Paris")}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez le fuseau horaire" />
+              </div>
+              {timezoneMode === "fixed" && (
+                <div className="space-y-2">
+                  <Label className="text-sm text-slate-600">
+                    Fuseau horaire
+                  </Label>
+                  <Select
+                    value={timezone}
+                    onValueChange={(v) => setTimezone(v ?? "Europe/Paris")}
+                  >
+                    <SelectTrigger className="h-10">
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {TIMEZONES.map((tz) => (
@@ -509,146 +486,140 @@ export function CampaignForm({
                       ))}
                     </SelectContent>
                   </Select>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Retries */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2 mb-4">
-                <RotateCcw className="h-4 w-4 text-slate-500" />
-                <Label className="text-base font-semibold">Tentatives</Label>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-sm text-slate-600">
-                    Nombre de nouvelles tentatives
-                  </Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    max={10}
-                    value={maxRetries}
-                    onChange={(e) => setMaxRetries(Number(e.target.value))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm text-slate-600">
-                    Intervalle de nouvelle tentative (heures)
-                  </Label>
-                  <Input
-                    type="number"
-                    min={1}
-                    max={168}
-                    value={retryIntervalH}
-                    onChange={(e) => setRetryIntervalH(Number(e.target.value))}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Call Rate */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2 mb-1">
-                <Zap className="h-4 w-4 text-slate-500" />
-                <Label className="text-base font-semibold">
-                  Taux d&apos;appel
-                </Label>
-              </div>
-              <p className="mb-4 text-xs text-slate-500">
-                Nombre d&apos;appels simultanés qui seront effectués par
-                intervalle au cours de la progression de la campagne.
-              </p>
-              <div className="flex items-center gap-3">
-                <Input
-                  type="number"
-                  min={1}
-                  max={100}
-                  value={callRateCount}
-                  onChange={(e) => setCallRateCount(Number(e.target.value))}
-                  className="w-24"
-                />
-                <span className="text-sm text-slate-500">Appels /</span>
-                <Input
-                  type="number"
-                  min={1}
-                  max={60}
-                  value={callRateMinutes}
-                  onChange={(e) => setCallRateMinutes(Number(e.target.value))}
-                  className="w-24"
-                />
-                <span className="text-sm text-slate-500">Minutes</span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Right column - Leads Preview */}
-        <div>
-          <Card className="sticky top-6">
-            <CardContent className="pt-6">
-              <h3 className="font-semibold text-slate-900 mb-3">
-                Aperçu des leads
-              </h3>
-              {leads.length === 0 ? (
-                <div className="py-8 text-center">
-                  <Users className="mx-auto h-10 w-10 text-slate-200" />
-                  <p className="mt-2 text-sm text-slate-400">
-                    Aucun lead importé
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <p className="text-2xl font-bold text-indigo-600">
-                    {leads.length}
-                  </p>
-                  <p className="text-sm text-slate-500">leads à appeler</p>
-                  <div className="mt-3 max-h-80 overflow-auto space-y-1">
-                    {leads.slice(0, 50).map((lead, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2 text-sm"
-                      >
-                        <span className="truncate">
-                          {lead.name || lead.phone}
-                        </span>
-                        <span className="ml-2 text-xs text-slate-400">
-                          {lead.phone}
-                        </span>
-                      </div>
-                    ))}
-                    {leads.length > 50 && (
-                      <p className="text-center text-xs text-slate-400 pt-2">
-                        + {leads.length - 50} autres leads
-                      </p>
-                    )}
-                  </div>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Advanced settings (collapsible) */}
+        <div>
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="flex w-full items-center justify-between rounded-lg border bg-white px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
+          >
+            <span className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-slate-400" />
+              Parametres avances
+            </span>
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 text-slate-400 transition-transform",
+                showAdvanced && "rotate-180"
+              )}
+            />
+          </button>
+
+          {showAdvanced && (
+            <Card className="mt-2 border-0 shadow-sm">
+              <CardContent className="pt-6 space-y-5">
+                {/* Retries */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-1.5 text-sm font-medium">
+                    <RotateCcw className="h-3.5 w-3.5 text-slate-400" />
+                    Tentatives de relance
+                  </Label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <Label className="text-xs text-slate-500">
+                        Nombre max
+                      </Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={10}
+                        value={maxRetries}
+                        onChange={(e) => setMaxRetries(Number(e.target.value))}
+                        className="h-10"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs text-slate-500">
+                        Intervalle (heures)
+                      </Label>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={168}
+                        value={retryIntervalH}
+                        onChange={(e) =>
+                          setRetryIntervalH(Number(e.target.value))
+                        }
+                        className="h-10"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Call Rate */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-1.5 text-sm font-medium">
+                    <Zap className="h-3.5 w-3.5 text-slate-400" />
+                    Debit d&apos;appels
+                  </Label>
+                  <p className="text-xs text-slate-500">
+                    Nombre d&apos;appels simultanes par intervalle.
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      min={1}
+                      max={100}
+                      value={callRateCount}
+                      onChange={(e) =>
+                        setCallRateCount(Number(e.target.value))
+                      }
+                      className="h-10 w-20"
+                    />
+                    <span className="text-sm text-slate-500">appels /</span>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={60}
+                      value={callRateMinutes}
+                      onChange={(e) =>
+                        setCallRateMinutes(Number(e.target.value))
+                      }
+                      className="h-10 w-20"
+                    />
+                    <span className="text-sm text-slate-500">min</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="mt-6 flex justify-end gap-3 border-t pt-6">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => window.history.back()}
-        >
-          Annuler
-        </Button>
-        <Button
-          onClick={handleSubmit}
-          disabled={!agentId || !name || isPending}
-        >
-          {isPending ? "Création..." : "Créer"}
-        </Button>
+      {/* Sticky footer */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t bg-white/80 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-4">
+          <div className="text-sm text-slate-500">
+            {leads.length > 0 && (
+              <span>
+                <strong className="text-slate-900">{leads.length}</strong> contact
+                {leads.length > 1 ? "s" : ""} a appeler
+              </span>
+            )}
+          </div>
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => window.history.back()}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={!agentId || !name || isPending}
+              className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-lg shadow-indigo-500/25"
+            >
+              {isPending ? "Creation..." : "Creer la campagne"}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

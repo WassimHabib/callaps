@@ -39,6 +39,15 @@ const statusConfig: Record<
   },
 };
 
+const GRADIENT_PAIRS = [
+  { from: "from-indigo-500", to: "to-violet-500" },
+  { from: "from-emerald-500", to: "to-teal-500" },
+  { from: "from-rose-500", to: "to-pink-500" },
+  { from: "from-amber-500", to: "to-orange-500" },
+  { from: "from-cyan-500", to: "to-blue-500" },
+  { from: "from-fuchsia-500", to: "to-purple-500" },
+];
+
 export default async function CampaignsPage() {
   const ctx = await getOrgContext();
 
@@ -47,9 +56,6 @@ export default async function CampaignsPage() {
     include: {
       agent: { select: { name: true } },
       _count: { select: { contacts: true, calls: true } },
-      contacts: {
-        select: { id: true },
-      },
       calls: {
         where: { status: "completed" },
         select: { id: true },
@@ -58,26 +64,15 @@ export default async function CampaignsPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  // Compute stats per campaign
   const campaignsWithStats = campaigns.map((campaign) => {
     const totalContacts = campaign._count.contacts;
     const completedCalls = campaign.calls.length;
-
-    // Get unique contacted contacts
-    const calledContactIds = new Set<string>();
-    // We need the calls with contactId to determine unique contacts called
-    // For now, use completedCalls as an approximation of progress
     const progressPercent =
       totalContacts > 0
         ? Math.min(100, Math.round((completedCalls / totalContacts) * 100))
         : 0;
 
-    return {
-      ...campaign,
-      totalContacts,
-      completedCalls,
-      progressPercent,
-    };
+    return { ...campaign, totalContacts, completedCalls, progressPercent };
   });
 
   return (
@@ -115,23 +110,30 @@ export default async function CampaignsPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {campaignsWithStats.map((campaign) => {
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {campaignsWithStats.map((campaign, i) => {
               const status =
                 statusConfig[campaign.status] ?? statusConfig.draft;
+              const gradient = GRADIENT_PAIRS[i % GRADIENT_PAIRS.length];
+
               return (
                 <Card
                   key={campaign.id}
-                  className="group h-full border-0 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+                  className="group relative overflow-hidden border-0 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
                 >
-                  <CardContent className="p-6">
+                  {/* Gradient header band */}
+                  <div
+                    className={`h-2 bg-gradient-to-r ${gradient.from} ${gradient.to}`}
+                  />
+
+                  <CardContent className="p-5">
                     <Link href={`/campaigns/${campaign.id}`}>
                       <div className="flex items-start justify-between">
-                        <h3 className="font-semibold text-slate-900">
+                        <h3 className="font-semibold text-slate-900 truncate pr-3">
                           {campaign.name}
                         </h3>
                         <Badge
-                          className={`rounded-lg border-0 text-[11px] font-medium ${status.className}`}
+                          className={`shrink-0 rounded-lg border-0 text-[11px] font-medium ${status.className}`}
                         >
                           <span
                             className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full ${status.dotColor}`}
@@ -147,17 +149,17 @@ export default async function CampaignsPage() {
 
                       {/* Progress bar */}
                       <div className="mt-4">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs text-slate-400">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[11px] text-slate-400">
                             Progression
                           </span>
-                          <span className="text-xs font-medium text-indigo-600">
+                          <span className="text-[11px] font-semibold text-indigo-600">
                             {campaign.progressPercent}%
                           </span>
                         </div>
                         <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
                           <div
-                            className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-500"
+                            className={`h-full rounded-full bg-gradient-to-r ${gradient.from} ${gradient.to} transition-all duration-500`}
                             style={{
                               width: `${campaign.progressPercent}%`,
                             }}
@@ -165,20 +167,20 @@ export default async function CampaignsPage() {
                         </div>
                       </div>
 
-                      {/* Stats */}
-                      <div className="mt-4 flex items-center gap-4 text-xs text-slate-400">
-                        <span className="flex items-center gap-1.5">
-                          <Bot className="h-3.5 w-3.5" />
+                      {/* Stats chips */}
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1.5 text-[11px] font-medium text-slate-600">
+                          <Bot className="h-3 w-3 text-slate-400" />
                           {campaign.agent.name}
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <Users className="h-3.5 w-3.5" />
+                        </div>
+                        <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1.5 text-[11px] font-medium text-slate-600">
+                          <Users className="h-3 w-3 text-slate-400" />
                           {campaign.completedCalls}/{campaign.totalContacts}
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <Phone className="h-3.5 w-3.5" />
+                        </div>
+                        <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1.5 text-[11px] font-medium text-slate-600">
+                          <Phone className="h-3 w-3 text-slate-400" />
                           {campaign._count.calls} appels
-                        </span>
+                        </div>
                       </div>
                     </Link>
 
