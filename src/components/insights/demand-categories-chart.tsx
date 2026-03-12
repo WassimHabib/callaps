@@ -60,8 +60,8 @@ export function DemandCategoriesChart({ data }: Props) {
                     borderRadius: "8px",
                     fontSize: "13px",
                   }}
-                  formatter={(value: number, _name: string, props: { payload: { percentage: number } }) => [
-                    `${value} (${props.payload.percentage}%)`,
+                  formatter={(value, _name, props: { payload?: { percentage?: number } }) => [
+                    `${value} (${props.payload?.percentage ?? 0}%)`,
                     "Demandes",
                   ]}
                 />

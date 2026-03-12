@@ -16,12 +16,15 @@ interface Report {
   periodEnd: Date;
   totalCalls: number;
   totalDemands: number;
-  topCategories: { category: string; label: string; count: number; percentage: number }[];
-  kpis: Record<string, unknown>;
-  recommendations: { title: string; description: string; priority: string; type: string }[];
+  topCategories: unknown;
+  kpis: unknown;
+  recommendations: unknown;
   profession: string | null;
   createdAt: Date;
 }
+
+type TopCategory = { category: string; label: string; count: number; percentage: number };
+type Recommendation = { title: string; description: string; priority: string; type: string };
 
 const typeIcons: Record<string, typeof Lightbulb> = {
   optimization: Settings,
@@ -60,9 +63,9 @@ export function WeeklyReportsList({ reports }: { reports: Report[] }) {
 
   return (
     <div className="space-y-6">
-      {(reports as Report[]).map((report) => {
-        const recs = (report.recommendations ?? []) as Report["recommendations"];
-        const topCats = (report.topCategories ?? []) as Report["topCategories"];
+      {reports.map((report) => {
+        const recs = (Array.isArray(report.recommendations) ? report.recommendations : []) as Recommendation[];
+        const topCats = (Array.isArray(report.topCategories) ? report.topCategories : []) as TopCategory[];
 
         return (
           <Card key={report.id} className="border-0 bg-white shadow-sm">
