@@ -24,7 +24,7 @@ export default async function PhoneNumbersPage() {
   ]);
 
   return (
-    <div>
+    <div className="min-h-screen bg-slate-50/50">
       <Header
         title="Numéros de téléphone"
         description="Gérez vos numéros de téléphone pour les appels sortants et entrants"
