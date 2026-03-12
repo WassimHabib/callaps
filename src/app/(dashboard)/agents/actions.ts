@@ -96,7 +96,7 @@ function buildRetellAgentParams(agent: any, llmId: string) {
     ...(config.interruptionSensitivity !== undefined ? { interruption_sensitivity: config.interruptionSensitivity as number } : {}),
     ...(config.enableBackchanneling !== undefined ? { enable_backchannel: config.enableBackchanneling as boolean } : {}),
     max_call_duration_ms: agent.maxCallDuration * 1000,
-    ...(agent.endCallOnSilence ? { end_call_after_silence_ms: agent.silenceTimeout * 1000 } : {}),
+    ...(agent.endCallOnSilence ? { end_call_after_silence_ms: Math.max(agent.silenceTimeout, 10) * 1000 } : {}),
     ...(agent.postCallWebhook ? { webhook_url: agent.postCallWebhook } : {}),
   };
 }
