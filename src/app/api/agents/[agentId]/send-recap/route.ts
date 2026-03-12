@@ -7,7 +7,7 @@ function getResend() {
 }
 
 const FROM_EMAIL =
-  process.env.RESEND_FROM_EMAIL || "Callaps <insights@callaps.com>";
+  process.env.RESEND_FROM_EMAIL || "Callaps <notifications@callaps.ai>";
 
 function escapeHtml(str: string): string {
   return str
