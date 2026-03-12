@@ -174,7 +174,45 @@ model Call {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
+  demands   CallDemand[]
+
   @@map("calls")
+}
+
+model CallDemand {
+  id        String   @id @default(cuid())
+  callId    String
+  call      Call     @relation(fields: [callId], references: [id], onDelete: Cascade)
+  category  String   // slug: "fiche_de_paie", "rendez_vous_dermato"
+  label     String   // human-readable: "Demande de fiche de paie"
+  details   String?  // context from transcript
+  urgency   String   @default("medium") // "low" | "medium" | "high"
+  orgId     String
+  createdAt DateTime @default(now())
+
+  @@index([orgId, createdAt])
+  @@index([callId])
+  @@map("call_demands")
+}
+
+model WeeklyReport {
+  id              String    @id @default(cuid())
+  orgId           String
+  periodStart     DateTime
+  periodEnd       DateTime
+  totalCalls      Int
+  totalDemands    Int
+  topCategories   Json      @default("[]")
+  kpis            Json      @default("{}")
+  recommendations Json      @default("[]")
+  profession      String?
+  rawAnalysis     Json?
+  emailSentAt     DateTime?
+  createdAt       DateTime  @default(now())
+
+  @@unique([orgId, periodStart])
+  @@index([orgId, createdAt])
+  @@map("weekly_reports")
 }
 
 model CompanyProfile {
