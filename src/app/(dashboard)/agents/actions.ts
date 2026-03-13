@@ -163,6 +163,7 @@ function buildRetellAgentParams(agent: any, llmId: string) {
     ...(agent.endCallOnSilence ? { end_call_after_silence_ms: Math.max(agent.silenceTimeout, 10) * 1000 } : {}),
     ...(agent.postCallWebhook ? { webhook_url: agent.postCallWebhook } : {}),
     ...(agent.postCallAnalysis ? {
+      post_call_analysis_prompt: "Analyse cet appel et réponds UNIQUEMENT en français. Génère un résumé concis en français.",
       post_call_analysis_data: [
         {
           type: "string",
