@@ -2,7 +2,106 @@ import { prisma } from "@/lib/prisma";
 import { scoreLeadFromCall } from "@/lib/lead-scoring";
 import { deliverWebhook } from "@/lib/webhook-delivery";
 import { pushCallToIntegrations, notifySlack } from "@/lib/integrations/sync";
+import { sendCallNotification } from "@/lib/integrations/slack";
 import { NextResponse } from "next/server";
+import { Resend } from "resend";
+
+async function sendAgentNotifications(retellCallId: string) {
+  const call = await prisma.call.findUnique({
+    where: { retellCallId },
+    select: {
+      summary: true,
+      sentiment: true,
+      outcome: true,
+      duration: true,
+      transcript: true,
+      recordingUrl: true,
+      metadata: true,
+    },
+  });
+  if (!call) return;
+
+  // Find agent from metadata
+  const meta = (typeof call.metadata === "object" && call.metadata !== null ? call.metadata : {}) as Record<string, unknown>;
+  const agentId = meta.agentId as string | undefined;
+  if (!agentId) return;
+
+  const agent = await prisma.agent.findUnique({
+    where: { id: agentId },
+    select: {
+      name: true,
+      notificationEmail: true,
+      notificationChannels: true,
+      userId: true,
+    },
+  });
+  if (!agent) return;
+
+  const channels = Array.isArray(agent.notificationChannels) ? agent.notificationChannels as string[] : [];
+  if (channels.length === 0) return;
+
+  const fromNumber = (meta.fromNumber as string) ?? "Inconnu";
+
+  // Email notification
+  if (channels.includes("email") && agent.notificationEmail) {
+    try {
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      const fromEmail = process.env.RESEND_FROM_EMAIL || "Callaps <notifications@callaps.ai>";
+      await resend.emails.send({
+        from: fromEmail,
+        to: agent.notificationEmail,
+        subject: `[${agent.name}] Récapitulatif d'appel — ${fromNumber}`,
+        html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+          <div style="background:linear-gradient(135deg,#6366f1,#8b5cf6);padding:20px 24px;border-radius:12px 12px 0 0;">
+            <h2 style="margin:0;color:#fff;">Récapitulatif d'appel</h2>
+            <p style="margin:4px 0 0;color:rgba(255,255,255,0.8);font-size:14px;">${agent.name}</p>
+          </div>
+          <div style="padding:24px;background:#fff;border:1px solid #e5e7eb;border-top:0;border-radius:0 0 12px 12px;">
+            <p style="margin:0 0 8px;font-size:12px;color:#6B7280;text-transform:uppercase;">Appelant</p>
+            <p style="margin:0 0 16px;font-size:16px;color:#1A1A1A;font-weight:600;">${fromNumber}</p>
+            ${call.summary ? `<p style="margin:0 0 8px;font-size:12px;color:#6B7280;text-transform:uppercase;">Résumé</p>
+            <p style="margin:0 0 16px;font-size:15px;color:#1A1A1A;line-height:1.6;white-space:pre-line;">${call.summary}</p>` : ""}
+            ${call.sentiment ? `<p style="margin:0 0 8px;font-size:12px;color:#6B7280;text-transform:uppercase;">Sentiment</p>
+            <p style="margin:0 0 16px;font-size:15px;color:#1A1A1A;">${call.sentiment}</p>` : ""}
+            ${call.duration ? `<p style="margin:0 0 8px;font-size:12px;color:#6B7280;text-transform:uppercase;">Durée</p>
+            <p style="margin:0;font-size:15px;color:#1A1A1A;">${Math.floor(call.duration / 60)}m ${call.duration % 60}s</p>` : ""}
+          </div>
+        </div>`,
+      });
+    } catch (err) {
+      console.error("[webhook] email notification failed:", err);
+    }
+  }
+
+  // Slack notification
+  if (channels.includes("slack") && agent.userId) {
+    try {
+      const integration = await prisma.integration.findFirst({
+        where: { userId: agent.userId, type: "slack", enabled: true },
+        select: { config: true },
+      });
+      if (integration) {
+        const config = integration.config as Record<string, unknown>;
+        const webhookUrl = config.webhookUrl as string;
+        if (webhookUrl) {
+          await sendCallNotification(webhookUrl, {
+            contactName: fromNumber,
+            contactPhone: fromNumber,
+            duration: call.duration ?? 0,
+            outcome: call.outcome ?? "unknown",
+            summary: call.summary,
+            transcript: call.transcript,
+            sentiment: call.sentiment,
+            recordingUrl: call.recordingUrl,
+            date: new Date(),
+          });
+        }
+      }
+    } catch (err) {
+      console.error("[webhook] slack notification failed:", err);
+    }
+  }
+}
 
 async function runPostCallWorkflows(callId: string) {
   const call = await prisma.call.findUnique({
@@ -275,6 +374,11 @@ export async function POST(req: Request) {
 
       // Execute post-call workflows
       await runPostCallWorkflows(callId);
+
+      // Send agent-level notifications (email, slack)
+      sendAgentNotifications(callId).catch((err) =>
+        console.error("[webhook] agent notifications failed:", err)
+      );
       break;
     }
 

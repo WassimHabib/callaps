@@ -40,6 +40,9 @@ function extractAgentData(formData: FormData) {
     maxSafetyRetries: Number(get("maxSafetyRetries")) || 3,
     notificationEmail: get("notificationEmail") || null,
     notificationPhone: get("notificationPhone") || null,
+    notificationChannels: (() => {
+      try { return JSON.parse(get("notificationChannels") || "[]"); } catch { return []; }
+    })(),
     config: (() => {
       try { return JSON.parse(get("config_json") || "{}"); } catch { return {}; }
     })(),

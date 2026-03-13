@@ -132,6 +132,7 @@ export type AgentCountAggregateOutputType = {
   config: number
   notificationEmail: number
   notificationPhone: number
+  notificationChannels: number
   retellAgentId: number
   retellLlmId: number
   published: number
@@ -249,6 +250,7 @@ export type AgentCountAggregateInputType = {
   config?: true
   notificationEmail?: true
   notificationPhone?: true
+  notificationChannels?: true
   retellAgentId?: true
   retellLlmId?: true
   published?: true
@@ -371,6 +373,7 @@ export type AgentGroupByOutputType = {
   config: runtime.JsonValue
   notificationEmail: string | null
   notificationPhone: string | null
+  notificationChannels: runtime.JsonValue
   retellAgentId: string | null
   retellLlmId: string | null
   published: boolean
@@ -429,6 +432,7 @@ export type AgentWhereInput = {
   config?: Prisma.JsonFilter<"Agent">
   notificationEmail?: Prisma.StringNullableFilter<"Agent"> | string | null
   notificationPhone?: Prisma.StringNullableFilter<"Agent"> | string | null
+  notificationChannels?: Prisma.JsonFilter<"Agent">
   retellAgentId?: Prisma.StringNullableFilter<"Agent"> | string | null
   retellLlmId?: Prisma.StringNullableFilter<"Agent"> | string | null
   published?: Prisma.BoolFilter<"Agent"> | boolean
@@ -466,6 +470,7 @@ export type AgentOrderByWithRelationInput = {
   config?: Prisma.SortOrder
   notificationEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   notificationPhone?: Prisma.SortOrderInput | Prisma.SortOrder
+  notificationChannels?: Prisma.SortOrder
   retellAgentId?: Prisma.SortOrderInput | Prisma.SortOrder
   retellLlmId?: Prisma.SortOrderInput | Prisma.SortOrder
   published?: Prisma.SortOrder
@@ -508,6 +513,7 @@ export type AgentWhereUniqueInput = Prisma.AtLeast<{
   config?: Prisma.JsonFilter<"Agent">
   notificationEmail?: Prisma.StringNullableFilter<"Agent"> | string | null
   notificationPhone?: Prisma.StringNullableFilter<"Agent"> | string | null
+  notificationChannels?: Prisma.JsonFilter<"Agent">
   published?: Prisma.BoolFilter<"Agent"> | boolean
   userId?: Prisma.StringFilter<"Agent"> | string
   orgId?: Prisma.StringNullableFilter<"Agent"> | string | null
@@ -543,6 +549,7 @@ export type AgentOrderByWithAggregationInput = {
   config?: Prisma.SortOrder
   notificationEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   notificationPhone?: Prisma.SortOrderInput | Prisma.SortOrder
+  notificationChannels?: Prisma.SortOrder
   retellAgentId?: Prisma.SortOrderInput | Prisma.SortOrder
   retellLlmId?: Prisma.SortOrderInput | Prisma.SortOrder
   published?: Prisma.SortOrder
@@ -586,6 +593,7 @@ export type AgentScalarWhereWithAggregatesInput = {
   config?: Prisma.JsonWithAggregatesFilter<"Agent">
   notificationEmail?: Prisma.StringNullableWithAggregatesFilter<"Agent"> | string | null
   notificationPhone?: Prisma.StringNullableWithAggregatesFilter<"Agent"> | string | null
+  notificationChannels?: Prisma.JsonWithAggregatesFilter<"Agent">
   retellAgentId?: Prisma.StringNullableWithAggregatesFilter<"Agent"> | string | null
   retellLlmId?: Prisma.StringNullableWithAggregatesFilter<"Agent"> | string | null
   published?: Prisma.BoolWithAggregatesFilter<"Agent"> | boolean
@@ -621,6 +629,7 @@ export type AgentCreateInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   notificationEmail?: string | null
   notificationPhone?: string | null
+  notificationChannels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   retellAgentId?: string | null
   retellLlmId?: string | null
   published?: boolean
@@ -657,6 +666,7 @@ export type AgentUncheckedCreateInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   notificationEmail?: string | null
   notificationPhone?: string | null
+  notificationChannels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   retellAgentId?: string | null
   retellLlmId?: string | null
   published?: boolean
@@ -693,6 +703,7 @@ export type AgentUpdateInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notificationPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationChannels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   retellAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retellLlmId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -729,6 +740,7 @@ export type AgentUncheckedUpdateInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notificationPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationChannels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   retellAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retellLlmId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -765,6 +777,7 @@ export type AgentCreateManyInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   notificationEmail?: string | null
   notificationPhone?: string | null
+  notificationChannels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   retellAgentId?: string | null
   retellLlmId?: string | null
   published?: boolean
@@ -800,6 +813,7 @@ export type AgentUpdateManyMutationInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notificationPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationChannels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   retellAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retellLlmId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -834,6 +848,7 @@ export type AgentUncheckedUpdateManyInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notificationPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationChannels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   retellAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retellLlmId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -879,6 +894,7 @@ export type AgentCountOrderByAggregateInput = {
   config?: Prisma.SortOrder
   notificationEmail?: Prisma.SortOrder
   notificationPhone?: Prisma.SortOrder
+  notificationChannels?: Prisma.SortOrder
   retellAgentId?: Prisma.SortOrder
   retellLlmId?: Prisma.SortOrder
   published?: Prisma.SortOrder
@@ -1071,6 +1087,7 @@ export type AgentCreateWithoutUserInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   notificationEmail?: string | null
   notificationPhone?: string | null
+  notificationChannels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   retellAgentId?: string | null
   retellLlmId?: string | null
   published?: boolean
@@ -1106,6 +1123,7 @@ export type AgentUncheckedCreateWithoutUserInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   notificationEmail?: string | null
   notificationPhone?: string | null
+  notificationChannels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   retellAgentId?: string | null
   retellLlmId?: string | null
   published?: boolean
@@ -1170,6 +1188,7 @@ export type AgentScalarWhereInput = {
   config?: Prisma.JsonFilter<"Agent">
   notificationEmail?: Prisma.StringNullableFilter<"Agent"> | string | null
   notificationPhone?: Prisma.StringNullableFilter<"Agent"> | string | null
+  notificationChannels?: Prisma.JsonFilter<"Agent">
   retellAgentId?: Prisma.StringNullableFilter<"Agent"> | string | null
   retellLlmId?: Prisma.StringNullableFilter<"Agent"> | string | null
   published?: Prisma.BoolFilter<"Agent"> | boolean
@@ -1205,6 +1224,7 @@ export type AgentCreateWithoutCampaignsInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   notificationEmail?: string | null
   notificationPhone?: string | null
+  notificationChannels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   retellAgentId?: string | null
   retellLlmId?: string | null
   published?: boolean
@@ -1240,6 +1260,7 @@ export type AgentUncheckedCreateWithoutCampaignsInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   notificationEmail?: string | null
   notificationPhone?: string | null
+  notificationChannels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   retellAgentId?: string | null
   retellLlmId?: string | null
   published?: boolean
@@ -1291,6 +1312,7 @@ export type AgentUpdateWithoutCampaignsInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notificationPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationChannels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   retellAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retellLlmId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1326,6 +1348,7 @@ export type AgentUncheckedUpdateWithoutCampaignsInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notificationPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationChannels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   retellAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retellLlmId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1361,6 +1384,7 @@ export type AgentCreateManyUserInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   notificationEmail?: string | null
   notificationPhone?: string | null
+  notificationChannels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   retellAgentId?: string | null
   retellLlmId?: string | null
   published?: boolean
@@ -1395,6 +1419,7 @@ export type AgentUpdateWithoutUserInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notificationPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationChannels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   retellAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retellLlmId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1430,6 +1455,7 @@ export type AgentUncheckedUpdateWithoutUserInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notificationPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationChannels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   retellAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retellLlmId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1465,6 +1491,7 @@ export type AgentUncheckedUpdateManyWithoutUserInput = {
   config?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   notificationEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notificationPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notificationChannels?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   retellAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retellLlmId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1530,6 +1557,7 @@ export type AgentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   config?: boolean
   notificationEmail?: boolean
   notificationPhone?: boolean
+  notificationChannels?: boolean
   retellAgentId?: boolean
   retellLlmId?: boolean
   published?: boolean
@@ -1568,6 +1596,7 @@ export type AgentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   config?: boolean
   notificationEmail?: boolean
   notificationPhone?: boolean
+  notificationChannels?: boolean
   retellAgentId?: boolean
   retellLlmId?: boolean
   published?: boolean
@@ -1604,6 +1633,7 @@ export type AgentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   config?: boolean
   notificationEmail?: boolean
   notificationPhone?: boolean
+  notificationChannels?: boolean
   retellAgentId?: boolean
   retellLlmId?: boolean
   published?: boolean
@@ -1640,6 +1670,7 @@ export type AgentSelectScalar = {
   config?: boolean
   notificationEmail?: boolean
   notificationPhone?: boolean
+  notificationChannels?: boolean
   retellAgentId?: boolean
   retellLlmId?: boolean
   published?: boolean
@@ -1649,7 +1680,7 @@ export type AgentSelectScalar = {
   updatedAt?: boolean
 }
 
-export type AgentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "systemPrompt" | "firstMessage" | "firstMessageMode" | "llmModel" | "voiceId" | "voiceSpeed" | "voiceTemperature" | "language" | "maxCallDuration" | "silenceTimeout" | "endCallOnSilence" | "enableRecording" | "postCallAnalysis" | "postCallPrompt" | "postCallWebhook" | "safetyMessage" | "maxSafetyRetries" | "functions" | "mcpConfig" | "config" | "notificationEmail" | "notificationPhone" | "retellAgentId" | "retellLlmId" | "published" | "userId" | "orgId" | "createdAt" | "updatedAt", ExtArgs["result"]["agent"]>
+export type AgentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "systemPrompt" | "firstMessage" | "firstMessageMode" | "llmModel" | "voiceId" | "voiceSpeed" | "voiceTemperature" | "language" | "maxCallDuration" | "silenceTimeout" | "endCallOnSilence" | "enableRecording" | "postCallAnalysis" | "postCallPrompt" | "postCallWebhook" | "safetyMessage" | "maxSafetyRetries" | "functions" | "mcpConfig" | "config" | "notificationEmail" | "notificationPhone" | "notificationChannels" | "retellAgentId" | "retellLlmId" | "published" | "userId" | "orgId" | "createdAt" | "updatedAt", ExtArgs["result"]["agent"]>
 export type AgentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   campaigns?: boolean | Prisma.Agent$campaignsArgs<ExtArgs>
@@ -1694,6 +1725,7 @@ export type $AgentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     config: runtime.JsonValue
     notificationEmail: string | null
     notificationPhone: string | null
+    notificationChannels: runtime.JsonValue
     retellAgentId: string | null
     retellLlmId: string | null
     published: boolean
@@ -2151,6 +2183,7 @@ export interface AgentFieldRefs {
   readonly config: Prisma.FieldRef<"Agent", 'Json'>
   readonly notificationEmail: Prisma.FieldRef<"Agent", 'String'>
   readonly notificationPhone: Prisma.FieldRef<"Agent", 'String'>
+  readonly notificationChannels: Prisma.FieldRef<"Agent", 'Json'>
   readonly retellAgentId: Prisma.FieldRef<"Agent", 'String'>
   readonly retellLlmId: Prisma.FieldRef<"Agent", 'String'>
   readonly published: Prisma.FieldRef<"Agent", 'Boolean'>

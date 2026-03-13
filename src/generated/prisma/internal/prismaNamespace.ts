@@ -1534,6 +1534,7 @@ export const AgentScalarFieldEnum = {
   config: 'config',
   notificationEmail: 'notificationEmail',
   notificationPhone: 'notificationPhone',
+  notificationChannels: 'notificationChannels',
   retellAgentId: 'retellAgentId',
   retellLlmId: 'retellLlmId',
   published: 'published',

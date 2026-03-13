@@ -31,6 +31,8 @@ import {
   Rocket,
   Check,
   Plus,
+  Mail,
+  MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VoiceSelector } from "@/components/agents/voice-selector";
@@ -92,9 +94,130 @@ interface AgentSettingsProps {
     config: unknown;
     notificationEmail: string | null;
     notificationPhone: string | null;
+    notificationChannels: unknown;
     published: boolean;
     retellAgentId: string | null;
   };
+}
+
+// ─── Notification Settings ───────────────────────────────────
+function NotificationSettings({
+  notificationEmail,
+  notificationChannels,
+}: {
+  notificationEmail: string | null;
+  notificationChannels: string[];
+}) {
+  const [channels, setChannels] = useState<string[]>(
+    Array.isArray(notificationChannels) ? notificationChannels : []
+  );
+  const [email, setEmail] = useState(notificationEmail ?? "");
+
+  const toggleChannel = (channel: string) => {
+    setChannels((prev) =>
+      prev.includes(channel)
+        ? prev.filter((c) => c !== channel)
+        : [...prev, channel]
+    );
+  };
+
+  const channelOptions = [
+    {
+      id: "email",
+      label: "Email",
+      description: "Envoyer un récapitulatif par email après chaque appel.",
+      icon: Mail,
+    },
+    {
+      id: "slack",
+      label: "Slack",
+      description: "Envoyer une notification Slack après chaque appel. Nécessite une intégration Slack configurée.",
+      icon: MessageSquare,
+    },
+  ];
+
+  return (
+    <div className="space-y-5">
+      <p className="text-[12px] text-slate-500">
+        Choisissez comment recevoir les récapitulatifs après chaque appel.
+      </p>
+
+      <input type="hidden" name="notificationChannels" value={JSON.stringify(channels)} />
+
+      <div className="space-y-3">
+        {channelOptions.map((opt) => {
+          const Icon = opt.icon;
+          const isActive = channels.includes(opt.id);
+          return (
+            <div key={opt.id}>
+              <button
+                type="button"
+                onClick={() => toggleChannel(opt.id)}
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-left transition-all",
+                  isActive
+                    ? "border-indigo-200 bg-indigo-50/50 shadow-sm"
+                    : "border-slate-200 bg-white hover:border-slate-300"
+                )}
+              >
+                <div
+                  className={cn(
+                    "flex h-8 w-8 items-center justify-center rounded-lg",
+                    isActive ? "bg-indigo-100" : "bg-slate-100"
+                  )}
+                >
+                  <Icon
+                    className={cn(
+                      "h-4 w-4",
+                      isActive ? "text-indigo-600" : "text-slate-500"
+                    )}
+                  />
+                </div>
+                <div className="flex-1">
+                  <p
+                    className={cn(
+                      "text-[13px] font-medium",
+                      isActive ? "text-indigo-900" : "text-slate-700"
+                    )}
+                  >
+                    {opt.label}
+                  </p>
+                  <p className="text-[11px] text-slate-400">{opt.description}</p>
+                </div>
+                <div
+                  className={cn(
+                    "flex h-5 w-5 items-center justify-center rounded-full border-2 transition-colors",
+                    isActive
+                      ? "border-indigo-500 bg-indigo-500"
+                      : "border-slate-300"
+                  )}
+                >
+                  {isActive && <Check className="h-3 w-3 text-white" />}
+                </div>
+              </button>
+
+              {/* Email input when email channel is active */}
+              {opt.id === "email" && isActive && (
+                <div className="mt-2 ml-11 space-y-1.5">
+                  <Input
+                    name="notificationEmail"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="contact@entreprise.fr"
+                    className="h-9 rounded-lg border-slate-200 bg-slate-50 text-[12px]"
+                  />
+                  <p className="text-[11px] text-slate-400">
+                    Le récapitulatif sera envoyé à cette adresse.
+                  </p>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 // ─── Reusable UI pieces ──────────────────────────────────────
@@ -1065,38 +1188,10 @@ export function AgentSettings({ agent }: AgentSettingsProps) {
 
           {/* ── Notifications ── */}
           <AccordionSection icon={Bell} title="Notifications">
-            <div className="space-y-5">
-              <p className="text-[12px] text-slate-500">
-                Configurez ou envoyer les notifications et recapitulatifs d&apos;appel,
-                et le numero a contacter pour les transferts.
-              </p>
-              <div className="space-y-2">
-                <Label className="text-[12px] font-medium text-slate-700">Email de notification</Label>
-                <Input
-                  name="notificationEmail"
-                  type="email"
-                  defaultValue={agent.notificationEmail ?? ""}
-                  placeholder="contact@entreprise.fr"
-                  className="h-9 rounded-lg border-slate-200 bg-slate-50 text-[12px]"
-                />
-                <p className="text-[11px] text-slate-400">
-                  Les recapitulatifs d&apos;appel seront envoyes a cette adresse.
-                </p>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[12px] font-medium text-slate-700">Telephone de notification</Label>
-                <Input
-                  name="notificationPhone"
-                  type="tel"
-                  defaultValue={agent.notificationPhone ?? ""}
-                  placeholder="+33612345678"
-                  className="h-9 rounded-lg border-slate-200 bg-slate-50 text-[12px]"
-                />
-                <p className="text-[11px] text-slate-400">
-                  Numero utilise pour les transferts d&apos;appel vers un commercial ou responsable.
-                </p>
-              </div>
-            </div>
+            <NotificationSettings
+              notificationEmail={agent.notificationEmail}
+              notificationChannels={(agent as Record<string, unknown>).notificationChannels as string[] ?? []}
+            />
           </AccordionSection>
 
           {/* ── MCPs ── */}
