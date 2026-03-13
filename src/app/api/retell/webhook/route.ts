@@ -54,7 +54,7 @@ async function sendAgentNotifications(retellCallId: string) {
   console.log("[webhook] notification: agent=", agent.name, "channels=", JSON.stringify(agent.notificationChannels), "email=", agent.notificationEmail);
 
   const channels = Array.isArray(agent.notificationChannels) ? agent.notificationChannels as string[] : [];
-  if (channels.length === 0) return;
+  if (channels.length === 0) { console.log("[webhook] notification: no channels configured, skipping"); return; }
 
   const fromNumber = (meta.fromNumber as string) ?? "Inconnu";
 
