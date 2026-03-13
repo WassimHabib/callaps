@@ -380,10 +380,6 @@ export async function POST(req: Request) {
       // Execute post-call workflows
       await runPostCallWorkflows(callId);
 
-      // Send agent-level notifications (email, slack)
-      sendAgentNotifications(callId).catch((err) =>
-        console.error("[webhook] agent notifications failed:", err)
-      );
       break;
     }
 
@@ -444,6 +440,11 @@ export async function POST(req: Request) {
       // Extract demands from transcript (async, non-blocking)
       extractCallDemands(callId).catch((err) =>
         console.error("[webhook] demand extraction failed:", err)
+      );
+
+      // Send agent-level notifications (email, slack) — after analysis so summary is included
+      sendAgentNotifications(callId).catch((err) =>
+        console.error("[webhook] agent notifications failed:", err)
       );
       break;
     }
