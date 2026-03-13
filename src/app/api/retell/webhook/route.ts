@@ -122,6 +122,16 @@ async function sendAgentNotifications(retellCallId: string) {
       console.error("[webhook] slack notification failed:", err);
     }
   }
+
+  // Mark notification as sent to avoid duplicates
+  try {
+    const sentCall = await prisma.call.findUnique({ where: { retellCallId }, select: { metadata: true } });
+    const sentMeta = (typeof sentCall?.metadata === "object" && sentCall?.metadata !== null ? sentCall.metadata : {}) as Record<string, unknown>;
+    await prisma.call.update({
+      where: { retellCallId },
+      data: { metadata: JSON.parse(JSON.stringify({ ...sentMeta, notificationSent: true })) },
+    });
+  } catch { /* ignore */ }
 }
 
 async function runPostCallWorkflows(callId: string) {
@@ -432,10 +442,23 @@ export async function POST(req: Request) {
       // Execute post-call workflows
       await runPostCallWorkflows(callId);
 
-      // Send agent-level notifications (email, slack)
-      sendAgentNotifications(callId).catch((err) =>
-        console.error("[webhook] agent notifications failed:", err)
-      );
+      // Delayed notification fallback: if call_analyzed doesn't fire within 30s, send anyway
+      setTimeout(async () => {
+        try {
+          const freshCall = await prisma.call.findUnique({
+            where: { retellCallId: callId },
+            select: { metadata: true },
+          });
+          const freshMeta = (typeof freshCall?.metadata === "object" && freshCall?.metadata !== null
+            ? freshCall.metadata : {}) as Record<string, unknown>;
+          if (!freshMeta.notificationSent) {
+            console.log("[webhook] call_analyzed not received after 30s, sending notification from call_ended fallback");
+            await sendAgentNotifications(callId);
+          }
+        } catch (err) {
+          console.error("[webhook] fallback notification failed:", err);
+        }
+      }, 30000);
       break;
     }
 
