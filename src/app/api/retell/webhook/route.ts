@@ -45,8 +45,13 @@ async function sendAgentNotifications(retellCallId: string) {
   // Email notification
   if (channels.includes("email") && agent.notificationEmail) {
     try {
+      if (!process.env.RESEND_API_KEY) {
+        console.error("[webhook] RESEND_API_KEY not configured");
+        return;
+      }
       const resend = new Resend(process.env.RESEND_API_KEY);
-      const fromEmail = process.env.RESEND_FROM_EMAIL || "Callaps <notifications@callaps.ai>";
+      const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+      console.log("[webhook] sending email notification", { from: fromEmail, to: agent.notificationEmail, agent: agent.name });
       await resend.emails.send({
         from: fromEmail,
         to: agent.notificationEmail,
