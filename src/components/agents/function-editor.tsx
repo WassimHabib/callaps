@@ -39,6 +39,7 @@ export interface AgentFunction {
   description: string;
   apiMethod?: string;
   apiUrl?: string;
+  url?: string;
   apiTimeout?: number;
   headers?: { key: string; value: string }[];
   queryParams?: { key: string; value: string }[];
@@ -50,6 +51,10 @@ export interface AgentFunction {
   transferPhone?: string;
   transferType?: "cold_transfer" | "warm_transfer";
   transferMessage?: string;
+  // Cal.com fields
+  calApiKey?: string;
+  calEventTypeId?: string;
+  calTimezone?: string;
 }
 
 // ─── Predefined templates ────────────────────────────────────
@@ -75,25 +80,23 @@ const TEMPLATES: {
     defaults: { description: "Transfère l'appel vers un autre numéro" },
   },
   {
-    type: "check_calendar",
-    name: "check_calendar",
-    label: "Vérifier disponibilité calendrier",
+    type: "check_availability_cal",
+    name: "check_availability_cal",
+    label: "Vérifier la disponibilité du calendrier (Cal.com)",
     icon: CalendarCheck,
     defaults: {
-      description: "Vérifie les créneaux disponibles sur le calendrier",
-      apiMethod: "GET",
-      apiTimeout: 5000,
+      description: "Vérifie les créneaux disponibles sur le calendrier Cal.com",
+      calTimezone: "Europe/Paris",
     },
   },
   {
-    type: "book_calendar",
-    name: "book_calendar",
-    label: "Réserver au calendrier",
+    type: "book_cal",
+    name: "book_cal",
+    label: "Réserver au calendrier (Cal.com)",
     icon: CalendarPlus,
     defaults: {
-      description: "Réserve un créneau sur le calendrier",
-      apiMethod: "POST",
-      apiTimeout: 5000,
+      description: "Réserve un créneau sur le calendrier Cal.com",
+      calTimezone: "Europe/Paris",
     },
   },
   {
@@ -211,7 +214,8 @@ function FunctionDialog({
     if (initial) setFn(initial);
   }, [initial]);
 
-  const isSimple = ["end_call", "transfer_call", "dtmf"].includes(fn.type);
+  const isSimple = ["end_call", "transfer_call", "dtmf", "check_availability_cal", "book_cal"].includes(fn.type);
+  const isCalCom = ["check_availability_cal", "book_cal"].includes(fn.type);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -314,6 +318,45 @@ function FunctionDialog({
                   />
                 </div>
               )}
+            </>
+          )}
+
+          {isCalCom && (
+            <>
+              {/* Cal.com API Key */}
+              <div className="space-y-1.5">
+                <Label className="text-[12px] font-semibold text-slate-700">Clé API Cal.com</Label>
+                <Input
+                  value={fn.calApiKey ?? ""}
+                  onChange={(e) => setFn({ ...fn, calApiKey: e.target.value })}
+                  placeholder="Entrez la clé API Cal.com"
+                  className="h-9 rounded-lg border-slate-200 bg-slate-50 text-[13px]"
+                />
+              </div>
+
+              {/* Cal.com Event Type ID */}
+              <div className="space-y-1.5">
+                <Label className="text-[12px] font-semibold text-slate-700">ID du type d&apos;événement (Cal.com)</Label>
+                <Input
+                  value={fn.calEventTypeId ?? ""}
+                  onChange={(e) => setFn({ ...fn, calEventTypeId: e.target.value })}
+                  placeholder="Saisissez l'ID du type d'événement depuis Cal.com"
+                  className="h-9 rounded-lg border-slate-200 bg-slate-50 text-[13px]"
+                />
+              </div>
+
+              {/* Timezone */}
+              <div className="space-y-1.5">
+                <Label className="text-[12px] font-semibold text-slate-700">
+                  Fuseau horaire <span className="font-normal text-slate-400">(facultatif)</span>
+                </Label>
+                <Input
+                  value={fn.calTimezone ?? "Europe/Paris"}
+                  onChange={(e) => setFn({ ...fn, calTimezone: e.target.value })}
+                  placeholder="Europe/Paris"
+                  className="h-9 rounded-lg border-slate-200 bg-slate-50 text-[13px]"
+                />
+              </div>
             </>
           )}
 
@@ -496,7 +539,7 @@ export function FunctionEditor({ functions, onChange }: FunctionEditorProps) {
 
   const addFromTemplate = (tpl: (typeof TEMPLATES)[number]) => {
     setMenuOpen(false);
-    if (tpl.type === "custom" || tpl.type === "transfer_call") {
+    if (tpl.type === "custom" || tpl.type === "transfer_call" || tpl.type === "check_availability_cal" || tpl.type === "book_cal") {
       setEditingIndex(null);
       setNewFnDefaults({
         type: tpl.type,

@@ -141,6 +141,62 @@ function buildRetellTools(agent: any): Record<string, unknown>[] {
       };
     }
 
+    if (fn.type === "check_availability_cal") {
+      return {
+        type: "custom",
+        name: fn.name || "check_availability_cal",
+        description: fn.description || "Vérifie les créneaux disponibles sur Cal.com.",
+        url: `${baseToolUrl}/check-calendar`,
+        method: "POST",
+        speak_during_execution: fn.speakDuring ?? true,
+        speak_after_execution: fn.speakAfter ?? true,
+        parameters: {
+          type: "object",
+          properties: {
+            date: {
+              type: "string",
+              description: "La date à vérifier au format YYYY-MM-DD",
+            },
+          },
+          required: ["date"],
+        },
+      };
+    }
+
+    if (fn.type === "book_cal") {
+      return {
+        type: "custom",
+        name: fn.name || "book_cal",
+        description: fn.description || "Réserve un créneau sur Cal.com.",
+        url: `${baseToolUrl}/book-calendar`,
+        method: "POST",
+        speak_during_execution: fn.speakDuring ?? true,
+        speak_after_execution: fn.speakAfter ?? true,
+        parameters: {
+          type: "object",
+          properties: {
+            date: {
+              type: "string",
+              description: "La date du rendez-vous au format YYYY-MM-DD",
+            },
+            time: {
+              type: "string",
+              description: "L'heure du rendez-vous au format HH:MM",
+            },
+            name: {
+              type: "string",
+              description: "Le nom de la personne",
+            },
+            email: {
+              type: "string",
+              description: "L'adresse email de la personne",
+            },
+          },
+          required: ["date", "time", "name"],
+        },
+      };
+    }
+
     if (fn.type === "custom") {
       let params;
       try { params = fn.parameters ? JSON.parse(fn.parameters) : undefined; } catch { params = undefined; }
