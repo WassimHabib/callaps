@@ -51,6 +51,9 @@ function extractAgentData(formData: FormData) {
         return cfg;
       } catch { return {}; }
     })(),
+    functions: (() => {
+      try { return JSON.parse(get("functions_json") || "[]"); } catch { return []; }
+    })(),
   };
 }
 
