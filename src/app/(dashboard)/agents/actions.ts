@@ -223,7 +223,7 @@ function buildRetellTools(agent: any): Record<string, unknown>[] {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildRetellLlmParams(agent: any) {
   return {
-    general_prompt: `[Date du jour : ${new Date().toISOString().split("T")[0]}]\n\n${agent.systemPrompt}`,
+    general_prompt: `[Date et heure actuelles : {{current_time_Europe/Paris}}]\n\n${agent.systemPrompt}`,
     begin_message: agent.firstMessage || undefined,
     model: agent.llmModel,
     start_speaker: agent.firstMessageMode === "user_first" ? "agent" as const : "agent" as const,
