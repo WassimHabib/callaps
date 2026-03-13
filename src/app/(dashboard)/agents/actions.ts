@@ -107,7 +107,7 @@ function formatPhoneE164(phone: string): string {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildRetellTools(agent: any): Record<string, unknown>[] {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://callaps.ai";
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://callaps.ai").replace(/\/+$/, "");
   const baseToolUrl = `${appUrl}/api/agents/${agent.id}`;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const functions = (Array.isArray(agent.functions) ? agent.functions : []) as any[];
