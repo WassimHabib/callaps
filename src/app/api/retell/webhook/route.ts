@@ -446,9 +446,11 @@ export async function POST(req: Request) {
 
       // Send notification on call_ended (may not have summary yet)
       // Will also send on call_analyzed if it fires (with summary, dedup via notificationSent)
-      sendAgentNotifications(callId).catch((err) =>
-        console.error("[webhook] agent notifications failed:", err)
-      );
+      try {
+        await sendAgentNotifications(callId);
+      } catch (err) {
+        console.error("[webhook] agent notifications failed:", err);
+      }
       break;
     }
 
@@ -506,15 +508,19 @@ export async function POST(req: Request) {
       // Re-execute workflows with updated analysis
       await runPostCallWorkflows(callId);
 
-      // Extract demands from transcript (async, non-blocking)
-      extractCallDemands(callId).catch((err) =>
-        console.error("[webhook] demand extraction failed:", err)
-      );
+      // Extract demands from transcript
+      try {
+        await extractCallDemands(callId);
+      } catch (err) {
+        console.error("[webhook] demand extraction failed:", err);
+      }
 
       // Send agent-level notifications (email, slack) — after analysis so summary is included
-      sendAgentNotifications(callId).catch((err) =>
-        console.error("[webhook] agent notifications failed:", err)
-      );
+      try {
+        await sendAgentNotifications(callId);
+      } catch (err) {
+        console.error("[webhook] agent notifications failed:", err);
+      }
       break;
     }
   }
