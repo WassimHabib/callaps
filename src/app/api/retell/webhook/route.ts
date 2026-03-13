@@ -380,10 +380,6 @@ export async function POST(req: Request) {
       // Execute post-call workflows
       await runPostCallWorkflows(callId);
 
-      // Send agent-level notifications (email, slack) — envoi immédiat même sans résumé
-      sendAgentNotifications(callId).catch((err) =>
-        console.error("[webhook] agent notifications failed:", err)
-      );
       break;
     }
 
