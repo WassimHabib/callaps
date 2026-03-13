@@ -7,6 +7,7 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
 async function sendAgentNotifications(retellCallId: string) {
+  console.log("[webhook] sendAgentNotifications called for", retellCallId);
   const call = await prisma.call.findUnique({
     where: { retellCallId },
     select: {
@@ -19,11 +20,12 @@ async function sendAgentNotifications(retellCallId: string) {
       metadata: true,
     },
   });
-  if (!call) return;
+  if (!call) { console.log("[webhook] notification: call not found"); return; }
 
   // Find agent from metadata
   const meta = (typeof call.metadata === "object" && call.metadata !== null ? call.metadata : {}) as Record<string, unknown>;
   const agentId = meta.agentId as string | undefined;
+  console.log("[webhook] notification: agentId=", agentId, "meta=", JSON.stringify(meta));
   if (!agentId) return;
 
   const agent = await prisma.agent.findUnique({
@@ -35,7 +37,8 @@ async function sendAgentNotifications(retellCallId: string) {
       userId: true,
     },
   });
-  if (!agent) return;
+  if (!agent) { console.log("[webhook] notification: agent not found for id", agentId); return; }
+  console.log("[webhook] notification: agent=", agent.name, "channels=", JSON.stringify(agent.notificationChannels), "email=", agent.notificationEmail);
 
   const channels = Array.isArray(agent.notificationChannels) ? agent.notificationChannels as string[] : [];
   if (channels.length === 0) return;
@@ -244,6 +247,7 @@ export async function POST(req: Request) {
   }
 
   const callId = call.call_id;
+  console.log(`[webhook] event=${event} callId=${callId}`);
 
   switch (event) {
     case "call_started": {
@@ -380,6 +384,10 @@ export async function POST(req: Request) {
       // Execute post-call workflows
       await runPostCallWorkflows(callId);
 
+      // Send agent-level notifications (email, slack)
+      sendAgentNotifications(callId).catch((err) =>
+        console.error("[webhook] agent notifications failed:", err)
+      );
       break;
     }
 
