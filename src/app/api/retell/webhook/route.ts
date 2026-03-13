@@ -22,11 +22,24 @@ async function sendAgentNotifications(retellCallId: string) {
   });
   if (!call) { console.log("[webhook] notification: call not found"); return; }
 
-  // Find agent from metadata
+  // Find agent from metadata, or fallback via retellAgentId
   const meta = (typeof call.metadata === "object" && call.metadata !== null ? call.metadata : {}) as Record<string, unknown>;
-  const agentId = meta.agentId as string | undefined;
+  let agentId = meta.agentId as string | undefined;
+
+  // Fallback: if no agentId in metadata, try to find agent via retellAgentId
+  if (!agentId && meta.retellAgentId) {
+    const fallbackAgent = await prisma.agent.findUnique({
+      where: { retellAgentId: meta.retellAgentId as string },
+      select: { id: true },
+    });
+    if (fallbackAgent) agentId = fallbackAgent.id;
+  }
+
   console.log("[webhook] notification: agentId=", agentId, "meta=", JSON.stringify(meta));
-  if (!agentId) return;
+  if (!agentId) {
+    console.log("[webhook] notification: no agentId found, skipping");
+    return;
+  }
 
   const agent = await prisma.agent.findUnique({
     where: { id: agentId },
@@ -251,39 +264,50 @@ export async function POST(req: Request) {
 
   switch (event) {
     case "call_started": {
+      // Find agent by retellAgentId
+      const startRetellAgentId = call.agent_id;
+      const startAgent = startRetellAgentId
+        ? await prisma.agent.findUnique({
+            where: { retellAgentId: startRetellAgentId },
+            select: { id: true, userId: true, orgId: true },
+          })
+        : null;
+
+      const startMeta = {
+        direction: "inbound",
+        agentId: startAgent?.id ?? null,
+        retellAgentId: startRetellAgentId ?? null,
+        fromNumber: call.from_number ?? null,
+        toNumber: call.to_number ?? null,
+      };
+
       // Upsert: create the call if it doesn't exist (inbound calls)
       const existingCall = await prisma.call.findUnique({
         where: { retellCallId: callId },
       });
       if (existingCall) {
+        // Always merge metadata to ensure agentId is set
+        const existingMeta = (typeof existingCall.metadata === "object" && existingCall.metadata !== null
+          ? existingCall.metadata : {}) as Record<string, unknown>;
         await prisma.call.update({
           where: { retellCallId: callId },
-          data: { status: "in_progress", startedAt: new Date() },
+          data: {
+            status: "in_progress",
+            startedAt: new Date(),
+            userId: existingCall.userId || startAgent?.userId || null,
+            orgId: existingCall.orgId || startAgent?.orgId || null,
+            metadata: JSON.parse(JSON.stringify({ ...existingMeta, ...startMeta })),
+          },
         });
       } else {
-        // Inbound call — find agent by retellAgentId
-        const retellAgentId = call.agent_id;
-        const agent = retellAgentId
-          ? await prisma.agent.findUnique({
-              where: { retellAgentId },
-              select: { id: true, userId: true, orgId: true },
-            })
-          : null;
-
         await prisma.call.create({
           data: {
             retellCallId: callId,
             status: "in_progress",
             startedAt: new Date(),
-            userId: agent?.userId ?? null,
-            orgId: agent?.orgId ?? null,
-            metadata: {
-              direction: "inbound",
-              agentId: agent?.id ?? null,
-              retellAgentId: retellAgentId ?? null,
-              fromNumber: call.from_number ?? null,
-              toNumber: call.to_number ?? null,
-            },
+            userId: startAgent?.userId ?? null,
+            orgId: startAgent?.orgId ?? null,
+            metadata: startMeta,
           },
         });
       }
@@ -306,9 +330,33 @@ export async function POST(req: Request) {
         where: { retellCallId: callId },
       });
       if (existingEndCall) {
+        // Ensure metadata has agentId (fix for calls with empty metadata)
+        const endExistingMeta = (typeof existingEndCall.metadata === "object" && existingEndCall.metadata !== null
+          ? existingEndCall.metadata : {}) as Record<string, unknown>;
+        const needsMetaFix = !endExistingMeta.agentId && call.agent_id;
+        let endMetaUpdate = {};
+        if (needsMetaFix) {
+          const endAgent = await prisma.agent.findUnique({
+            where: { retellAgentId: call.agent_id },
+            select: { id: true, userId: true, orgId: true },
+          });
+          if (endAgent) {
+            endMetaUpdate = {
+              metadata: JSON.parse(JSON.stringify({
+                ...endExistingMeta,
+                agentId: endAgent.id,
+                retellAgentId: call.agent_id,
+                fromNumber: call.from_number ?? null,
+                toNumber: call.to_number ?? null,
+              })),
+              ...(existingEndCall.userId ? {} : { userId: endAgent.userId }),
+              ...(existingEndCall.orgId ? {} : { orgId: endAgent.orgId }),
+            };
+          }
+        }
         await prisma.call.update({
           where: { retellCallId: callId },
-          data: callData,
+          data: { ...callData, ...endMetaUpdate },
         });
       } else {
         // Missed call_started — create the call now
