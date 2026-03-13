@@ -68,6 +68,28 @@ function mapLanguageToRetell(lang: string): string {
   return map[lang] || "fr-FR";
 }
 
+function mapLanguageToLabel(lang: string): string {
+  const map: Record<string, string> = {
+    "fr-FR": "français",
+    "en-US": "English",
+    "en-GB": "English",
+    "es-ES": "español",
+    "de-DE": "Deutsch",
+    "ar-SA": "العربية",
+    "tr-TR": "Türkçe",
+    "pt-BR": "português",
+    "it-IT": "italiano",
+    "nl-NL": "Nederlands",
+    "pl-PL": "polski",
+    "ru-RU": "русский",
+    "ja-JP": "日本語",
+    "zh-CN": "中文",
+    "ko-KR": "한국어",
+    "multi": "the same language as the conversation",
+  };
+  return map[lang] || "français";
+}
+
 function formatPhoneE164(phone: string): string {
   return phone.startsWith("+") ? phone : `+33${phone.replace(/^0/, "")}`;
 }
@@ -163,7 +185,7 @@ function buildRetellAgentParams(agent: any, llmId: string) {
     ...(agent.endCallOnSilence ? { end_call_after_silence_ms: Math.max(agent.silenceTimeout, 10) * 1000 } : {}),
     ...(agent.postCallWebhook ? { webhook_url: agent.postCallWebhook } : {}),
     ...(agent.postCallAnalysis ? {
-      post_call_analysis_prompt: "Analyse cet appel et réponds UNIQUEMENT en français. Génère un résumé concis en français.",
+      post_call_analysis_prompt: `Analyse this call and respond ONLY in ${mapLanguageToLabel(agent.language)}. Generate a concise summary in ${mapLanguageToLabel(agent.language)}.`,
       post_call_analysis_data: [
         {
           type: "string",
