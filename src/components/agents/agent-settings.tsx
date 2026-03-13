@@ -1091,6 +1091,29 @@ export function AgentSettings({ agent }: AgentSettingsProps) {
               {postCallAnalysis && (
                 <>
                   <div className="space-y-2">
+                    <Label className="text-[12px] font-medium text-slate-700">Langue de l&apos;analyse</Label>
+                    <Select name="postCallAnalysisLang" defaultValue={agent.language || "fr-FR"}>
+                      <SelectTrigger className="h-9 rounded-lg border-slate-200 bg-slate-50 text-[12px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="fr-FR">Français</SelectItem>
+                        <SelectItem value="en-US">English</SelectItem>
+                        <SelectItem value="es-ES">Español</SelectItem>
+                        <SelectItem value="de-DE">Deutsch</SelectItem>
+                        <SelectItem value="it-IT">Italiano</SelectItem>
+                        <SelectItem value="pt-BR">Português</SelectItem>
+                        <SelectItem value="nl-NL">Nederlands</SelectItem>
+                        <SelectItem value="ar-SA">العربية</SelectItem>
+                        <SelectItem value="tr-TR">Türkçe</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-[11px] text-slate-400">
+                      Le résumé et l&apos;analyse seront générés dans cette langue.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
                     <Label className="text-[12px] font-medium text-slate-700">Modèle d&apos;analyse post-appel</Label>
                     <Select value={postCallModel} onValueChange={(v) => setPostCallModel(v ?? "gpt-4.1-mini")}>
                       <SelectTrigger className="h-9 rounded-lg border-slate-200 bg-slate-50 text-[12px]">

@@ -44,7 +44,12 @@ function extractAgentData(formData: FormData) {
       try { return JSON.parse(get("notificationChannels") || "[]"); } catch { return []; }
     })(),
     config: (() => {
-      try { return JSON.parse(get("config_json") || "{}"); } catch { return {}; }
+      try {
+        const cfg = JSON.parse(get("config_json") || "{}");
+        const analysisLang = get("postCallAnalysisLang");
+        if (analysisLang) cfg.postCallAnalysisLang = analysisLang;
+        return cfg;
+      } catch { return {}; }
     })(),
   };
 }
@@ -187,42 +192,45 @@ function buildRetellAgentParams(agent: any, llmId: string) {
     max_call_duration_ms: agent.maxCallDuration * 1000,
     ...(agent.endCallOnSilence ? { end_call_after_silence_ms: Math.max(agent.silenceTimeout, 10) * 1000 } : {}),
     webhook_url: agent.postCallWebhook || `${process.env.NEXT_PUBLIC_APP_URL || "https://callaps.ai"}/api/retell/webhook`,
-    ...(agent.postCallAnalysis ? {
-      post_call_analysis_prompt: `Analyse this call and respond ONLY in ${mapLanguageToLabel(agent.language)}. Generate a concise summary in ${mapLanguageToLabel(agent.language)}.`,
-      post_call_analysis_data: [
-        {
-          type: "string",
-          name: "call_summary",
-          description: "Résumé concis de l'appel en 2-3 phrases. Inclure le motif de l'appel, les points clés discutés et le résultat.",
-        },
-        {
-          type: "enum",
-          name: "user_sentiment",
-          description: "Sentiment général de l'interlocuteur pendant l'appel.",
-          choices: ["Positif", "Neutre", "Négatif"],
-        },
-        {
-          type: "boolean",
-          name: "call_successful",
-          description: "L'appel a-t-il atteint son objectif ? (information donnée, rendez-vous pris, transfert réussi, etc.)",
-        },
-        {
-          type: "string",
-          name: "caller_name",
-          description: "Nom de l'appelant s'il a été mentionné pendant l'appel.",
-        },
-        {
-          type: "string",
-          name: "caller_phone",
-          description: "Numéro de téléphone de l'appelant s'il a été mentionné.",
-        },
-        {
-          type: "string",
-          name: "call_reason",
-          description: "Raison principale de l'appel (ex: demande d'info véhicule, réclamation, prise de RDV, etc.)",
-        },
-      ],
-    } : {}),
+    ...(agent.postCallAnalysis ? (() => {
+      const analysisLang = mapLanguageToLabel(config.postCallAnalysisLang as string || agent.language);
+      const langInstruction = `RESPOND ONLY IN ${analysisLang.toUpperCase()}.`;
+      return {
+        post_call_analysis_data: [
+          {
+            type: "string",
+            name: "call_summary",
+            description: `${langInstruction} Résumé concis de l'appel en 2-3 phrases. Inclure le motif, les points clés et le résultat.`,
+          },
+          {
+            type: "enum",
+            name: "user_sentiment",
+            description: `${langInstruction} Sentiment général de l'interlocuteur.`,
+            choices: ["Positif", "Neutre", "Négatif"],
+          },
+          {
+            type: "boolean",
+            name: "call_successful",
+            description: "L'appel a-t-il atteint son objectif ?",
+          },
+          {
+            type: "string",
+            name: "caller_name",
+            description: "Nom de l'appelant s'il a été mentionné.",
+          },
+          {
+            type: "string",
+            name: "caller_phone",
+            description: "Numéro de téléphone de l'appelant s'il a été mentionné.",
+          },
+          {
+            type: "string",
+            name: "call_reason",
+            description: `${langInstruction} Raison principale de l'appel.`,
+          },
+        ],
+      };
+    })() : {}),
   };
 }
 
