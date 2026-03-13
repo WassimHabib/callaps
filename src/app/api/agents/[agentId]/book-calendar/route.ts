@@ -41,6 +41,39 @@ export async function POST(
     const timezone = (calFn.calTimezone as string) || "Europe/Paris";
     const startTime = `${date}T${time}:00`;
 
+    // First check availability before booking
+    const checkUrl = new URL("https://api.cal.com/v1/slots");
+    checkUrl.searchParams.set("apiKey", calFn.calApiKey as string);
+    checkUrl.searchParams.set("eventTypeId", String(calFn.calEventTypeId));
+    checkUrl.searchParams.set("startTime", `${date}T00:00:00`);
+    checkUrl.searchParams.set("endTime", `${date}T23:59:59`);
+    checkUrl.searchParams.set("timeZone", timezone);
+
+    const checkRes = await fetch(checkUrl.toString());
+    if (checkRes.ok) {
+      const checkData = await checkRes.json();
+      const daySlots = checkData.slots?.[date] || [];
+      const requestedTime = `${date}T${time}:00`;
+      const isAvailable = daySlots.some((slot: { time: string }) => {
+        const slotLocal = new Date(slot.time).toLocaleTimeString("fr-FR", {
+          hour: "2-digit", minute: "2-digit", timeZone: timezone,
+        });
+        return slotLocal === time || slot.time.includes(requestedTime);
+      });
+
+      if (!isAvailable) {
+        const available = daySlots.map((slot: { time: string }) =>
+          new Date(slot.time).toLocaleTimeString("fr-FR", {
+            hour: "2-digit", minute: "2-digit", timeZone: timezone,
+          })
+        );
+        return NextResponse.json({
+          result: `Le créneau ${time} n'est pas disponible le ${date}. Créneaux disponibles : ${available.join(", ") || "aucun"}.`,
+          booked: false,
+        });
+      }
+    }
+
     // Call Cal.com API v1 to create booking
     const calUrl = `https://api.cal.com/v1/bookings?apiKey=${encodeURIComponent(calFn.calApiKey as string)}`;
 
