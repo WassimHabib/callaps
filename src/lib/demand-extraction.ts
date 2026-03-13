@@ -1,9 +1,3 @@
-import Anthropic from "@anthropic-ai/sdk";
-
-function getAnthropic() {
-  return new Anthropic();
-}
-
 interface ExtractedDemand {
   category: string;
   label: string;
@@ -12,7 +6,7 @@ interface ExtractedDemand {
 }
 
 /**
- * Extract client demands from a call transcript using Claude Haiku.
+ * Extract client demands from a call transcript using GPT-4o-mini.
  * Returns structured demands or empty array on failure.
  */
 export async function extractDemandsFromTranscript(
@@ -21,18 +15,31 @@ export async function extractDemandsFromTranscript(
 ): Promise<ExtractedDemand[]> {
   if (!transcript || transcript.trim().length < 20) return [];
 
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    console.error("[demand-extraction] OPENAI_API_KEY not configured");
+    return [];
+  }
+
   const activityContext = activity
     ? `Le professionnel est un(e) ${activity}.`
     : "Le type d'activité du professionnel n'est pas précisé.";
 
   try {
-    const response = await getAnthropic().messages.create({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 1024,
-      messages: [
-        {
-          role: "user",
-          content: `Analyse ce transcript d'appel téléphonique. ${activityContext}
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        temperature: 0.2,
+        max_tokens: 1024,
+        messages: [
+          {
+            role: "user",
+            content: `Analyse ce transcript d'appel téléphonique. ${activityContext}
 
 Extrais chaque demande distincte formulée par le client (l'appelant). Ignore les salutations et formules de politesse.
 
@@ -49,12 +56,19 @@ Règles :
 
 Transcript :
 ${transcript}`,
-        },
-      ],
+          },
+        ],
+      }),
     });
 
-    const text =
-      response.content[0].type === "text" ? response.content[0].text : "";
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("[demand-extraction] OpenAI error:", res.status, errText);
+      return [];
+    }
+
+    const data = await res.json();
+    const text = data.choices?.[0]?.message?.content ?? "";
     const parsed = JSON.parse(text);
 
     if (!Array.isArray(parsed)) return [];
