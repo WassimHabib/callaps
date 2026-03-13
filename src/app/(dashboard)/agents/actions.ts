@@ -186,7 +186,7 @@ function buildRetellAgentParams(agent: any, llmId: string) {
     ...(config.enableBackchanneling !== undefined ? { enable_backchannel: config.enableBackchanneling as boolean } : {}),
     max_call_duration_ms: agent.maxCallDuration * 1000,
     ...(agent.endCallOnSilence ? { end_call_after_silence_ms: Math.max(agent.silenceTimeout, 10) * 1000 } : {}),
-    ...(agent.postCallWebhook ? { webhook_url: agent.postCallWebhook } : {}),
+    webhook_url: agent.postCallWebhook || `${process.env.NEXT_PUBLIC_APP_URL || "https://callaps.ai"}/api/retell/webhook`,
     ...(agent.postCallAnalysis ? {
       post_call_analysis_prompt: `Analyse this call and respond ONLY in ${mapLanguageToLabel(agent.language)}. Generate a concise summary in ${mapLanguageToLabel(agent.language)}.`,
       post_call_analysis_data: [
