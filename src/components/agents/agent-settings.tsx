@@ -104,15 +104,18 @@ interface AgentSettingsProps {
 // ─── Notification Settings ───────────────────────────────────
 function NotificationSettings({
   notificationEmail,
+  notificationPhone,
   notificationChannels,
 }: {
   notificationEmail: string | null;
+  notificationPhone: string | null;
   notificationChannels: string[];
 }) {
   const [channels, setChannels] = useState<string[]>(
     Array.isArray(notificationChannels) ? notificationChannels : []
   );
   const [email, setEmail] = useState(notificationEmail ?? "");
+  const [phone, setPhone] = useState(notificationPhone ?? "");
 
   const toggleChannel = (channel: string) => {
     setChannels((prev) =>
@@ -128,6 +131,12 @@ function NotificationSettings({
       label: "Email",
       description: "Envoyer un récapitulatif par email après chaque appel.",
       icon: Mail,
+    },
+    {
+      id: "whatsapp",
+      label: "WhatsApp",
+      description: "Envoyer un récapitulatif par WhatsApp après chaque appel. Nécessite Twilio configuré.",
+      icon: Phone,
     },
     {
       id: "slack",
@@ -210,6 +219,23 @@ function NotificationSettings({
                   />
                   <p className="text-[11px] text-slate-400">
                     Le récapitulatif sera envoyé à cette adresse.
+                  </p>
+                </div>
+              )}
+
+              {/* Phone input when whatsapp channel is active */}
+              {opt.id === "whatsapp" && isActive && (
+                <div className="mt-2 ml-11 space-y-1.5">
+                  <Input
+                    name="notificationPhone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+33612345678"
+                    className="h-9 rounded-lg border-slate-200 bg-slate-50 text-[12px]"
+                  />
+                  <p className="text-[11px] text-slate-400">
+                    Le récapitulatif sera envoyé par WhatsApp à ce numéro (format international).
                   </p>
                 </div>
               )}
@@ -1245,6 +1271,7 @@ export function AgentSettings({ agent }: AgentSettingsProps) {
           <AccordionSection icon={Bell} title="Notifications">
             <NotificationSettings
               notificationEmail={agent.notificationEmail}
+              notificationPhone={(agent as Record<string, unknown>).notificationPhone as string | null ?? null}
               notificationChannels={(agent as Record<string, unknown>).notificationChannels as string[] ?? []}
             />
           </AccordionSection>

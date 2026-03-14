@@ -46,6 +46,7 @@ async function sendAgentNotifications(retellCallId: string) {
     select: {
       name: true,
       notificationEmail: true,
+      notificationPhone: true,
       notificationChannels: true,
       userId: true,
     },
@@ -120,6 +121,58 @@ async function sendAgentNotifications(retellCallId: string) {
       }
     } catch (err) {
       console.error("[webhook] slack notification failed:", err);
+    }
+  }
+
+  // WhatsApp notification via Twilio
+  if (channels.includes("whatsapp") && agent.notificationPhone && agent.userId) {
+    try {
+      const twilioIntegration = await prisma.integration.findFirst({
+        where: { userId: agent.userId, type: "twilio", enabled: true },
+        select: { config: true },
+      });
+      if (twilioIntegration) {
+        const twilioCfg = twilioIntegration.config as Record<string, unknown>;
+        const accountSid = twilioCfg.accountSid as string;
+        const authToken = twilioCfg.authToken as string;
+        const twilioWhatsappFrom = (twilioCfg.whatsappFrom as string) || process.env.TWILIO_WHATSAPP_FROM || "+14155238886";
+
+        if (accountSid && authToken) {
+          const toNumber = agent.notificationPhone.startsWith("+") ? agent.notificationPhone : `+${agent.notificationPhone}`;
+          const durationStr = call.duration ? `${Math.floor(call.duration / 60)}m ${call.duration % 60}s` : "N/A";
+          const msgBody = [
+            `*Récapitulatif d'appel — ${agent.name}*`,
+            `Appelant : ${fromNumber}`,
+            call.duration ? `Durée : ${durationStr}` : null,
+            call.sentiment ? `Sentiment : ${call.sentiment}` : null,
+            call.summary ? `\nRésumé :\n${call.summary}` : null,
+          ].filter(Boolean).join("\n");
+
+          const params = new URLSearchParams();
+          params.set("From", `whatsapp:${twilioWhatsappFrom}`);
+          params.set("To", `whatsapp:${toNumber}`);
+          params.set("Body", msgBody);
+
+          console.log("[webhook] sending WhatsApp notification to", toNumber);
+          const waRes = await fetch(
+            `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
+            {
+              method: "POST",
+              headers: {
+                "Authorization": `Basic ${Buffer.from(`${accountSid}:${authToken}`).toString("base64")}`,
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: params.toString(),
+            }
+          );
+          if (!waRes.ok) {
+            const errText = await waRes.text();
+            console.error("[webhook] WhatsApp notification failed:", waRes.status, errText);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("[webhook] WhatsApp notification failed:", err);
     }
   }
 
