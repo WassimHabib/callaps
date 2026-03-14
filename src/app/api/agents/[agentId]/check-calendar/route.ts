@@ -38,20 +38,18 @@ export async function POST(
 
     const timezone = (calFn.calTimezone as string) || "Europe/Paris";
 
-    // Cal.com API v2 for slots
+    // Cal.com API v2 for slots - no auth needed, just cal-api-version header
     const calUrl = new URL("https://api.cal.com/v2/slots");
     calUrl.searchParams.set("eventTypeId", String(calFn.calEventTypeId));
-    calUrl.searchParams.set("start", `${date}T00:00:00.000Z`);
-    calUrl.searchParams.set("end", `${date}T23:59:59.000Z`);
+    calUrl.searchParams.set("start", `${date}T00:00:00Z`);
+    calUrl.searchParams.set("end", `${date}T23:59:59Z`);
     calUrl.searchParams.set("timeZone", timezone);
 
     console.log("[check-calendar] calling Cal.com v2", calUrl.toString());
 
     const calRes = await fetch(calUrl.toString(), {
       headers: {
-        "Authorization": `Bearer ${calFn.calApiKey as string}`,
         "cal-api-version": "2024-09-04",
-        "Content-Type": "application/json",
       },
     });
 
@@ -66,7 +64,7 @@ export async function POST(
     const calData = await calRes.json();
     const slotsData = calData.data?.slots || calData.slots || {};
 
-    // v2 returns { "YYYY-MM-DD": [{ time: "2026-03-17T09:00:00.000Z" }, ...] }
+    // v2 returns { "YYYY-MM-DD": [{ time: "..." }, ...] }
     const daySlots = slotsData[date] || [];
 
     if (daySlots.length === 0) {

@@ -42,15 +42,13 @@ export async function POST(
     // First check availability via Cal.com v2 slots
     const checkUrl = new URL("https://api.cal.com/v2/slots");
     checkUrl.searchParams.set("eventTypeId", String(calFn.calEventTypeId));
-    checkUrl.searchParams.set("start", `${date}T00:00:00.000Z`);
-    checkUrl.searchParams.set("end", `${date}T23:59:59.000Z`);
+    checkUrl.searchParams.set("start", `${date}T00:00:00Z`);
+    checkUrl.searchParams.set("end", `${date}T23:59:59Z`);
     checkUrl.searchParams.set("timeZone", timezone);
 
     const checkRes = await fetch(checkUrl.toString(), {
       headers: {
-        "Authorization": `Bearer ${calFn.calApiKey as string}`,
         "cal-api-version": "2024-09-04",
-        "Content-Type": "application/json",
       },
     });
 
@@ -80,7 +78,7 @@ export async function POST(
     }
 
     // Book via Cal.com v2 bookings
-    const startTime = `${date}T${time}:00.000Z`;
+    const startTime = `${date}T${time}:00Z`;
 
     console.log("[book-calendar] creating booking on Cal.com v2", { date, time, name, email });
 
@@ -88,7 +86,7 @@ export async function POST(
       method: "POST",
       headers: {
         "Authorization": `Bearer ${calFn.calApiKey as string}`,
-        "cal-api-version": "2024-08-13",
+        "cal-api-version": "2026-02-25",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
