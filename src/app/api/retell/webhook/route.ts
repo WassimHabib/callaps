@@ -153,7 +153,7 @@ async function sendAgentNotifications(retellCallId: string) {
           params.set("To", `whatsapp:${toNumber}`);
           params.set("Body", msgBody);
 
-          console.log("[webhook] sending WhatsApp notification to", toNumber);
+          console.log("[webhook] sending WhatsApp notification", { from: `whatsapp:${twilioWhatsappFrom}`, to: `whatsapp:${toNumber}`, accountSid: accountSid.substring(0, 8) + "..." });
           const waRes = await fetch(
             `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
             {
