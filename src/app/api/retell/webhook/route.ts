@@ -497,13 +497,7 @@ export async function POST(req: Request) {
       // Execute post-call workflows
       await runPostCallWorkflows(callId);
 
-      // Send notification on call_ended (may not have summary yet)
-      // Will also send on call_analyzed if it fires (with summary, dedup via notificationSent)
-      try {
-        await sendAgentNotifications(callId);
-      } catch (err) {
-        console.error("[webhook] agent notifications failed:", err);
-      }
+      // Notifications are sent on call_analyzed only (so the summary is included)
       break;
     }
 
