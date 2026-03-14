@@ -17,7 +17,6 @@ export async function POST(
       return NextResponse.json({ result: "Agent introuvable." }, { status: 404 });
     }
 
-    // Find the book_cal function config (or check_availability_cal for shared Cal.com creds)
     const functions = (Array.isArray(agent.functions) ? agent.functions : []) as Record<string, unknown>[];
     const calFn = functions.find((fn) => fn.type === "book_cal")
       || functions.find((fn) => fn.type === "check_availability_cal");
@@ -39,26 +38,32 @@ export async function POST(
     }
 
     const timezone = (calFn.calTimezone as string) || "Europe/Paris";
-    const startTime = `${date}T${time}:00`;
 
-    // First check availability before booking
-    const checkUrl = new URL("https://api.cal.com/v1/slots");
-    checkUrl.searchParams.set("apiKey", calFn.calApiKey as string);
+    // First check availability via Cal.com v2 slots
+    const checkUrl = new URL("https://api.cal.com/v2/slots");
     checkUrl.searchParams.set("eventTypeId", String(calFn.calEventTypeId));
-    checkUrl.searchParams.set("startTime", `${date}T00:00:00`);
-    checkUrl.searchParams.set("endTime", `${date}T23:59:59`);
+    checkUrl.searchParams.set("start", `${date}T00:00:00.000Z`);
+    checkUrl.searchParams.set("end", `${date}T23:59:59.000Z`);
     checkUrl.searchParams.set("timeZone", timezone);
 
-    const checkRes = await fetch(checkUrl.toString());
+    const checkRes = await fetch(checkUrl.toString(), {
+      headers: {
+        "Authorization": `Bearer ${calFn.calApiKey as string}`,
+        "cal-api-version": "2024-09-04",
+        "Content-Type": "application/json",
+      },
+    });
+
     if (checkRes.ok) {
       const checkData = await checkRes.json();
-      const daySlots = checkData.slots?.[date] || [];
-      const requestedTime = `${date}T${time}:00`;
+      const slotsData = checkData.data?.slots || checkData.slots || {};
+      const daySlots = slotsData[date] || [];
+
       const isAvailable = daySlots.some((slot: { time: string }) => {
         const slotLocal = new Date(slot.time).toLocaleTimeString("fr-FR", {
           hour: "2-digit", minute: "2-digit", timeZone: timezone,
         });
-        return slotLocal === time || slot.time.includes(requestedTime);
+        return slotLocal === time;
       });
 
       if (!isAvailable) {
@@ -74,22 +79,25 @@ export async function POST(
       }
     }
 
-    // Call Cal.com API v1 to create booking
-    const calUrl = `https://api.cal.com/v1/bookings?apiKey=${encodeURIComponent(calFn.calApiKey as string)}`;
+    // Book via Cal.com v2 bookings
+    const startTime = `${date}T${time}:00.000Z`;
 
-    console.log("[book-calendar] creating booking on Cal.com", { date, time, name, email });
+    console.log("[book-calendar] creating booking on Cal.com v2", { date, time, name, email });
 
-    const calRes = await fetch(calUrl, {
+    const calRes = await fetch("https://api.cal.com/v2/bookings", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Authorization": `Bearer ${calFn.calApiKey as string}`,
+        "cal-api-version": "2024-08-13",
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         eventTypeId: Number(calFn.calEventTypeId),
         start: startTime,
-        timeZone: timezone,
-        language: "fr",
-        responses: {
+        attendee: {
           name,
           email: email || "noreply@callaps.ai",
+          timeZone: timezone,
         },
         metadata: {
           source: "callaps_agent",
@@ -107,11 +115,12 @@ export async function POST(
     }
 
     const booking = await calRes.json();
+    const bookingId = booking.data?.id || booking.id;
 
     return NextResponse.json({
       result: `Rendez-vous confirmé le ${date} à ${time} pour ${name}.`,
       booked: true,
-      bookingId: booking.id,
+      bookingId,
       date,
       time,
       name,

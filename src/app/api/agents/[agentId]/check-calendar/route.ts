@@ -17,7 +17,6 @@ export async function POST(
       return NextResponse.json({ result: "Agent introuvable." }, { status: 404 });
     }
 
-    // Find the check_availability_cal function config
     const functions = (Array.isArray(agent.functions) ? agent.functions : []) as Record<string, unknown>[];
     const calFn = functions.find((fn) => fn.type === "check_availability_cal");
 
@@ -38,21 +37,22 @@ export async function POST(
     }
 
     const timezone = (calFn.calTimezone as string) || "Europe/Paris";
-    const startTime = `${date}T00:00:00`;
-    const endTime = `${date}T23:59:59`;
 
-    // Call Cal.com API v1 for availability
-    const calUrl = new URL("https://api.cal.com/v1/slots");
-    calUrl.searchParams.set("apiKey", calFn.calApiKey as string);
+    // Cal.com API v2 for slots
+    const calUrl = new URL("https://api.cal.com/v2/slots");
     calUrl.searchParams.set("eventTypeId", String(calFn.calEventTypeId));
-    calUrl.searchParams.set("startTime", startTime);
-    calUrl.searchParams.set("endTime", endTime);
+    calUrl.searchParams.set("start", `${date}T00:00:00.000Z`);
+    calUrl.searchParams.set("end", `${date}T23:59:59.000Z`);
     calUrl.searchParams.set("timeZone", timezone);
 
-    console.log("[check-calendar] calling Cal.com", calUrl.toString().replace(calFn.calApiKey as string, "***"));
+    console.log("[check-calendar] calling Cal.com v2", calUrl.toString());
 
     const calRes = await fetch(calUrl.toString(), {
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Authorization": `Bearer ${calFn.calApiKey as string}`,
+        "cal-api-version": "2024-09-04",
+        "Content-Type": "application/json",
+      },
     });
 
     if (!calRes.ok) {
@@ -64,10 +64,10 @@ export async function POST(
     }
 
     const calData = await calRes.json();
-    const slots = calData.slots || {};
+    const slotsData = calData.data?.slots || calData.slots || {};
 
-    // Cal.com returns { "YYYY-MM-DD": [{ time: "2026-03-13T09:00:00Z" }, ...] }
-    const daySlots = slots[date] || [];
+    // v2 returns { "YYYY-MM-DD": [{ time: "2026-03-17T09:00:00.000Z" }, ...] }
+    const daySlots = slotsData[date] || [];
 
     if (daySlots.length === 0) {
       return NextResponse.json({
@@ -77,10 +77,8 @@ export async function POST(
       });
     }
 
-    // Format slots for readability
     const formatted = daySlots.map((slot: { time: string }) => {
       const d = new Date(slot.time);
-      // Convert to the agent's timezone
       const timeStr = d.toLocaleTimeString("fr-FR", {
         hour: "2-digit",
         minute: "2-digit",
