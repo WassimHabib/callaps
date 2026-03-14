@@ -527,7 +527,9 @@ export function PhoneNumbersClient({
                     }}
                   >
                     <SelectTrigger className="w-full bg-white">
-                      <SelectValue placeholder="Selectionner un agent" />
+                      <SelectValue>
+                        {inboundAgent ? inboundAgent.name : "Aucun agent"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">Aucun agent</SelectItem>
@@ -558,7 +560,11 @@ export function PhoneNumbersClient({
                     }}
                   >
                     <SelectTrigger className="w-full bg-white">
-                      <SelectValue placeholder="Selectionner un agent" />
+                      <SelectValue>
+                        {currentOutboundAgentId !== "none"
+                          ? agents.find((a) => a.id === currentOutboundAgentId)?.name || "Aucun agent"
+                          : "Aucun agent"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">Aucun agent</SelectItem>
