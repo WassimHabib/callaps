@@ -393,7 +393,7 @@ export async function publishAgent(id: string) {
   revalidatePath("/agents");
 }
 
-export async function deleteAgent(id: string) {
+export async function archiveAgent(id: string) {
   const ctx = await getOrgContext();
   if (!hasPermission(ctx.role, "agents:delete")) {
     throw new Error("Permission denied");
@@ -420,7 +420,10 @@ export async function deleteAgent(id: string) {
     }
   }
 
-  await prisma.agent.delete({ where: { id } });
+  await prisma.agent.update({
+    where: { id },
+    data: { archived: true, published: false, retellAgentId: null, retellLlmId: null },
+  });
 
   revalidatePath("/agents");
   redirect("/agents");

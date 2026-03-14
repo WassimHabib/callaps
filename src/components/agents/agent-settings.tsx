@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { updateAgent, publishAgent } from "@/app/(dashboard)/agents/actions";
+import { updateAgent, publishAgent, archiveAgent } from "@/app/(dashboard)/agents/actions";
 import {
   Bell,
   Bot,
@@ -33,6 +33,7 @@ import {
   Plus,
   Mail,
   MessageSquare,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VoiceSelector } from "@/components/agents/voice-selector";
@@ -396,6 +397,7 @@ export function AgentSettings({ agent }: AgentSettingsProps) {
   const [voiceId, setVoiceId] = useState(agent.voiceId ?? "minimax-Camille");
   const [isSaving, startSaveTransition] = useTransition();
   const [isPublishing, startPublishTransition] = useTransition();
+  const [isArchiving, startArchiveTransition] = useTransition();
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   const [agentFunctions, setAgentFunctions] = useState<AgentFunction[]>(() => {
@@ -532,6 +534,17 @@ export function AgentSettings({ agent }: AgentSettingsProps) {
     });
   };
 
+  const handleArchive = () => {
+    if (!confirm("Supprimer cet agent ? Il ne sera plus visible mais l'historique sera conservé.")) return;
+    startArchiveTransition(async () => {
+      try {
+        await archiveAgent(agent.id);
+      } catch (err) {
+        showToast("error", err instanceof Error ? err.message : "Erreur lors de la suppression");
+      }
+    });
+  };
+
   const formatDuration = (sec: number) => {
     if (sec >= 3600) return `${Math.round(sec / 3600)}h`;
     if (sec >= 60) return `${Math.round(sec / 60)}m`;
@@ -638,6 +651,25 @@ export function AgentSettings({ agent }: AgentSettingsProps) {
                 <>
                   <Rocket className="mr-2 h-3.5 w-3.5" />
                   Publier
+                </>
+              )}
+            </Button>
+            <Button
+              type="button"
+              onClick={handleArchive}
+              disabled={isSaving || isPublishing || isArchiving}
+              variant="outline"
+              className="rounded-xl border-red-200 text-[13px] text-red-600 hover:bg-red-50 hover:text-red-700"
+            >
+              {isArchiving ? (
+                <>
+                  <span className="mr-2 h-3.5 w-3.5 animate-spin rounded-full border-2 border-red-300 border-t-red-600" />
+                  Suppression...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="mr-2 h-3.5 w-3.5" />
+                  Supprimer
                 </>
               )}
             </Button>

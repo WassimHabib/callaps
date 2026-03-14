@@ -78,6 +78,7 @@ model Agent {
   retellAgentId    String?  @unique
   retellLlmId      String?  @unique
   published        Boolean  @default(false)
+  archived         Boolean  @default(false)
   userId           String
   orgId            String?
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)

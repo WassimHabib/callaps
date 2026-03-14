@@ -79,7 +79,7 @@ export default async function AgentsPage() {
   const ctx = await getOrgContext();
 
   const agents = await prisma.agent.findMany({
-    where: { ...orgFilter(ctx) },
+    where: { ...orgFilter(ctx), archived: false },
     include: {
       _count: { select: { campaigns: true } },
       campaigns: {

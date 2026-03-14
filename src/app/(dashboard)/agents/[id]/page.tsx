@@ -12,7 +12,7 @@ export default async function EditAgentPage({
   const ctx = await getOrgContext();
 
   const agent = await prisma.agent.findFirst({
-    where: { id, ...orgFilter(ctx) },
+    where: { id, ...orgFilter(ctx), archived: false },
   });
 
   if (!agent) notFound();

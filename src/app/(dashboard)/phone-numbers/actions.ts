@@ -176,7 +176,7 @@ export async function fetchAgents() {
     throw new Error("Permission denied");
   }
   return prisma.agent.findMany({
-    where: { ...orgFilter(ctx) },
+    where: { ...orgFilter(ctx), archived: false },
     select: { id: true, name: true, retellAgentId: true },
     orderBy: { name: "asc" },
   });
