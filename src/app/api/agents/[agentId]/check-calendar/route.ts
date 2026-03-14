@@ -62,9 +62,8 @@ export async function POST(
     }
 
     const calData = await calRes.json();
-    const slotsData = calData.data?.slots || calData.slots || {};
-
-    // v2 returns { "YYYY-MM-DD": [{ time: "..." }, ...] }
+    // v2 returns { data: { "2026-03-14": [{ start: "2026-03-14T09:00:00.000+01:00" }, ...] } }
+    const slotsData = calData.data || {};
     const daySlots = slotsData[date] || [];
 
     if (daySlots.length === 0) {
@@ -75,8 +74,8 @@ export async function POST(
       });
     }
 
-    const formatted = daySlots.map((slot: { time: string }) => {
-      const d = new Date(slot.time);
+    const formatted = daySlots.map((slot: { start: string }) => {
+      const d = new Date(slot.start);
       const timeStr = d.toLocaleTimeString("fr-FR", {
         hour: "2-digit",
         minute: "2-digit",

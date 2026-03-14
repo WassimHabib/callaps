@@ -54,19 +54,19 @@ export async function POST(
 
     if (checkRes.ok) {
       const checkData = await checkRes.json();
-      const slotsData = checkData.data?.slots || checkData.slots || {};
+      const slotsData = checkData.data || {};
       const daySlots = slotsData[date] || [];
 
-      const isAvailable = daySlots.some((slot: { time: string }) => {
-        const slotLocal = new Date(slot.time).toLocaleTimeString("fr-FR", {
+      const isAvailable = daySlots.some((slot: { start: string }) => {
+        const slotLocal = new Date(slot.start).toLocaleTimeString("fr-FR", {
           hour: "2-digit", minute: "2-digit", timeZone: timezone,
         });
         return slotLocal === time;
       });
 
       if (!isAvailable) {
-        const available = daySlots.map((slot: { time: string }) =>
-          new Date(slot.time).toLocaleTimeString("fr-FR", {
+        const available = daySlots.map((slot: { start: string }) =>
+          new Date(slot.start).toLocaleTimeString("fr-FR", {
             hour: "2-digit", minute: "2-digit", timeZone: timezone,
           })
         );
