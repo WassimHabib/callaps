@@ -103,8 +103,8 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
 const SENTIMENT_CONFIG: Record<string, { icon: typeof Smile; className: string }> = {
   positif: { icon: Smile, className: "text-emerald-500" },
   positive: { icon: Smile, className: "text-emerald-500" },
-  neutre: { icon: Meh, className: "text-slate-400" },
-  neutral: { icon: Meh, className: "text-slate-400" },
+  neutre: { icon: Meh, className: "text-amber-400" },
+  neutral: { icon: Meh, className: "text-amber-400" },
   négatif: { icon: Frown, className: "text-red-400" },
   negatif: { icon: Frown, className: "text-red-400" },
   negative: { icon: Frown, className: "text-red-400" },
