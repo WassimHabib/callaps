@@ -9,6 +9,10 @@ import { createPhoneCall, listPhoneNumbers } from "@/lib/retell";
  * The Request URL configured in Slack must include ?token=<integrationId>
  * Example: https://app.callaps.ai/api/slack/commands?token=clxyz123...
  */
+export async function GET() {
+  return NextResponse.json({ ok: true, endpoint: "slack-commands" });
+}
+
 export async function POST(req: NextRequest) {
   // Parse Slack form data
   const formData = await req.formData();
