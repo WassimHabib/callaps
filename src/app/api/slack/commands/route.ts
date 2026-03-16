@@ -25,7 +25,6 @@ export async function POST(req: NextRequest) {
 
   const integration = await prisma.integration.findUnique({
     where: { id: token },
-    include: { user: { select: { id: true, orgId: true } } },
   });
 
   if (!integration || integration.type !== "slack" || !integration.enabled) {
@@ -36,7 +35,6 @@ export async function POST(req: NextRequest) {
   }
 
   const userId = integration.userId;
-  const orgId = integration.user.orgId;
 
   // Parse command: /appel +33612345678 [AgentName]
   const parts = text.trim().split(/\s+/);
@@ -68,7 +66,7 @@ export async function POST(req: NextRequest) {
 
   // Find agent
   const agentWhere = {
-    ...(orgId ? { orgId } : { userId }),
+    userId,
     archived: false,
     retellAgentId: { not: null as string | null },
   };
@@ -142,7 +140,6 @@ export async function POST(req: NextRequest) {
           retellCallId: result.call_id,
           status: "pending",
           userId,
-          orgId,
         },
       });
     }
