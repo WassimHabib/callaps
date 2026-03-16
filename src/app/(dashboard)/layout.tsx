@@ -61,7 +61,7 @@ export default async function DashboardLayout({
     <div className="flex h-screen overflow-hidden">
       <AppSidebar
         role={sidebarRole as "admin" | "client"}
-        hideOrgSwitcher={role === "admin"}
+        showOrgSwitcher={role === "super_admin"}
       />
       <div className="flex flex-1 flex-col overflow-auto">
         {impersonatedOrg && (

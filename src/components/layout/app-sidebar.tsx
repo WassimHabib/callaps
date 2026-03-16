@@ -51,10 +51,10 @@ const adminLinks = [
 
 interface AppSidebarProps {
   role: "admin" | "client";
-  hideOrgSwitcher?: boolean;
+  showOrgSwitcher?: boolean;
 }
 
-export function AppSidebar({ role, hideOrgSwitcher }: AppSidebarProps) {
+export function AppSidebar({ role, showOrgSwitcher }: AppSidebarProps) {
   const pathname = usePathname();
   const links = role === "admin" ? adminLinks : clientLinks;
 
@@ -72,8 +72,8 @@ export function AppSidebar({ role, hideOrgSwitcher }: AppSidebarProps) {
         />
       </div>
 
-      {/* Organization Switcher — hidden for admin sidebar and admin users (locked to their org) */}
-      {role !== "admin" && !hideOrgSwitcher && (
+      {/* Organization Switcher — only visible for super_admin */}
+      {showOrgSwitcher && (
         <div className="px-3 pb-2 [&_.cl-organizationSwitcherTrigger]:!text-white [&_.cl-organizationSwitcherTrigger]:!bg-slate-700/60 [&_.cl-organizationSwitcherTrigger]:!border-slate-600/50 [&_.cl-organizationSwitcherTrigger]:!border [&_.cl-organizationSwitcherTrigger]:rounded-xl [&_button]:!text-white [&_span]:!text-white [&_p]:!text-white [&_svg]:!text-slate-400">
           <OrganizationSwitcher
             hidePersonal
