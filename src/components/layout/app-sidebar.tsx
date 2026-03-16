@@ -21,6 +21,7 @@ import {
   CalendarCheck,
   Receipt,
   Lightbulb,
+  Briefcase,
 } from "lucide-react";
 
 const clientLinks = [
@@ -52,9 +53,10 @@ const adminLinks = [
 interface AppSidebarProps {
   role: "admin" | "client";
   showOrgSwitcher?: boolean;
+  isAdmin?: boolean;
 }
 
-export function AppSidebar({ role, showOrgSwitcher }: AppSidebarProps) {
+export function AppSidebar({ role, showOrgSwitcher, isAdmin }: AppSidebarProps) {
   const pathname = usePathname();
   const links = role === "admin" ? adminLinks : clientLinks;
 
@@ -89,6 +91,17 @@ export function AppSidebar({ role, showOrgSwitcher }: AppSidebarProps) {
             }}
           />
         </div>
+      )}
+
+      {/* Admin Portal Link */}
+      {isAdmin && (
+        <Link
+          href="/admin-portal"
+          className="mx-3 mb-3 flex items-center gap-2 rounded-lg bg-gradient-to-r from-indigo-50 to-violet-50 px-3 py-2.5 text-[13px] font-medium text-indigo-700 transition-all hover:from-indigo-100 hover:to-violet-100"
+        >
+          <Briefcase className="h-4 w-4 text-indigo-500" />
+          Portail Admin
+        </Link>
       )}
 
       {/* Navigation */}

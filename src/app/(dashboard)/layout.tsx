@@ -62,6 +62,7 @@ export default async function DashboardLayout({
       <AppSidebar
         role={sidebarRole as "admin" | "client"}
         showOrgSwitcher={role === "super_admin"}
+        isAdmin={role === "admin" || role === "super_admin"}
       />
       <div className="flex flex-1 flex-col overflow-auto">
         {impersonatedOrg && (
