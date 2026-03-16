@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { formatCentimes } from "@/lib/billing";
+function formatCentimes(centimes: number): string {
+  const euros = (centimes / 100).toFixed(2).replace(".", ",");
+  return `${euros} €`;
+}
 import { TrendingUp, AlertCircle, CreditCard, Activity } from "lucide-react";
 
 const subscriptionStatusConfig: Record<

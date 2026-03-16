@@ -30,7 +30,10 @@ import {
   removeClientShare,
 } from "@/app/(dashboard)/admin-portal/clients/actions";
 import { startAdminImpersonation } from "@/app/(dashboard)/admin-portal/impersonation-actions";
-import { formatCentimes } from "@/lib/billing";
+function formatCentimes(centimes: number): string {
+  const euros = (centimes / 100).toFixed(2).replace(".", ",");
+  return `${euros} €`;
+}
 
 const statusConfig: Record<string, { label: string; className: string }> = {
   onboarding: { label: "Onboarding", className: "bg-blue-50 text-blue-700" },
