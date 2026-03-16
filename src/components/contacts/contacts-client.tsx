@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useMemo, useCallback, useRef } from "react";
+import { useState, useTransition, useMemo, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -9,14 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -24,6 +16,22 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Plus,
   Search,
@@ -37,9 +45,18 @@ import {
   FileSpreadsheet,
   AlertCircle,
   CheckCircle2,
+  MoreHorizontal,
+  Pencil,
+  MessageSquare,
+  Trash2,
+  PhoneCall,
+  Calendar,
 } from "lucide-react";
 import {
   createContact,
+  updateContact,
+  deleteContact,
+  addNoteToContact,
   importContactsCSV,
   fetchContacts,
 } from "@/app/(dashboard)/contacts/actions";
@@ -90,6 +107,38 @@ function formatDate(d: Date | string | null) {
     month: "2-digit",
     year: "numeric",
   });
+}
+
+function timeAgo(d: Date | string | null) {
+  if (!d) return "—";
+  const now = new Date();
+  const date = new Date(d);
+  const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+  if (diff < 60) return "À l'instant";
+  if (diff < 3600) return `Il y a ${Math.floor(diff / 60)} min`;
+  if (diff < 86400) return `Il y a ${Math.floor(diff / 3600)}h`;
+  if (diff < 172800) return "Hier";
+  if (diff < 604800) return `Il y a ${Math.floor(diff / 86400)}j`;
+  return formatDate(d);
+}
+
+const AVATAR_COLORS = [
+  "from-indigo-500 to-violet-500",
+  "from-emerald-500 to-teal-500",
+  "from-amber-500 to-orange-500",
+  "from-rose-500 to-pink-500",
+  "from-cyan-500 to-blue-500",
+  "from-fuchsia-500 to-purple-500",
+];
+
+function avatarColor(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
+function initials(name: string) {
+  return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 }
 
 // ---------------------------------------------------------------------------
@@ -144,7 +193,10 @@ export function ContactsClient({ initialContacts, allTags }: ContactsClientProps
   const [isPending, startTransition] = useTransition();
   const [search, setSearch] = useState("");
   const [tagFilter, setTagFilter] = useState("");
-  const [contacts] = useState(initialContacts);
+  const [contacts, setContacts] = useState(initialContacts);
+  useEffect(() => {
+    setContacts(initialContacts);
+  }, [initialContacts]);
 
   // Create dialog
   const [createOpen, setCreateOpen] = useState(false);
@@ -162,6 +214,28 @@ export function ContactsClient({ initialContacts, allTags }: ContactsClientProps
   const [importResult, setImportResult] = useState<{ imported: number } | null>(null);
   const [importError, setImportError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Edit dialog
+  const [editContact, setEditContact] = useState<ContactItem | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editCompany, setEditCompany] = useState("");
+
+  // Note dialog
+  const [noteContact, setNoteContact] = useState<ContactItem | null>(null);
+  const [noteText, setNoteText] = useState("");
+
+  // Delete dialog
+  const [deleteTarget, setDeleteTarget] = useState<ContactItem | null>(null);
+
+  // Success toast
+  const [toast, setToast] = useState<string | null>(null);
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 3000);
+    return () => clearTimeout(t);
+  }, [toast]);
 
   // Client-side filtering
   const filtered = useMemo(() => {
@@ -203,6 +277,7 @@ export function ContactsClient({ initialContacts, allTags }: ContactsClientProps
         setFormEmail("");
         setFormCompany("");
         setFormTags("");
+        setToast("Contact ajouté avec succès");
         router.refresh();
       } catch (err) {
         console.error("Erreur création contact:", err);
@@ -251,8 +326,76 @@ export function ContactsClient({ initialContacts, allTags }: ContactsClientProps
     });
   }, [csvPreview, router, startTransition]);
 
+  // Open edit dialog
+  const openEdit = useCallback((c: ContactItem) => {
+    setEditContact(c);
+    setEditName(c.name);
+    setEditPhone(c.phone);
+    setEditEmail(c.email || "");
+    setEditCompany(c.company || "");
+  }, []);
+
+  // Save edit
+  const handleEdit = useCallback(() => {
+    if (!editContact || !editName.trim() || !editPhone.trim()) return;
+    startTransition(async () => {
+      try {
+        await updateContact(editContact.id, {
+          name: editName.trim(),
+          phone: editPhone.trim(),
+          email: editEmail.trim(),
+          company: editCompany.trim(),
+        });
+        setEditContact(null);
+        setToast("Contact modifié avec succès");
+        router.refresh();
+      } catch (err) {
+        console.error("Erreur modification:", err);
+      }
+    });
+  }, [editContact, editName, editPhone, editEmail, editCompany, router, startTransition]);
+
+  // Save note
+  const handleAddNote = useCallback(() => {
+    if (!noteContact || !noteText.trim()) return;
+    startTransition(async () => {
+      try {
+        await addNoteToContact(noteContact.id, noteText.trim());
+        setNoteContact(null);
+        setNoteText("");
+        setToast("Note ajoutée avec succès");
+        router.refresh();
+      } catch (err) {
+        console.error("Erreur ajout note:", err);
+      }
+    });
+  }, [noteContact, noteText, router, startTransition]);
+
+  // Delete contact
+  const handleDelete = useCallback(() => {
+    if (!deleteTarget) return;
+    startTransition(async () => {
+      try {
+        await deleteContact(deleteTarget.id);
+        setDeleteTarget(null);
+        setToast("Contact supprimé");
+        router.refresh();
+      } catch (err) {
+        console.error("Erreur suppression:", err);
+      }
+    });
+  }, [deleteTarget, router, startTransition]);
+
   return (
     <>
+      {/* Success toast */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-medium text-white shadow-lg shadow-emerald-500/25 animate-in slide-in-from-bottom-4 fade-in duration-300">
+          <CheckCircle2 className="h-4 w-4" />
+          {toast}
+        </div>
+      )}
+
       {/* Toolbar */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
@@ -317,7 +460,7 @@ export function ContactsClient({ initialContacts, allTags }: ContactsClientProps
         </div>
       </div>
 
-      {/* Table */}
+      {/* Contacts list */}
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 py-20">
           <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 shadow-lg shadow-indigo-500/25">
@@ -352,122 +495,142 @@ export function ContactsClient({ initialContacts, allTags }: ContactsClientProps
           </div>
         </div>
       ) : (
-        <Card className="border-0 bg-white shadow-sm">
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-slate-100">
-                  <TableHead className="text-xs font-medium text-slate-500">
-                    Nom
-                  </TableHead>
-                  <TableHead className="text-xs font-medium text-slate-500">
-                    Téléphone
-                  </TableHead>
-                  <TableHead className="text-xs font-medium text-slate-500">
-                    Email
-                  </TableHead>
-                  <TableHead className="text-xs font-medium text-slate-500">
-                    Entreprise
-                  </TableHead>
-                  <TableHead className="text-xs font-medium text-slate-500">
-                    Tags
-                  </TableHead>
-                  <TableHead className="text-xs font-medium text-slate-500 text-center">
-                    Appels
-                  </TableHead>
-                  <TableHead className="text-xs font-medium text-slate-500 text-center">
-                    Score
-                  </TableHead>
-                  <TableHead className="text-xs font-medium text-slate-500">
-                    Dernière interaction
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((contact) => (
-                  <TableRow
-                    key={contact.id}
-                    className="cursor-pointer border-slate-50 transition-colors hover:bg-slate-50/80"
-                  >
-                    <TableCell>
+        <div className="space-y-2">
+          {filtered.map((contact) => (
+            <Card
+              key={contact.id}
+              className="group border-0 bg-white shadow-sm transition-all hover:shadow-md"
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  {/* Avatar */}
+                  <Link href={`/contacts/${contact.id}`} className="shrink-0">
+                    <div className={`flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br ${avatarColor(contact.name)} text-sm font-bold text-white shadow-sm`}>
+                      {initials(contact.name)}
+                    </div>
+                  </Link>
+
+                  {/* Main info */}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
                       <Link
                         href={`/contacts/${contact.id}`}
-                        className="flex items-center gap-2 font-medium text-slate-900 hover:text-indigo-600"
+                        className="truncate text-sm font-semibold text-slate-900 hover:text-indigo-600"
                       >
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-100 to-violet-100 text-xs font-bold text-indigo-600">
-                          {contact.name
-                            .split(" ")
-                            .map((w) => w[0])
-                            .join("")
-                            .slice(0, 2)
-                            .toUpperCase()}
-                        </div>
                         {contact.name}
                       </Link>
-                    </TableCell>
-                    <TableCell className="text-sm text-slate-600">
-                      <span className="flex items-center gap-1.5">
-                        <Phone className="h-3.5 w-3.5 text-slate-400" />
+                      {scoreBadge(contact.score, contact.scoreLabel)}
+                    </div>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                      <span className="flex items-center gap-1">
+                        <Phone className="h-3 w-3 text-slate-400" />
                         {contact.phone}
                       </span>
-                    </TableCell>
-                    <TableCell className="text-sm text-slate-600">
-                      {contact.email ? (
-                        <span className="flex items-center gap-1.5">
-                          <Mail className="h-3.5 w-3.5 text-slate-400" />
-                          {contact.email}
+                      {contact.email && (
+                        <span className="flex items-center gap-1">
+                          <Mail className="h-3 w-3 text-slate-400" />
+                          <span className="truncate max-w-[180px]">{contact.email}</span>
                         </span>
-                      ) : (
-                        <span className="text-slate-300">—</span>
                       )}
-                    </TableCell>
-                    <TableCell className="text-sm text-slate-600">
-                      {contact.company ? (
-                        <span className="flex items-center gap-1.5">
-                          <Building2 className="h-3.5 w-3.5 text-slate-400" />
+                      {contact.company && (
+                        <span className="flex items-center gap-1">
+                          <Building2 className="h-3 w-3 text-slate-400" />
                           {contact.company}
                         </span>
-                      ) : (
-                        <span className="text-slate-300">—</span>
                       )}
-                    </TableCell>
-                    <TableCell>
+                    </div>
+                  </div>
+
+                  {/* Right side: tags + stats + actions */}
+                  <div className="hidden items-center gap-4 sm:flex">
+                    {/* Tags */}
+                    {contact.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1">
-                        {contact.tags.length > 0 ? (
-                          contact.tags.slice(0, 3).map((tag) => (
-                            <Badge
-                              key={tag}
-                              className="border-0 bg-slate-100 text-slate-600 text-[10px] font-normal"
-                            >
-                              <Tag className="mr-1 h-2.5 w-2.5" />
-                              {tag}
-                            </Badge>
-                          ))
-                        ) : (
-                          <span className="text-slate-300">—</span>
-                        )}
-                        {contact.tags.length > 3 && (
+                        {contact.tags.slice(0, 2).map((tag) => (
+                          <Badge
+                            key={tag}
+                            className="border-0 bg-indigo-50 text-indigo-600 text-[10px] font-normal"
+                          >
+                            {tag}
+                          </Badge>
+                        ))}
+                        {contact.tags.length > 2 && (
                           <Badge className="border-0 bg-slate-100 text-slate-500 text-[10px] font-normal">
-                            +{contact.tags.length - 3}
+                            +{contact.tags.length - 2}
                           </Badge>
                         )}
                       </div>
-                    </TableCell>
-                    <TableCell className="text-center text-sm text-slate-600">
-                      {contact._count.calls}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {scoreBadge(contact.score, contact.scoreLabel)}
-                    </TableCell>
-                    <TableCell className="text-sm text-slate-500">
-                      {formatDate(contact.updatedAt)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                    )}
+
+                    {/* Stats */}
+                    <div className="flex items-center gap-3 text-xs text-slate-400">
+                      <span className="flex items-center gap-1" title="Appels">
+                        <PhoneCall className="h-3.5 w-3.5" />
+                        {contact._count.calls}
+                      </span>
+                      <span className="flex items-center gap-1" title="Dernière activité">
+                        <Calendar className="h-3.5 w-3.5" />
+                        {timeAgo(contact.updatedAt)}
+                      </span>
+                    </div>
+
+                    {/* Actions */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="inline-flex h-8 w-8 items-center justify-center rounded-lg opacity-0 transition-opacity group-hover:opacity-100 hover:bg-slate-100">
+                        <MoreHorizontal className="h-4 w-4 text-slate-400" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openEdit(contact)}>
+                          <Pencil className="mr-2 h-3.5 w-3.5" />
+                          Modifier
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => { setNoteContact(contact); setNoteText(""); }}>
+                          <MessageSquare className="mr-2 h-3.5 w-3.5" />
+                          Ajouter une note
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => setDeleteTarget(contact)}
+                          className="text-red-600 focus:text-red-600"
+                        >
+                          <Trash2 className="mr-2 h-3.5 w-3.5" />
+                          Supprimer
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  {/* Mobile actions (always visible) */}
+                  <div className="sm:hidden">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-slate-100">
+                        <MoreHorizontal className="h-4 w-4 text-slate-400" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openEdit(contact)}>
+                          <Pencil className="mr-2 h-3.5 w-3.5" />
+                          Modifier
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => { setNoteContact(contact); setNoteText(""); }}>
+                          <MessageSquare className="mr-2 h-3.5 w-3.5" />
+                          Ajouter une note
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => setDeleteTarget(contact)}
+                          className="text-red-600 focus:text-red-600"
+                        >
+                          <Trash2 className="mr-2 h-3.5 w-3.5" />
+                          Supprimer
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       )}
 
       {/* Create Contact Dialog */}
@@ -540,6 +703,121 @@ export function ContactsClient({ initialContacts, allTags }: ContactsClientProps
               className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white"
             >
               {isPending ? "Création..." : "Créer le contact"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Contact Dialog */}
+      <Dialog open={!!editContact} onOpenChange={(open) => !open && setEditContact(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Modifier le contact</DialogTitle>
+            <DialogDescription>
+              Modifiez les informations de {editContact?.name}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-2">
+            <div className="grid gap-2">
+              <Label htmlFor="edit-name">Nom *</Label>
+              <Input
+                id="edit-name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-phone">Téléphone *</Label>
+              <Input
+                id="edit-phone"
+                value={editPhone}
+                onChange={(e) => setEditPhone(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-email">Email</Label>
+              <Input
+                id="edit-email"
+                type="email"
+                value={editEmail}
+                onChange={(e) => setEditEmail(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-company">Entreprise</Label>
+              <Input
+                id="edit-company"
+                value={editCompany}
+                onChange={(e) => setEditCompany(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditContact(null)}>
+              Annuler
+            </Button>
+            <Button
+              onClick={handleEdit}
+              disabled={isPending || !editName.trim() || !editPhone.trim()}
+              className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white"
+            >
+              {isPending ? "Enregistrement..." : "Enregistrer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Note Dialog */}
+      <Dialog open={!!noteContact} onOpenChange={(open) => !open && setNoteContact(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Ajouter une note</DialogTitle>
+            <DialogDescription>
+              Note pour {noteContact?.name}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2">
+            <Textarea
+              placeholder="Écrire une note..."
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              rows={4}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNoteContact(null)}>
+              Annuler
+            </Button>
+            <Button
+              onClick={handleAddNote}
+              disabled={isPending || !noteText.trim()}
+              className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white"
+            >
+              {isPending ? "Ajout..." : "Ajouter la note"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Supprimer le contact</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir supprimer <strong>{deleteTarget?.name}</strong> ? Cette action est irréversible.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+              Annuler
+            </Button>
+            <Button
+              onClick={handleDelete}
+              disabled={isPending}
+              variant="destructive"
+            >
+              {isPending ? "Suppression..." : "Supprimer"}
             </Button>
           </DialogFooter>
         </DialogContent>
