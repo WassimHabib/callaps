@@ -155,8 +155,12 @@ export function CallDetailDialog({
   const st = statusConfig(call.status);
   const sent = sentimentConfig(call.sentiment);
   const messages = parseTranscript(call.transcript);
-  const contactName = call.contact?.name || "Inconnu";
-  const contactPhone = call.contact?.phone || "—";
+  const meta = (call.metadata as Record<string, unknown>) || {};
+  const direction = (meta.direction as string) || "inbound";
+  const metaTo = (meta.toNumber as string) || "";
+  const metaFrom = (meta.fromNumber as string) || "";
+  const contactName = call.contact?.name || (direction === "outbound" ? metaTo : metaFrom) || "Numéro inconnu";
+  const contactPhone = call.contact?.phone || (direction === "outbound" ? metaTo : metaFrom) || "—";
 
   const handleSync = async () => {
     if (!call.retellCallId) return;
