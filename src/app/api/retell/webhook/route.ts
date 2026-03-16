@@ -555,6 +555,40 @@ export async function POST(req: Request) {
       // Re-execute workflows with updated analysis
       await runPostCallWorkflows(callId);
 
+      // Generate our own summary in the agent's language using Claude
+      try {
+        const analyzedCall = await prisma.call.findUnique({
+          where: { retellCallId: callId },
+          select: { transcript: true, metadata: true },
+        });
+        const analyzedMeta = (typeof analyzedCall?.metadata === "object" && analyzedCall?.metadata !== null
+          ? analyzedCall.metadata : {}) as Record<string, unknown>;
+        const analyzedAgentId = analyzedMeta.agentId as string | undefined;
+
+        if (analyzedCall?.transcript && analyzedAgentId) {
+          const summaryAgent = await prisma.agent.findUnique({
+            where: { id: analyzedAgentId },
+            select: { language: true },
+          });
+          if (summaryAgent) {
+            const { generateCallSummary } = await import("@/lib/call-summary");
+            const result = await generateCallSummary(analyzedCall.transcript, summaryAgent.language);
+            if (result?.summary) {
+              await prisma.call.update({
+                where: { retellCallId: callId },
+                data: {
+                  summary: result.summary,
+                  sentiment: result.sentiment,
+                },
+              });
+              console.log("[webhook] generated summary in", summaryAgent.language);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("[webhook] call summary generation failed:", err);
+      }
+
       // Extract demands from transcript
       try {
         await extractCallDemands(callId);
@@ -562,7 +596,7 @@ export async function POST(req: Request) {
         console.error("[webhook] demand extraction failed:", err);
       }
 
-      // Send agent-level notifications (email, slack) — after analysis so summary is included
+      // Send agent-level notifications (email, slack, whatsapp) — after summary generation
       try {
         await sendAgentNotifications(callId);
       } catch (err) {
