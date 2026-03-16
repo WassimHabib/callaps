@@ -70,7 +70,7 @@ async function processWhatsAppCall(
     const agentWhere = {
       userId: user.id,
       archived: false,
-      retellAgentId: { not: null as string | null },
+      NOT: { retellAgentId: null },
     };
 
     let agent;

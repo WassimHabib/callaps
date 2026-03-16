@@ -86,7 +86,7 @@ async function processSlackCall(
     const agentWhere = {
       userId,
       archived: false,
-      retellAgentId: { not: null as string | null },
+      NOT: { retellAgentId: null },
     };
 
     let agent;
