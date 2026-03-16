@@ -50,10 +50,12 @@ export async function createClonedVoice(formData: FormData) {
     throw new Error(`Limite de ${MAX_VOICES_PER_ORG} voix clonées atteinte`);
   }
 
-  // Call Retell API
+  // Call Retell API — endpoint is /clone-voice
+  // Required fields: voice_name, voice_provider, files
   const retellForm = new FormData();
   retellForm.append("voice_name", `${name} (${ctx.orgId})`);
-  retellForm.append("voice_file", file);
+  retellForm.append("voice_provider", "cartesia");
+  retellForm.append("files", file);
 
   const result = await createVoice(retellForm);
 

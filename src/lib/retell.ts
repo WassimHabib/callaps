@@ -347,7 +347,7 @@ export async function listVoices(): Promise<RetellVoice[]> {
 }
 
 export async function createVoice(formData: FormData): Promise<{ voice_id: string }> {
-  const res = await fetch(`${RETELL_BASE_URL}/create-voice`, {
+  const res = await fetch(`${RETELL_BASE_URL}/clone-voice`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${process.env.RETELL_API_KEY}`,
