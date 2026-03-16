@@ -123,17 +123,28 @@ export async function importPhoneNumberAction(params: {
     });
   }
 
-  const phoneNumber = await retellImportPhoneNumber({
-    phone_number: params.phoneNumber,
-    termination_uri: params.terminationUri,
-    nickname: params.nickname || undefined,
-    ...(params.twilioAccountSid && params.twilioAuthToken
-      ? {
-          sip_trunk_auth_username: params.twilioAccountSid,
-          sip_trunk_auth_password: params.twilioAuthToken,
-        }
-      : {}),
-  });
+  // Try to import on Retell — if already exists, just register ownership
+  let phoneNumber;
+  try {
+    phoneNumber = await retellImportPhoneNumber({
+      phone_number: params.phoneNumber,
+      termination_uri: params.terminationUri,
+      nickname: params.nickname || undefined,
+      ...(params.twilioAccountSid && params.twilioAuthToken
+        ? {
+            sip_trunk_auth_username: params.twilioAccountSid,
+            sip_trunk_auth_password: params.twilioAuthToken,
+          }
+        : {}),
+    });
+  } catch (err) {
+    // If phone number already exists on Retell, that's fine — just register locally
+    if (String(err).includes("already exists")) {
+      phoneNumber = { phone_number: params.phoneNumber };
+    } else {
+      throw err;
+    }
+  }
 
   // Register phone number ownership in DB
   const orgId = ctx.orgId || ctx.userId;
