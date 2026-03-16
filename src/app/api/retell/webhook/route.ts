@@ -603,20 +603,21 @@ export async function POST(req: Request) {
         console.error("[webhook] agent notifications failed:", err);
       }
 
-      // Send Slack notification if call was triggered from /appel command
+      // Send command-source notifications (Slack /appel or WhatsApp command)
       try {
         const callRecord = await prisma.call.findUnique({
           where: { retellCallId: callId },
           select: { metadata: true, summary: true, duration: true },
         });
         const meta = (callRecord?.metadata as Record<string, unknown>) || {};
-        if (meta.source === "slack_command" && meta.slackResponseUrl) {
-          const duration = callRecord?.duration
-            ? `${Math.floor(callRecord.duration / 60)}m${callRecord.duration % 60}s`
-            : "N/A";
-          const summary = callRecord?.summary || "Aucun résumé disponible";
-          const agentName = (meta.agentName as string) || "Agent IA";
+        const duration = callRecord?.duration
+          ? `${Math.floor(callRecord.duration / 60)}m${callRecord.duration % 60}s`
+          : "N/A";
+        const summary = callRecord?.summary || "Aucun résumé disponible";
+        const agentName = (meta.agentName as string) || "Agent IA";
 
+        // Slack /appel command → respond via response_url
+        if (meta.source === "slack_command" && meta.slackResponseUrl) {
           await fetch(meta.slackResponseUrl as string, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -632,8 +633,60 @@ export async function POST(req: Request) {
           });
           console.log("[webhook] Slack post-call notification sent");
         }
+
+        // WhatsApp command → send recap via Twilio
+        if (meta.source === "whatsapp_command" && meta.whatsappSender) {
+          const senderPhone = meta.whatsappSender as string;
+          const toNum = senderPhone.startsWith("+") ? senderPhone : `+${senderPhone}`;
+          const whatsappFrom = process.env.TWILIO_WHATSAPP_FROM || "+14155238886";
+
+          // Get Twilio creds
+          let accountSid = process.env.TWILIO_ACCOUNT_SID;
+          let authToken = process.env.TWILIO_AUTH_TOKEN;
+          if (!accountSid || !authToken) {
+            const twilioInt = await prisma.integration.findFirst({
+              where: { type: "twilio", enabled: true },
+            });
+            if (twilioInt) {
+              const cfg = twilioInt.config as { accountSid?: string; authToken?: string };
+              accountSid = cfg.accountSid;
+              authToken = cfg.authToken;
+            }
+          }
+
+          if (accountSid && authToken) {
+            const msgBody = [
+              `✅ *Appel terminé — ${agentName}*`,
+              `⏱️ Durée : ${duration}`,
+              `📝 *Résumé :*`,
+              summary,
+            ].join("\n");
+
+            const waParams = new URLSearchParams();
+            waParams.set("From", `whatsapp:${whatsappFrom}`);
+            waParams.set("To", `whatsapp:${toNum}`);
+            waParams.set("Body", msgBody);
+
+            const waRes = await fetch(
+              `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Basic ${Buffer.from(`${accountSid}:${authToken}`).toString("base64")}`,
+                  "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: waParams.toString(),
+              }
+            );
+            if (!waRes.ok) {
+              console.error("[webhook] WhatsApp post-call failed:", waRes.status, await waRes.text());
+            } else {
+              console.log("[webhook] WhatsApp post-call notification sent");
+            }
+          }
+        }
       } catch (err) {
-        console.error("[webhook] Slack post-call notification failed:", err);
+        console.error("[webhook] Command-source notification failed:", err);
       }
       break;
     }
