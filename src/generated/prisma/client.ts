@@ -136,3 +136,8 @@ export type Prospect = Prisma.ProspectModel
  * 
  */
 export type ProspectActivity = Prisma.ProspectActivityModel
+/**
+ * Model ClonedVoice
+ * 
+ */
+export type ClonedVoice = Prisma.ClonedVoiceModel

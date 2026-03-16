@@ -68,7 +68,15 @@ interface AgentConfig {
   fallbackVoiceId?: string;
 }
 
+interface ClonedVoiceItem {
+  id: string;
+  name: string;
+  retellVoiceId: string;
+  gender: string;
+}
+
 interface AgentSettingsProps {
+  clonedVoices?: ClonedVoiceItem[];
   agent: {
     id: string;
     name: string;
@@ -416,7 +424,7 @@ function RadioField({
 }
 
 // ─── Main component ──────────────────────────────────────────
-export function AgentSettings({ agent }: AgentSettingsProps) {
+export function AgentSettings({ agent, clonedVoices = [] }: AgentSettingsProps) {
   const [name, setName] = useState(agent.name);
   const [editingName, setEditingName] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -763,7 +771,7 @@ export function AgentSettings({ agent }: AgentSettingsProps) {
           <div className="h-5 w-px bg-slate-200" />
 
           <div className="w-[200px]">
-            <VoiceSelector value={voiceId} provider="" onSelect={handleVoiceSelect} />
+            <VoiceSelector value={voiceId} provider="" onSelect={handleVoiceSelect} clonedVoices={clonedVoices} />
           </div>
           <input type="hidden" name="voiceId" value={voiceId} />
         </div>
@@ -825,7 +833,7 @@ export function AgentSettings({ agent }: AgentSettingsProps) {
             <div className="space-y-5">
               <div className="space-y-2">
                 <Label className="text-[12px] font-medium text-slate-700">Voix sélectionnée</Label>
-                <VoiceSelector value={voiceId} provider="" onSelect={handleVoiceSelect} />
+                <VoiceSelector value={voiceId} provider="" onSelect={handleVoiceSelect} clonedVoices={clonedVoices} />
               </div>
 
               <div className="space-y-2">

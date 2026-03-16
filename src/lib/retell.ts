@@ -346,6 +346,35 @@ export async function listVoices(): Promise<RetellVoice[]> {
   return res.json();
 }
 
+export async function createVoice(formData: FormData): Promise<{ voice_id: string }> {
+  const res = await fetch(`${RETELL_BASE_URL}/create-voice`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.RETELL_API_KEY}`,
+    },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const error = await res.text();
+    throw new Error(`Retell createVoice failed: ${res.status} ${error}`);
+  }
+
+  return res.json();
+}
+
+export async function deleteVoice(voiceId: string): Promise<void> {
+  const res = await fetch(`${RETELL_BASE_URL}/delete-voice/${voiceId}`, {
+    method: "DELETE",
+    headers: getHeaders(),
+  });
+
+  if (!res.ok) {
+    const error = await res.text();
+    throw new Error(`Retell deleteVoice failed: ${res.status} ${error}`);
+  }
+}
+
 // --- Web Call ---
 
 export async function createWebCall(params: {

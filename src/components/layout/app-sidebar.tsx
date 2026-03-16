@@ -22,6 +22,7 @@ import {
   Receipt,
   Lightbulb,
   Briefcase,
+  Mic,
 } from "lucide-react";
 
 const clientLinks = [
@@ -31,6 +32,7 @@ const clientLinks = [
   { href: "/phone-numbers", label: "Numéros de téléphone", icon: Phone },
   { href: "/contacts", label: "Contacts", icon: Contact2 },
   { href: "/calls", label: "Historique appels", icon: PhoneCall },
+  { href: "/voices", label: "Voix clonées", icon: Mic },
   { href: "/appointments", label: "Rendez-vous", icon: CalendarCheck },
   { href: "/statistics", label: "Statistiques", icon: BarChart3 },
   { href: "/insights", label: "Insights IA", icon: Lightbulb },

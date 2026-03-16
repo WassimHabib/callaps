@@ -402,7 +402,8 @@ export const ModelName = {
   AdminClient: 'AdminClient',
   AdminClientShare: 'AdminClientShare',
   Prospect: 'Prospect',
-  ProspectActivity: 'ProspectActivity'
+  ProspectActivity: 'ProspectActivity',
+  ClonedVoice: 'ClonedVoice'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -418,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "agent" | "campaign" | "contact" | "call" | "callDemand" | "weeklyReport" | "companyProfile" | "webhookConfig" | "webhookLog" | "phoneNumber" | "integration" | "appointment" | "subscription" | "invoice" | "adminClient" | "adminClientShare" | "prospect" | "prospectActivity"
+    modelProps: "user" | "agent" | "campaign" | "contact" | "call" | "callDemand" | "weeklyReport" | "companyProfile" | "webhookConfig" | "webhookLog" | "phoneNumber" | "integration" | "appointment" | "subscription" | "invoice" | "adminClient" | "adminClientShare" | "prospect" | "prospectActivity" | "clonedVoice"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1828,6 +1829,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ClonedVoice: {
+      payload: Prisma.$ClonedVoicePayload<ExtArgs>
+      fields: Prisma.ClonedVoiceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ClonedVoiceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClonedVoicePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ClonedVoiceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClonedVoicePayload>
+        }
+        findFirst: {
+          args: Prisma.ClonedVoiceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClonedVoicePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ClonedVoiceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClonedVoicePayload>
+        }
+        findMany: {
+          args: Prisma.ClonedVoiceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClonedVoicePayload>[]
+        }
+        create: {
+          args: Prisma.ClonedVoiceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClonedVoicePayload>
+        }
+        createMany: {
+          args: Prisma.ClonedVoiceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ClonedVoiceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClonedVoicePayload>[]
+        }
+        delete: {
+          args: Prisma.ClonedVoiceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClonedVoicePayload>
+        }
+        update: {
+          args: Prisma.ClonedVoiceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClonedVoicePayload>
+        }
+        deleteMany: {
+          args: Prisma.ClonedVoiceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ClonedVoiceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ClonedVoiceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClonedVoicePayload>[]
+        }
+        upsert: {
+          args: Prisma.ClonedVoiceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClonedVoicePayload>
+        }
+        aggregate: {
+          args: Prisma.ClonedVoiceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateClonedVoice>
+        }
+        groupBy: {
+          args: Prisma.ClonedVoiceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ClonedVoiceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ClonedVoiceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ClonedVoiceCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2246,6 +2321,21 @@ export const ProspectActivityScalarFieldEnum = {
 export type ProspectActivityScalarFieldEnum = (typeof ProspectActivityScalarFieldEnum)[keyof typeof ProspectActivityScalarFieldEnum]
 
 
+export const ClonedVoiceScalarFieldEnum = {
+  id: 'id',
+  orgId: 'orgId',
+  name: 'name',
+  retellVoiceId: 'retellVoiceId',
+  gender: 'gender',
+  createdBy: 'createdBy',
+  shared: 'shared',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ClonedVoiceScalarFieldEnum = (typeof ClonedVoiceScalarFieldEnum)[keyof typeof ClonedVoiceScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2574,6 +2664,7 @@ export type GlobalOmitConfig = {
   adminClientShare?: Prisma.AdminClientShareOmit
   prospect?: Prisma.ProspectOmit
   prospectActivity?: Prisma.ProspectActivityOmit
+  clonedVoice?: Prisma.ClonedVoiceOmit
 }
 
 /* Types for Logging */

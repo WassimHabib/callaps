@@ -26,19 +26,51 @@ interface VoiceSelectorProps {
   value: string;
   provider: string;
   onSelect: (voiceId: string, provider: string) => void;
+  clonedVoices?: Array<{
+    id: string;
+    name: string;
+    retellVoiceId: string;
+    gender: string;
+  }>;
 }
 
-export function VoiceSelector({ value, provider, onSelect }: VoiceSelectorProps) {
+export function VoiceSelector({ value, provider, onSelect, clonedVoices = [] }: VoiceSelectorProps) {
   const [open, setOpen] = useState(false);
+  const hasCloned = clonedVoices.length > 0;
   const selectedVoiceProvider = voices.find((v) => v.id === value)?.provider;
-  const [activeTab, setActiveTab] = useState(selectedVoiceProvider || provider || "cartesia");
+  const isClonedSelected = !selectedVoiceProvider && clonedVoices.some((cv) => cv.retellVoiceId === value);
+  const [activeTab, setActiveTab] = useState(
+    isClonedSelected ? "cloned" : selectedVoiceProvider || provider || "cartesia"
+  );
   const [search, setSearch] = useState("");
   const [filterAccent, setFilterAccent] = useState("all");
   const [filterGender, setFilterGender] = useState("all");
 
-  const selectedVoice = voices.find((v) => v.id === value);
+  const clonedAsVoices: Voice[] = useMemo(
+    () =>
+      clonedVoices.map((cv) => ({
+        id: cv.retellVoiceId,
+        name: cv.name,
+        provider: "clone",
+        gender: cv.gender as "Male" | "Female",
+        accent: "Custom",
+        age: "Middle Aged" as const,
+      })),
+    [clonedVoices]
+  );
+
+  const selectedVoice =
+    voices.find((v) => v.id === value) ||
+    clonedAsVoices.find((v) => v.id === value);
 
   const filteredVoices = useMemo(() => {
+    if (activeTab === "cloned") {
+      return clonedAsVoices.filter((v) => {
+        if (search && !v.name.toLowerCase().includes(search.toLowerCase())) return false;
+        if (filterGender !== "all" && v.gender !== filterGender) return false;
+        return true;
+      });
+    }
     return voices.filter((v) => {
       if (v.provider !== activeTab) return false;
       if (search && !v.name.toLowerCase().includes(search.toLowerCase())) return false;
@@ -46,7 +78,7 @@ export function VoiceSelector({ value, provider, onSelect }: VoiceSelectorProps)
       if (filterGender !== "all" && v.gender !== filterGender) return false;
       return true;
     });
-  }, [activeTab, search, filterAccent, filterGender]);
+  }, [activeTab, search, filterAccent, filterGender, clonedAsVoices]);
 
   const handleSelect = (voice: Voice) => {
     onSelect(voice.id, voice.provider);
@@ -69,7 +101,7 @@ export function VoiceSelector({ value, provider, onSelect }: VoiceSelectorProps)
         </span>
         {selectedVoice && (
           <Badge className="border-0 bg-slate-200 text-[9px] text-slate-600">
-            {selectedVoice.provider}
+            {selectedVoice.provider === "clone" ? "Ma voix" : selectedVoice.provider}
           </Badge>
         )}
       </DialogTrigger>
@@ -82,6 +114,26 @@ export function VoiceSelector({ value, provider, onSelect }: VoiceSelectorProps)
 
           {/* Provider tabs */}
           <div className="mt-3 flex gap-1 overflow-x-auto">
+            {/* Cloned voices tab */}
+            {hasCloned && (
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab("cloned");
+                  setSearch("");
+                  setFilterAccent("all");
+                  setFilterGender("all");
+                }}
+                className={cn(
+                  "whitespace-nowrap rounded-lg px-3 py-1.5 text-[12px] font-medium transition-colors",
+                  activeTab === "cloned"
+                    ? "bg-indigo-50 text-indigo-600"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+                )}
+              >
+                Mes voix ({clonedVoices.length})
+              </button>
+            )}
             {providers.map((p) => (
               <button
                 key={p}
@@ -222,9 +274,17 @@ export function VoiceSelector({ value, provider, onSelect }: VoiceSelectorProps)
 
         {/* Footer */}
         <div className="flex items-center justify-between border-t border-slate-100 px-6 py-3">
-          <p className="text-[11px] text-slate-400">
-            {filteredVoices.length} voix disponibles
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="text-[11px] text-slate-400">
+              {filteredVoices.length} voix disponibles
+            </p>
+            <a
+              href="/voices"
+              className="text-[11px] font-medium text-indigo-500 hover:text-indigo-600"
+            >
+              Gérer mes voix &rarr;
+            </a>
+          </div>
           <Button
             type="button"
             variant="outline"

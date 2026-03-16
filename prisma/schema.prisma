@@ -473,3 +473,18 @@ model ProspectActivity {
   @@index([prospectId])
   @@map("prospect_activities")
 }
+
+model ClonedVoice {
+  id            String   @id @default(cuid())
+  orgId         String
+  name          String
+  retellVoiceId String   @unique
+  gender        String   // "Male" | "Female"
+  createdBy     String
+  shared        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([orgId])
+  @@map("cloned_voices")
+}

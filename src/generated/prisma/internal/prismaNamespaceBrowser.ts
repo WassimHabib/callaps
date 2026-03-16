@@ -69,7 +69,8 @@ export const ModelName = {
   AdminClient: 'AdminClient',
   AdminClientShare: 'AdminClientShare',
   Prospect: 'Prospect',
-  ProspectActivity: 'ProspectActivity'
+  ProspectActivity: 'ProspectActivity',
+  ClonedVoice: 'ClonedVoice'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -465,6 +466,21 @@ export const ProspectActivityScalarFieldEnum = {
 } as const
 
 export type ProspectActivityScalarFieldEnum = (typeof ProspectActivityScalarFieldEnum)[keyof typeof ProspectActivityScalarFieldEnum]
+
+
+export const ClonedVoiceScalarFieldEnum = {
+  id: 'id',
+  orgId: 'orgId',
+  name: 'name',
+  retellVoiceId: 'retellVoiceId',
+  gender: 'gender',
+  createdBy: 'createdBy',
+  shared: 'shared',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ClonedVoiceScalarFieldEnum = (typeof ClonedVoiceScalarFieldEnum)[keyof typeof ClonedVoiceScalarFieldEnum]
 
 
 export const SortOrder = {
