@@ -43,6 +43,17 @@ export async function fetchContacts(search?: string, tag?: string) {
     where: conditions.length > 0 ? { AND: conditions } : {},
     include: {
       _count: { select: { calls: true } },
+      calls: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: {
+          id: true,
+          status: true,
+          summary: true,
+          duration: true,
+          createdAt: true,
+        },
+      },
     },
     orderBy: { updatedAt: "desc" },
   });

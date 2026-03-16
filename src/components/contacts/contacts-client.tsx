@@ -496,15 +496,21 @@ export function ContactsClient({ initialContacts, allTags }: ContactsClientProps
         </div>
       ) : (
         <div className="space-y-2">
-          {filtered.map((contact) => (
+          {filtered.map((contact) => {
+            const meta = (contact.metadata as Record<string, unknown>) || {};
+            const notes = Array.isArray(meta.notes) ? (meta.notes as { text: string; createdAt: string }[]) : [];
+            const lastNote = notes.length > 0 ? notes[notes.length - 1] : null;
+            const lastCall = contact.calls?.[0] || null;
+
+            return (
             <Card
               key={contact.id}
               className="group border-0 bg-white shadow-sm transition-all hover:shadow-md"
             >
               <CardContent className="p-4">
-                <div className="flex items-center gap-4">
+                <div className="flex items-start gap-4">
                   {/* Avatar */}
-                  <Link href={`/contacts/${contact.id}`} className="shrink-0">
+                  <Link href={`/contacts/${contact.id}`} className="shrink-0 pt-0.5">
                     <div className={`flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br ${avatarColor(contact.name)} text-sm font-bold text-white shadow-sm`}>
                       {initials(contact.name)}
                     </div>
@@ -539,6 +545,33 @@ export function ContactsClient({ initialContacts, allTags }: ContactsClientProps
                         </span>
                       )}
                     </div>
+
+                    {/* Last call + last note */}
+                    {(lastCall || lastNote) && (
+                      <div className="mt-2 flex flex-col gap-1.5">
+                        {lastCall && (
+                          <div className="flex items-start gap-1.5 text-xs text-slate-400">
+                            <PhoneCall className="mt-0.5 h-3 w-3 shrink-0 text-indigo-400" />
+                            <span>
+                              <span className="font-medium text-slate-500">Dernier appel</span>
+                              {" "}{timeAgo(lastCall.createdAt)}
+                              {lastCall.summary && (
+                                <span className="text-slate-400"> — <span className="line-clamp-1 inline">{lastCall.summary}</span></span>
+                              )}
+                            </span>
+                          </div>
+                        )}
+                        {lastNote && (
+                          <div className="flex items-start gap-1.5 text-xs text-slate-400">
+                            <MessageSquare className="mt-0.5 h-3 w-3 shrink-0 text-amber-400" />
+                            <span className="line-clamp-1">
+                              <span className="font-medium text-slate-500">Note</span>
+                              {" "}{lastNote.text}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Right side: tags + stats + actions */}
@@ -629,7 +662,8 @@ export function ContactsClient({ initialContacts, allTags }: ContactsClientProps
                 </div>
               </CardContent>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
 
