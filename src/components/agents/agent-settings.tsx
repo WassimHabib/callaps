@@ -529,7 +529,14 @@ export function AgentSettings({ agent, clonedVoices = [] }: AgentSettingsProps) 
   };
 
   const buildFormData = (formData: FormData) => {
+    // Helper: only set if field is missing from native form (accordion closed)
+    const ensure = (key: string, value: string) => {
+      if (!formData.has(key)) formData.set(key, value);
+    };
+
+    // Always override these from React state (not in native form inputs)
     formData.set("name", name);
+    formData.set("voiceId", voiceId);
     formData.set("voiceSpeed", String(voiceSpeed));
     formData.set("voiceTemperature", String(voiceTemperature));
     formData.set("maxCallDuration", String(maxCallDuration));
@@ -538,6 +545,18 @@ export function AgentSettings({ agent, clonedVoices = [] }: AgentSettingsProps) 
     formData.set("enableRecording", enableRecording ? "true" : "false");
     formData.set("postCallAnalysis", postCallAnalysis ? "true" : "false");
     formData.set("config_json", JSON.stringify(buildConfig()));
+
+    // Ensure fields from accordion sections are present
+    // (use current React state for functions, fallback to agent data for others)
+    ensure("functions_json", JSON.stringify(agentFunctions));
+    ensure("safetyMessage", agent.safetyMessage ?? "");
+    ensure("maxSafetyRetries", String(agent.maxSafetyRetries));
+    ensure("notificationEmail", agent.notificationEmail ?? "");
+    ensure("notificationPhone", agent.notificationPhone ?? "");
+    ensure("notificationChannels", JSON.stringify(agent.notificationChannels ?? []));
+    ensure("postCallPrompt", agent.postCallPrompt ?? "");
+    ensure("postCallWebhook", agent.postCallWebhook ?? "");
+    ensure("postCallAnalysisLang", "");
     return formData;
   };
 
