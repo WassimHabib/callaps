@@ -863,10 +863,12 @@ export function AgentSettings({ agent, clonedVoices = [] }: AgentSettingsProps) 
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">Aucun</SelectItem>
-                    <SelectItem value="office">Bureau</SelectItem>
-                    <SelectItem value="cafe">Café</SelectItem>
-                    <SelectItem value="nature">Nature</SelectItem>
-                    <SelectItem value="city">Ville</SelectItem>
+                    <SelectItem value="coffee-shop">Café</SelectItem>
+                    <SelectItem value="convention-hall">Salle de conférence</SelectItem>
+                    <SelectItem value="summer-outdoor">Extérieur été</SelectItem>
+                    <SelectItem value="mountain-outdoor">Extérieur montagne</SelectItem>
+                    <SelectItem value="static-noise">Bruit statique</SelectItem>
+                    <SelectItem value="call-center">Centre d&apos;appel</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
