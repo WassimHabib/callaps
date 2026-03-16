@@ -239,7 +239,7 @@ export function IntegrationCards({
                 : c
             );
           }
-          return [...prev, { type: selectedIntegration!.type, enabled: true }];
+          return [...prev, { id: result.integrationId || "", type: selectedIntegration!.type, enabled: true }];
         });
         setTimeout(() => setDialogOpen(false), 1500);
       }

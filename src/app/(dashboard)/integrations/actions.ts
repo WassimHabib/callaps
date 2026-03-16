@@ -9,7 +9,7 @@ import { testConnection as testPipedrive, pullContacts as pullPipedriveContacts 
 import { testConnection as testSlack } from "@/lib/integrations/slack";
 import { testConnection as testDoctolib } from "@/lib/integrations/doctolib";
 
-type ActionResult = { success: boolean; message: string; count?: number };
+type ActionResult = { success: boolean; message: string; count?: number; integrationId?: string };
 
 export async function connectIntegration(
   type: string,
@@ -65,6 +65,7 @@ export async function connectIntegration(
     where: { userId: ctx.userId, type },
   });
 
+  let integrationId: string;
   if (existing) {
     await prisma.integration.update({
       where: { id: existing.id },
@@ -74,8 +75,9 @@ export async function connectIntegration(
         name: type,
       },
     });
+    integrationId = existing.id;
   } else {
-    await prisma.integration.create({
+    const created = await prisma.integration.create({
       data: {
         type,
         name: type,
@@ -84,10 +86,11 @@ export async function connectIntegration(
         userId: ctx.userId,
       },
     });
+    integrationId = created.id;
   }
 
   revalidatePath("/integrations");
-  return { success: true, message: testResult.message };
+  return { success: true, message: testResult.message, integrationId };
 }
 
 export async function disconnectIntegration(type: string): Promise<ActionResult> {
