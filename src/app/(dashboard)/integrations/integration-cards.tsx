@@ -28,6 +28,8 @@ import {
   Play,
   RefreshCw,
   Stethoscope,
+  Copy,
+  Check,
 } from "lucide-react";
 import {
   connectIntegration,
@@ -174,7 +176,7 @@ export function IntegrationCards({
   connectedIntegrations,
   canManage,
 }: {
-  connectedIntegrations: Array<{ type: string; enabled: boolean }>;
+  connectedIntegrations: Array<{ id: string; type: string; enabled: boolean }>;
   canManage: boolean;
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -188,6 +190,7 @@ export function IntegrationCards({
     message: string;
   } | null>(null);
   const [connected, setConnected] = useState(connectedIntegrations);
+  const [copiedUrl, setCopiedUrl] = useState(false);
 
   function openConfigDialog(integration: IntegrationDef) {
     setSelectedIntegration(integration);
@@ -340,6 +343,39 @@ export function IntegrationCards({
                     </Badge>
                   ))}
                 </div>
+
+                {/* Slack Slash Command URL */}
+                {integration.type === "slack" && integrationConnected && (() => {
+                  const slackIntegration = connected.find((c) => c.type === "slack");
+                  if (!slackIntegration) return null;
+                  const commandUrl = `${window.location.origin}/api/slack/commands?token=${slackIntegration.id}`;
+                  return (
+                    <div className="mt-3 rounded-lg border border-purple-200 bg-purple-50 p-3">
+                      <p className="text-[11px] font-semibold text-purple-700 mb-1">
+                        Slash Command — URL a configurer dans Slack
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <code className="flex-1 rounded bg-white px-2 py-1 text-[11px] text-purple-900 border border-purple-100 truncate">
+                          {commandUrl}
+                        </code>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(commandUrl);
+                            setCopiedUrl(true);
+                            setTimeout(() => setCopiedUrl(false), 2000);
+                          }}
+                          className="shrink-0 rounded-md bg-white p-1.5 border border-purple-200 text-purple-600 hover:bg-purple-100 transition-colors"
+                          title="Copier l'URL"
+                        >
+                          {copiedUrl ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                        </button>
+                      </div>
+                      <p className="text-[10px] text-purple-500 mt-1.5">
+                        Usage : <code>/appel +33612345678 [NomAgent]</code>
+                      </p>
+                    </div>
+                  );
+                })()}
 
                 {/* Action result feedback */}
                 {result && (

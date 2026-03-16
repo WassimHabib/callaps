@@ -11,7 +11,7 @@ export default async function IntegrationsPage() {
 
   const userIntegrations = await prisma.integration.findMany({
     where: { userId: ctx.userId },
-    select: { type: true, enabled: true },
+    select: { id: true, type: true, enabled: true },
   });
 
   // Fetch webhook configs for current user/org
