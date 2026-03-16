@@ -248,6 +248,7 @@ function buildRetellAgentParams(agent: any, llmId: string) {
     ...(config.responsiveness !== undefined ? { responsiveness: config.responsiveness as number } : {}),
     ...(config.interruptionSensitivity !== undefined ? { interruption_sensitivity: config.interruptionSensitivity as number } : {}),
     ...(config.enableBackchanneling !== undefined ? { enable_backchannel: config.enableBackchanneling as boolean } : {}),
+    ...(config.backgroundSound && config.backgroundSound !== "none" ? { ambient_sound: config.backgroundSound as string } : {}),
     max_call_duration_ms: agent.maxCallDuration * 1000,
     ...(agent.endCallOnSilence ? { end_call_after_silence_ms: Math.max(agent.silenceTimeout, 10) * 1000 } : {}),
     webhook_url: agent.postCallWebhook || `${process.env.NEXT_PUBLIC_APP_URL || "https://callaps.ai"}/api/retell/webhook`,
