@@ -2,7 +2,6 @@
 
 import { useState, useTransition, useMemo, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,6 +50,7 @@ import {
   Trash2,
   PhoneCall,
   Calendar,
+  Eye,
 } from "lucide-react";
 import {
   createContact,
@@ -505,26 +505,29 @@ export function ContactsClient({ initialContacts, allTags }: ContactsClientProps
             return (
             <Card
               key={contact.id}
-              className="group border-0 bg-white shadow-sm transition-all hover:shadow-md"
+              className="group cursor-pointer border-0 bg-white shadow-sm transition-all hover:shadow-md"
+              onClick={(e) => {
+                // Don't navigate if clicking on a button/dropdown
+                const target = e.target as HTMLElement;
+                if (target.closest("button") || target.closest("[data-slot='dropdown-menu']")) return;
+                router.push(`/contacts/${contact.id}`);
+              }}
             >
               <CardContent className="p-4">
                 <div className="flex items-start gap-4">
                   {/* Avatar */}
-                  <Link href={`/contacts/${contact.id}`} className="shrink-0 pt-0.5">
+                  <div className="shrink-0 pt-0.5">
                     <div className={`flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br ${avatarColor(contact.name)} text-sm font-bold text-white shadow-sm`}>
                       {initials(contact.name)}
                     </div>
-                  </Link>
+                  </div>
 
                   {/* Main info */}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <Link
-                        href={`/contacts/${contact.id}`}
-                        className="truncate text-sm font-semibold text-slate-900 hover:text-indigo-600"
-                      >
+                      <span className="truncate text-sm font-semibold text-slate-900 group-hover:text-indigo-600">
                         {contact.name}
-                      </Link>
+                      </span>
                       {scoreBadge(contact.score, contact.scoreLabel)}
                     </div>
                     <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
@@ -607,7 +610,16 @@ export function ContactsClient({ initialContacts, allTags }: ContactsClientProps
                       </span>
                     </div>
 
-                    {/* Actions */}
+                    {/* Details + Actions */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 gap-1.5 text-xs opacity-0 transition-opacity group-hover:opacity-100"
+                      onClick={(e) => { e.stopPropagation(); router.push(`/contacts/${contact.id}`); }}
+                    >
+                      <Eye className="h-3 w-3" />
+                      Détails
+                    </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger className="inline-flex h-8 w-8 items-center justify-center rounded-lg opacity-0 transition-opacity group-hover:opacity-100 hover:bg-slate-100">
                         <MoreHorizontal className="h-4 w-4 text-slate-400" />
