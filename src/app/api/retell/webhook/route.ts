@@ -602,6 +602,39 @@ export async function POST(req: Request) {
       } catch (err) {
         console.error("[webhook] agent notifications failed:", err);
       }
+
+      // Send Slack notification if call was triggered from /appel command
+      try {
+        const callRecord = await prisma.call.findUnique({
+          where: { retellCallId: callId },
+          select: { metadata: true, summary: true, duration: true },
+        });
+        const meta = (callRecord?.metadata as Record<string, unknown>) || {};
+        if (meta.source === "slack_command" && meta.slackResponseUrl) {
+          const duration = callRecord?.duration
+            ? `${Math.floor(callRecord.duration / 60)}m${callRecord.duration % 60}s`
+            : "N/A";
+          const summary = callRecord?.summary || "Aucun résumé disponible";
+          const agentName = (meta.agentName as string) || "Agent IA";
+
+          await fetch(meta.slackResponseUrl as string, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              response_type: "in_channel",
+              text: [
+                `✅ *Appel terminé — ${agentName}*`,
+                `⏱️ Durée : ${duration}`,
+                `📝 *Résumé :*`,
+                summary,
+              ].join("\n"),
+            }),
+          });
+          console.log("[webhook] Slack post-call notification sent");
+        }
+      } catch (err) {
+        console.error("[webhook] Slack post-call notification failed:", err);
+      }
       break;
     }
   }

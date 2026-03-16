@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createPhoneCall, listPhoneNumbers } from "@/lib/retell";
 
@@ -6,8 +7,9 @@ import { createPhoneCall, listPhoneNumbers } from "@/lib/retell";
  * Slack Slash Command endpoint.
  * Usage in Slack: /appel +33612345678 [NomAgent]
  *
- * The Request URL configured in Slack must include ?token=<integrationId>
- * Example: https://app.callaps.ai/api/slack/commands?token=clxyz123...
+ * Responds immediately to avoid Slack's 3s timeout,
+ * then processes the call in the background via after().
+ * Sends result back via Slack's response_url.
  */
 export async function GET() {
   return NextResponse.json({ ok: true, endpoint: "slack-commands" });
@@ -17,9 +19,10 @@ export async function POST(req: NextRequest) {
   // Parse Slack form data
   const formData = await req.formData();
   const text = (formData.get("text") as string) || "";
+  const responseUrl = (formData.get("response_url") as string) || "";
   const token = req.nextUrl.searchParams.get("token");
 
-  // Auth via integration ID in query param
+  // Quick validation — respond immediately if invalid
   if (!token) {
     return NextResponse.json({
       response_type: "ephemeral",
@@ -27,88 +30,95 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const integration = await prisma.integration.findUnique({
-    where: { id: token },
-  });
-
-  if (!integration || integration.type !== "slack" || !integration.enabled) {
-    return NextResponse.json({
-      response_type: "ephemeral",
-      text: "❌ Intégration Slack non trouvée ou désactivée.",
-    });
-  }
-
-  const userId = integration.userId;
-
-  // Parse command: /appel +33612345678 [AgentName]
   const parts = text.trim().split(/\s+/);
   if (!parts[0]) {
     return NextResponse.json({
       response_type: "ephemeral",
-      text: [
-        "📞 *Lancer un appel depuis Slack*",
-        "",
-        "Usage : `/appel +33612345678 [NomAgent]`",
-        "",
-        "Exemples :",
-        "• `/appel +33651370395` — appelle avec l'agent par défaut",
-        "• `/appel +33651370395 Shaima` — appelle avec l'agent Shaima",
-      ].join("\n"),
+      text: "📞 Usage : `/appel +33612345678 [NomAgent]`\nExemple : `/appel +33651370395 Shaima`",
     });
   }
 
   const toNumber = parts[0];
   const agentName = parts.slice(1).join(" ") || null;
 
-  // Validate phone number
   if (!/^\+\d{8,15}$/.test(toNumber)) {
     return NextResponse.json({
       response_type: "ephemeral",
-      text: "❌ Numéro invalide. Utilise le format international : `+33612345678`",
+      text: "❌ Numéro invalide. Format : `+33612345678`",
     });
   }
 
-  // Find agent
-  const agentWhere = {
-    userId,
-    archived: false,
-    retellAgentId: { not: null as string | null },
-  };
+  // Respond immediately to Slack (avoid 3s timeout)
+  after(async () => {
+    await processSlackCall(token, toNumber, agentName, responseUrl);
+  });
 
-  let agent;
-  if (agentName) {
-    agent = await prisma.agent.findFirst({
-      where: { ...agentWhere, name: { contains: agentName, mode: "insensitive" as const } },
+  return NextResponse.json({
+    response_type: "ephemeral",
+    text: `📞 Lancement de l'appel vers \`${toNumber}\`...`,
+  });
+}
+
+/**
+ * Heavy processing done after responding to Slack.
+ * Sends result back via response_url.
+ */
+async function processSlackCall(
+  token: string,
+  toNumber: string,
+  agentName: string | null,
+  responseUrl: string
+) {
+  try {
+    // Verify integration
+    const integration = await prisma.integration.findUnique({
+      where: { id: token },
     });
-    if (!agent) {
-      // List available agents for help
-      const agents = await prisma.agent.findMany({
-        where: agentWhere,
-        select: { name: true },
-        orderBy: { name: "asc" },
+
+    if (!integration || integration.type !== "slack" || !integration.enabled) {
+      await slackRespond(responseUrl, "❌ Intégration Slack non trouvée ou désactivée.");
+      return;
+    }
+
+    const userId = integration.userId;
+
+    // Find agent
+    const agentWhere = {
+      userId,
+      archived: false,
+      retellAgentId: { not: null as string | null },
+    };
+
+    let agent;
+    if (agentName) {
+      agent = await prisma.agent.findFirst({
+        where: { ...agentWhere, name: { contains: agentName, mode: "insensitive" as const } },
       });
-      return NextResponse.json({
-        response_type: "ephemeral",
-        text: `❌ Agent "${agentName}" non trouvé.\n\nAgents disponibles : ${agents.map((a) => `*${a.name}*`).join(", ") || "aucun"}`,
+      if (!agent) {
+        const agents = await prisma.agent.findMany({
+          where: agentWhere,
+          select: { name: true },
+          orderBy: { name: "asc" },
+        });
+        await slackRespond(
+          responseUrl,
+          `❌ Agent "${agentName}" non trouvé.\nDisponibles : ${agents.map((a) => `*${a.name}*`).join(", ") || "aucun"}`
+        );
+        return;
+      }
+    } else {
+      agent = await prisma.agent.findFirst({
+        where: agentWhere,
+        orderBy: { createdAt: "desc" },
       });
     }
-  } else {
-    agent = await prisma.agent.findFirst({
-      where: agentWhere,
-      orderBy: { createdAt: "desc" },
-    });
-  }
 
-  if (!agent || !agent.retellAgentId) {
-    return NextResponse.json({
-      response_type: "ephemeral",
-      text: "❌ Aucun agent IA disponible. Créez un agent dans Callaps d'abord.",
-    });
-  }
+    if (!agent || !agent.retellAgentId) {
+      await slackRespond(responseUrl, "❌ Aucun agent IA disponible.");
+      return;
+    }
 
-  // Find a from number (prefer one assigned to this agent)
-  let fromNumber: string;
-  try {
+    // Find from number
     const phoneNumbers = await listPhoneNumbers();
     const assigned = phoneNumbers.find(
       (p: { outbound_agent_id?: string }) =>
@@ -116,47 +126,64 @@ export async function POST(req: NextRequest) {
     );
     const phone = assigned || phoneNumbers[0];
     if (!phone) {
-      return NextResponse.json({
-        response_type: "ephemeral",
-        text: "❌ Aucun numéro de téléphone configuré. Ajoutez un numéro dans Callaps.",
-      });
+      await slackRespond(responseUrl, "❌ Aucun numéro de téléphone configuré.");
+      return;
     }
-    fromNumber = phone.phone_number;
-  } catch {
-    return NextResponse.json({
-      response_type: "ephemeral",
-      text: "❌ Impossible de récupérer les numéros de téléphone.",
-    });
-  }
 
-  // Make the call
-  try {
+    // Launch the call
     const result = await createPhoneCall({
-      from_number: fromNumber,
+      from_number: phone.phone_number,
       to_number: toNumber,
       override_agent_id: agent.retellAgentId!,
     });
 
-    // Create call record for tracking
+    // Create call record with Slack response_url for post-call notification
     if (result.call_id) {
       await prisma.call.create({
         data: {
           retellCallId: result.call_id,
           status: "pending",
           userId,
+          metadata: {
+            source: "slack_command",
+            slackResponseUrl: responseUrl,
+            agentId: agent.id,
+            agentName: agent.name,
+          },
         },
       });
     }
 
-    return NextResponse.json({
-      response_type: "in_channel",
-      text: `📞 Appel lancé !\n• Agent : *${agent.name}*\n• Vers : \`${toNumber}\`\n• Depuis : \`${fromNumber}\``,
-    });
+    await slackRespond(
+      responseUrl,
+      `📞 Appel lancé !\n• Agent : *${agent.name}*\n• Vers : \`${toNumber}\`\n• Depuis : \`${phone.phone_number}\``,
+      "in_channel"
+    );
   } catch (error) {
-    console.error("[slack-command] Call failed:", error);
-    return NextResponse.json({
-      response_type: "ephemeral",
-      text: `❌ Erreur lors du lancement de l'appel : ${String(error).replace("Error: ", "")}`,
+    console.error("[slack-command] Error:", error);
+    await slackRespond(
+      responseUrl,
+      `❌ Erreur : ${String(error).replace("Error: ", "")}`
+    );
+  }
+}
+
+/**
+ * Send a message back to Slack via response_url.
+ */
+async function slackRespond(
+  responseUrl: string,
+  text: string,
+  responseType: "ephemeral" | "in_channel" = "ephemeral"
+) {
+  if (!responseUrl) return;
+  try {
+    await fetch(responseUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ response_type: responseType, text }),
     });
+  } catch (err) {
+    console.error("[slack-command] Failed to respond:", err);
   }
 }
