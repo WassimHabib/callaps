@@ -72,6 +72,15 @@ interface Agent {
   retellAgentId: string | null;
 }
 
+const GRADIENT_PAIRS = [
+  { from: "from-indigo-500", to: "to-violet-500", shadow: "shadow-indigo-500/20" },
+  { from: "from-emerald-500", to: "to-teal-500", shadow: "shadow-emerald-500/20" },
+  { from: "from-rose-500", to: "to-pink-500", shadow: "shadow-rose-500/20" },
+  { from: "from-amber-500", to: "to-orange-500", shadow: "shadow-amber-500/20" },
+  { from: "from-cyan-500", to: "to-blue-500", shadow: "shadow-cyan-500/20" },
+  { from: "from-fuchsia-500", to: "to-purple-500", shadow: "shadow-fuchsia-500/20" },
+];
+
 export function PhoneNumbersClient({
   initialNumbers,
   agents,
@@ -327,8 +336,9 @@ export function PhoneNumbersClient({
             </Button>
           </div>
         ) : (
-          <div className="space-y-2">
-            {filtered.map((num) => {
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((num, i) => {
+              const gradient = GRADIENT_PAIRS[i % GRADIENT_PAIRS.length];
               const agent = getInboundAgent(num);
               const outAgent = outboundAgents[num.id] && outboundAgents[num.id] !== "none"
                 ? agents.find((a) => a.id === outboundAgents[num.id])
@@ -337,7 +347,7 @@ export function PhoneNumbersClient({
               return (
                 <Card
                   key={num.id}
-                  className="group cursor-pointer border-0 bg-white shadow-sm transition-all hover:shadow-md"
+                  className="group relative cursor-pointer overflow-hidden border-0 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
                   onClick={() => {
                     setSelected(num);
                     setEditingName(false);
@@ -345,85 +355,67 @@ export function PhoneNumbersClient({
                     setDiagResult(null);
                   }}
                 >
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-4">
-                      {/* Icon */}
-                      <div className="shrink-0">
-                        <div className={cn(
-                          "flex h-11 w-11 items-center justify-center rounded-full shadow-sm",
-                          agent ? "bg-gradient-to-br from-emerald-500 to-teal-500" : "bg-gradient-to-br from-slate-300 to-slate-400"
-                        )}>
-                          <Phone className="h-5 w-5 text-white" />
-                        </div>
+                  {/* Gradient header band */}
+                  <div className={`h-20 bg-gradient-to-r ${gradient.from} ${gradient.to} relative`}>
+                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIi8+PC9zdmc+')] opacity-50" />
+                    {/* Provider badge */}
+                    <div className="absolute right-3 top-3">
+                      <Badge className="border-0 bg-white/20 text-[10px] font-semibold text-white backdrop-blur-sm">
+                        {num.provider === "twilio" ? "Twilio" : "SIP"}
+                      </Badge>
+                    </div>
+                    {/* Phone icon */}
+                    <div className="absolute left-4 -bottom-5">
+                      <div className={`flex h-12 w-12 items-center justify-center rounded-xl border-2 border-white bg-white shadow-lg ${gradient.shadow}`}>
+                        <Phone className="h-5 w-5 text-slate-600" />
                       </div>
+                    </div>
+                  </div>
 
-                      {/* Info */}
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="truncate text-sm font-semibold text-slate-900 group-hover:text-indigo-600">
-                            {num.name || "Numéro sans nom"}
-                          </span>
-                          <Badge className={cn(
-                            "border-0 text-[10px] font-medium",
-                            num.provider === "twilio"
-                              ? "bg-violet-50 text-violet-600"
-                              : "bg-slate-100 text-slate-500"
-                          )}>
-                            {num.provider === "twilio" ? "Twilio" : "SIP"}
-                          </Badge>
+                  <CardContent className="px-5 pb-5 pt-9">
+                    <h3 className="truncate text-base font-semibold text-slate-900 group-hover:text-indigo-600">
+                      {num.name || "Numéro sans nom"}
+                    </h3>
+                    <p className="mt-0.5 text-sm font-mono text-slate-500">{num.number}</p>
+
+                    {/* Agent chips */}
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {agent ? (
+                        <div className="flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-[11px] font-medium text-emerald-700">
+                          <PhoneIncoming className="h-3 w-3" />
+                          {agent.name}
                         </div>
-                        <p className="mt-0.5 text-xs text-slate-500 font-mono">{num.number}</p>
-
-                        {/* Agent badges */}
-                        <div className="mt-2 flex flex-wrap items-center gap-2">
-                          {agent ? (
-                            <div className="flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-700">
-                              <PhoneIncoming className="h-3 w-3" />
-                              {agent.name}
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1 rounded-md bg-slate-50 px-2 py-1 text-[11px] text-slate-400">
-                              <PhoneIncoming className="h-3 w-3" />
-                              Aucun agent entrant
-                            </div>
-                          )}
-                          {outAgent && (
-                            <div className="flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-[11px] font-medium text-blue-700">
-                              <PhoneOutgoing className="h-3 w-3" />
-                              {outAgent.name}
-                            </div>
-                          )}
+                      ) : (
+                        <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1.5 text-[11px] font-medium text-slate-400">
+                          <PhoneIncoming className="h-3 w-3" />
+                          Aucun agent entrant
                         </div>
-                      </div>
+                      )}
+                      {outAgent && (
+                        <div className="flex items-center gap-1.5 rounded-lg bg-blue-50 px-2.5 py-1.5 text-[11px] font-medium text-blue-700">
+                          <PhoneOutgoing className="h-3 w-3" />
+                          {outAgent.name}
+                        </div>
+                      )}
+                    </div>
 
-                      {/* Right side */}
-                      <div className="hidden items-center gap-3 sm:flex">
+                    {/* Footer */}
+                    <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
+                      <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
                         {twilioSaved ? (
-                          <span className="flex items-center gap-1 text-[11px] font-medium text-emerald-600">
-                            <ShieldCheck className="h-3.5 w-3.5" />
-                            Connecté
-                          </span>
+                          <>
+                            <ShieldCheck className="h-3 w-3 text-emerald-500" />
+                            <span className="text-emerald-600">Twilio connecté</span>
+                          </>
                         ) : (
-                          <span className="flex items-center gap-1 text-[11px] text-slate-400">
-                            <Settings2 className="h-3.5 w-3.5" />
-                            Config requise
-                          </span>
+                          <>
+                            <Settings2 className="h-3 w-3" />
+                            <span>Config requise</span>
+                          </>
                         )}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-7 gap-1.5 text-xs opacity-0 transition-opacity group-hover:opacity-100"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelected(num);
-                            setEditingName(false);
-                            setWebhookResult(null);
-                            setDiagResult(null);
-                          }}
-                        >
-                          <Settings2 className="h-3 w-3" />
-                          Configurer
-                        </Button>
+                      </div>
+                      <div className="opacity-0 transition-opacity group-hover:opacity-100">
+                        <Settings2 className="h-4 w-4 text-slate-400" />
                       </div>
                     </div>
                   </CardContent>
