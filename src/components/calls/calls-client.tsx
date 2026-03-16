@@ -100,14 +100,14 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   pending: { label: "En attente", className: "bg-amber-50 text-amber-600" },
 };
 
-const SENTIMENT_CONFIG: Record<string, { icon: typeof Smile; className: string }> = {
-  positif: { icon: Smile, className: "text-emerald-500" },
-  positive: { icon: Smile, className: "text-emerald-500" },
-  neutre: { icon: Meh, className: "text-amber-400" },
-  neutral: { icon: Meh, className: "text-amber-400" },
-  négatif: { icon: Frown, className: "text-red-400" },
-  negatif: { icon: Frown, className: "text-red-400" },
-  negative: { icon: Frown, className: "text-red-400" },
+const SENTIMENT_CONFIG: Record<string, { icon: typeof Smile; label: string; iconClass: string; badgeClass: string }> = {
+  positif: { icon: Smile, label: "Positif", iconClass: "text-emerald-500", badgeClass: "bg-emerald-50 text-emerald-600" },
+  positive: { icon: Smile, label: "Positif", iconClass: "text-emerald-500", badgeClass: "bg-emerald-50 text-emerald-600" },
+  neutre: { icon: Meh, label: "Neutre", iconClass: "text-amber-500", badgeClass: "bg-amber-50 text-amber-600" },
+  neutral: { icon: Meh, label: "Neutre", iconClass: "text-amber-500", badgeClass: "bg-amber-50 text-amber-600" },
+  négatif: { icon: Frown, label: "Négatif", iconClass: "text-red-500", badgeClass: "bg-red-50 text-red-600" },
+  negatif: { icon: Frown, label: "Négatif", iconClass: "text-red-500", badgeClass: "bg-red-50 text-red-600" },
+  negative: { icon: Frown, label: "Négatif", iconClass: "text-red-500", badgeClass: "bg-red-50 text-red-600" },
 };
 
 const STATUS_OPTIONS = [
@@ -404,7 +404,12 @@ export function CallsClient({ initialData, campaigns }: CallsClientProps) {
                             {caller.phone && caller.phone !== caller.name && (
                               <span className="text-[11px] text-slate-400 shrink-0">{caller.phone}</span>
                             )}
-                            {SentIcon && <SentIcon className={`h-3.5 w-3.5 shrink-0 ${sentConfig.className}`} />}
+                            {SentIcon && (
+                              <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium shrink-0 ${sentConfig.badgeClass}`}>
+                                <SentIcon className={`h-3 w-3 ${sentConfig.iconClass}`} />
+                                {sentConfig.label}
+                              </span>
+                            )}
                           </div>
                           {call.summary ? (
                             <p className="mt-0.5 text-[12px] text-slate-500 line-clamp-2 leading-relaxed">
