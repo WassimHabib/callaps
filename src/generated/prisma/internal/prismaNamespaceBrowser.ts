@@ -65,7 +65,11 @@ export const ModelName = {
   Integration: 'Integration',
   Appointment: 'Appointment',
   Subscription: 'Subscription',
-  Invoice: 'Invoice'
+  Invoice: 'Invoice',
+  AdminClient: 'AdminClient',
+  AdminClientShare: 'AdminClientShare',
+  Prospect: 'Prospect',
+  ProspectActivity: 'ProspectActivity'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -396,6 +400,71 @@ export const InvoiceScalarFieldEnum = {
 } as const
 
 export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
+
+
+export const AdminClientScalarFieldEnum = {
+  id: 'id',
+  adminId: 'adminId',
+  clientId: 'clientId',
+  clientOrgId: 'clientOrgId',
+  status: 'status',
+  contractStatus: 'contractStatus',
+  contractUrl: 'contractUrl',
+  paymentStatus: 'paymentStatus',
+  paymentMethod: 'paymentMethod',
+  notes: 'notes',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AdminClientScalarFieldEnum = (typeof AdminClientScalarFieldEnum)[keyof typeof AdminClientScalarFieldEnum]
+
+
+export const AdminClientShareScalarFieldEnum = {
+  id: 'id',
+  adminClientId: 'adminClientId',
+  sharedWithId: 'sharedWithId',
+  permission: 'permission',
+  createdAt: 'createdAt'
+} as const
+
+export type AdminClientShareScalarFieldEnum = (typeof AdminClientShareScalarFieldEnum)[keyof typeof AdminClientShareScalarFieldEnum]
+
+
+export const ProspectScalarFieldEnum = {
+  id: 'id',
+  adminId: 'adminId',
+  name: 'name',
+  phone: 'phone',
+  email: 'email',
+  company: 'company',
+  source: 'source',
+  stage: 'stage',
+  lostReason: 'lostReason',
+  nextAction: 'nextAction',
+  nextActionDate: 'nextActionDate',
+  estimatedValue: 'estimatedValue',
+  notes: 'notes',
+  convertedToId: 'convertedToId',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProspectScalarFieldEnum = (typeof ProspectScalarFieldEnum)[keyof typeof ProspectScalarFieldEnum]
+
+
+export const ProspectActivityScalarFieldEnum = {
+  id: 'id',
+  prospectId: 'prospectId',
+  type: 'type',
+  description: 'description',
+  authorId: 'authorId',
+  createdAt: 'createdAt'
+} as const
+
+export type ProspectActivityScalarFieldEnum = (typeof ProspectActivityScalarFieldEnum)[keyof typeof ProspectActivityScalarFieldEnum]
 
 
 export const SortOrder = {

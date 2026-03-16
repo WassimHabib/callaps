@@ -92,3 +92,23 @@ export type Subscription = Prisma.SubscriptionModel
  * 
  */
 export type Invoice = Prisma.InvoiceModel
+/**
+ * Model AdminClient
+ * 
+ */
+export type AdminClient = Prisma.AdminClientModel
+/**
+ * Model AdminClientShare
+ * 
+ */
+export type AdminClientShare = Prisma.AdminClientShareModel
+/**
+ * Model Prospect
+ * 
+ */
+export type Prospect = Prisma.ProspectModel
+/**
+ * Model ProspectActivity
+ * 
+ */
+export type ProspectActivity = Prisma.ProspectActivityModel

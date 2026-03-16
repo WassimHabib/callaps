@@ -45,6 +45,13 @@ model User {
   campaigns Campaign[]
   integrations Integration[]
 
+  adminClients       AdminClient[]       @relation("AdminClients")
+  clientOfAdmin      AdminClient[]       @relation("ClientOfAdmin")
+  sharedClients      AdminClientShare[]  @relation("SharedAdminClients")
+  prospects          Prospect[]          @relation("AdminProspects")
+  prospectActivities ProspectActivity[]  @relation("ProspectActivities")
+  convertedProspects Prospect[]          @relation("ConvertedProspect")
+
   @@map("users")
 }
 
@@ -384,4 +391,85 @@ model Invoice {
 
   @@unique([orgId, periodMonth, periodYear])
   @@map("invoices")
+}
+
+model AdminClient {
+  id              String   @id @default(cuid())
+  adminId         String
+  admin           User     @relation("AdminClients", fields: [adminId], references: [id])
+  clientId        String
+  client          User     @relation("ClientOfAdmin", fields: [clientId], references: [id])
+  clientOrgId     String
+  status          String   @default("onboarding")
+  contractStatus  String   @default("draft")
+  contractUrl     String?
+  paymentStatus   String   @default("pending")
+  paymentMethod   String?
+  notes           String?
+  metadata        Json     @default("{}")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  shares          AdminClientShare[]
+
+  @@unique([adminId, clientId])
+  @@index([adminId])
+  @@index([clientId])
+  @@map("admin_clients")
+}
+
+model AdminClientShare {
+  id              String      @id @default(cuid())
+  adminClientId   String
+  adminClient     AdminClient @relation(fields: [adminClientId], references: [id], onDelete: Cascade)
+  sharedWithId    String
+  sharedWith      User        @relation("SharedAdminClients", fields: [sharedWithId], references: [id])
+  permission      String      @default("read")
+  createdAt       DateTime    @default(now())
+
+  @@unique([adminClientId, sharedWithId])
+  @@index([sharedWithId])
+  @@map("admin_client_shares")
+}
+
+model Prospect {
+  id              String    @id @default(cuid())
+  adminId         String
+  admin           User      @relation("AdminProspects", fields: [adminId], references: [id])
+  name            String
+  phone           String?
+  email           String?
+  company         String?
+  source          String    @default("manual")
+  stage           String    @default("prospect")
+  lostReason      String?
+  nextAction      String?
+  nextActionDate  DateTime?
+  estimatedValue  Int?
+  notes           String?
+  convertedToId   String?
+  convertedTo     User?     @relation("ConvertedProspect", fields: [convertedToId], references: [id])
+  metadata        Json      @default("{}")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  activities      ProspectActivity[]
+
+  @@index([adminId])
+  @@index([stage])
+  @@map("prospects")
+}
+
+model ProspectActivity {
+  id          String   @id @default(cuid())
+  prospectId  String
+  prospect    Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  type        String
+  description String
+  authorId    String
+  author      User     @relation("ProspectActivities", fields: [authorId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@index([prospectId])
+  @@map("prospect_activities")
 }
