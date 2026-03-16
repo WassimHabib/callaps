@@ -61,6 +61,7 @@ export const ModelName = {
   CompanyProfile: 'CompanyProfile',
   WebhookConfig: 'WebhookConfig',
   WebhookLog: 'WebhookLog',
+  PhoneNumber: 'PhoneNumber',
   Integration: 'Integration',
   Appointment: 'Appointment',
   Subscription: 'Subscription',
@@ -129,6 +130,7 @@ export const AgentScalarFieldEnum = {
   retellAgentId: 'retellAgentId',
   retellLlmId: 'retellLlmId',
   published: 'published',
+  archived: 'archived',
   userId: 'userId',
   orgId: 'orgId',
   createdAt: 'createdAt',
@@ -300,6 +302,20 @@ export const WebhookLogScalarFieldEnum = {
 } as const
 
 export type WebhookLogScalarFieldEnum = (typeof WebhookLogScalarFieldEnum)[keyof typeof WebhookLogScalarFieldEnum]
+
+
+export const PhoneNumberScalarFieldEnum = {
+  id: 'id',
+  phoneNumber: 'phoneNumber',
+  nickname: 'nickname',
+  provider: 'provider',
+  orgId: 'orgId',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PhoneNumberScalarFieldEnum = (typeof PhoneNumberScalarFieldEnum)[keyof typeof PhoneNumberScalarFieldEnum]
 
 
 export const IntegrationScalarFieldEnum = {

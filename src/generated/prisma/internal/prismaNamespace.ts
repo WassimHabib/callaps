@@ -394,6 +394,7 @@ export const ModelName = {
   CompanyProfile: 'CompanyProfile',
   WebhookConfig: 'WebhookConfig',
   WebhookLog: 'WebhookLog',
+  PhoneNumber: 'PhoneNumber',
   Integration: 'Integration',
   Appointment: 'Appointment',
   Subscription: 'Subscription',
@@ -413,7 +414,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "agent" | "campaign" | "contact" | "call" | "callDemand" | "weeklyReport" | "companyProfile" | "webhookConfig" | "webhookLog" | "integration" | "appointment" | "subscription" | "invoice"
+    modelProps: "user" | "agent" | "campaign" | "contact" | "call" | "callDemand" | "weeklyReport" | "companyProfile" | "webhookConfig" | "webhookLog" | "phoneNumber" | "integration" | "appointment" | "subscription" | "invoice"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1157,6 +1158,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PhoneNumber: {
+      payload: Prisma.$PhoneNumberPayload<ExtArgs>
+      fields: Prisma.PhoneNumberFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PhoneNumberFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhoneNumberPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PhoneNumberFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhoneNumberPayload>
+        }
+        findFirst: {
+          args: Prisma.PhoneNumberFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhoneNumberPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PhoneNumberFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhoneNumberPayload>
+        }
+        findMany: {
+          args: Prisma.PhoneNumberFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhoneNumberPayload>[]
+        }
+        create: {
+          args: Prisma.PhoneNumberCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhoneNumberPayload>
+        }
+        createMany: {
+          args: Prisma.PhoneNumberCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PhoneNumberCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhoneNumberPayload>[]
+        }
+        delete: {
+          args: Prisma.PhoneNumberDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhoneNumberPayload>
+        }
+        update: {
+          args: Prisma.PhoneNumberUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhoneNumberPayload>
+        }
+        deleteMany: {
+          args: Prisma.PhoneNumberDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PhoneNumberUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PhoneNumberUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhoneNumberPayload>[]
+        }
+        upsert: {
+          args: Prisma.PhoneNumberUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PhoneNumberPayload>
+        }
+        aggregate: {
+          args: Prisma.PhoneNumberAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePhoneNumber>
+        }
+        groupBy: {
+          args: Prisma.PhoneNumberGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PhoneNumberGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PhoneNumberCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PhoneNumberCountAggregateOutputType> | number
+        }
+      }
+    }
     Integration: {
       payload: Prisma.$IntegrationPayload<ExtArgs>
       fields: Prisma.IntegrationFieldRefs
@@ -1538,6 +1613,7 @@ export const AgentScalarFieldEnum = {
   retellAgentId: 'retellAgentId',
   retellLlmId: 'retellLlmId',
   published: 'published',
+  archived: 'archived',
   userId: 'userId',
   orgId: 'orgId',
   createdAt: 'createdAt',
@@ -1709,6 +1785,20 @@ export const WebhookLogScalarFieldEnum = {
 } as const
 
 export type WebhookLogScalarFieldEnum = (typeof WebhookLogScalarFieldEnum)[keyof typeof WebhookLogScalarFieldEnum]
+
+
+export const PhoneNumberScalarFieldEnum = {
+  id: 'id',
+  phoneNumber: 'phoneNumber',
+  nickname: 'nickname',
+  provider: 'provider',
+  orgId: 'orgId',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PhoneNumberScalarFieldEnum = (typeof PhoneNumberScalarFieldEnum)[keyof typeof PhoneNumberScalarFieldEnum]
 
 
 export const IntegrationScalarFieldEnum = {
@@ -2110,6 +2200,7 @@ export type GlobalOmitConfig = {
   companyProfile?: Prisma.CompanyProfileOmit
   webhookConfig?: Prisma.WebhookConfigOmit
   webhookLog?: Prisma.WebhookLogOmit
+  phoneNumber?: Prisma.PhoneNumberOmit
   integration?: Prisma.IntegrationOmit
   appointment?: Prisma.AppointmentOmit
   subscription?: Prisma.SubscriptionOmit

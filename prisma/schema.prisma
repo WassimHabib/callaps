@@ -271,6 +271,20 @@ model WebhookLog {
   @@map("webhook_logs")
 }
 
+model PhoneNumber {
+  id            String   @id @default(cuid())
+  phoneNumber   String   @unique // E.164 format: +33612345678
+  nickname      String?
+  provider      String   @default("twilio") // twilio, sip
+  orgId         String
+  userId        String   // who imported it
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([orgId])
+  @@map("phone_numbers")
+}
+
 model Integration {
   id        String   @id @default(cuid())
   type      String

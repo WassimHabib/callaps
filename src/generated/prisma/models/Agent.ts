@@ -68,6 +68,7 @@ export type AgentMinAggregateOutputType = {
   retellAgentId: string | null
   retellLlmId: string | null
   published: boolean | null
+  archived: boolean | null
   userId: string | null
   orgId: string | null
   createdAt: Date | null
@@ -100,6 +101,7 @@ export type AgentMaxAggregateOutputType = {
   retellAgentId: string | null
   retellLlmId: string | null
   published: boolean | null
+  archived: boolean | null
   userId: string | null
   orgId: string | null
   createdAt: Date | null
@@ -136,6 +138,7 @@ export type AgentCountAggregateOutputType = {
   retellAgentId: number
   retellLlmId: number
   published: number
+  archived: number
   userId: number
   orgId: number
   createdAt: number
@@ -186,6 +189,7 @@ export type AgentMinAggregateInputType = {
   retellAgentId?: true
   retellLlmId?: true
   published?: true
+  archived?: true
   userId?: true
   orgId?: true
   createdAt?: true
@@ -218,6 +222,7 @@ export type AgentMaxAggregateInputType = {
   retellAgentId?: true
   retellLlmId?: true
   published?: true
+  archived?: true
   userId?: true
   orgId?: true
   createdAt?: true
@@ -254,6 +259,7 @@ export type AgentCountAggregateInputType = {
   retellAgentId?: true
   retellLlmId?: true
   published?: true
+  archived?: true
   userId?: true
   orgId?: true
   createdAt?: true
@@ -377,6 +383,7 @@ export type AgentGroupByOutputType = {
   retellAgentId: string | null
   retellLlmId: string | null
   published: boolean
+  archived: boolean
   userId: string
   orgId: string | null
   createdAt: Date
@@ -436,6 +443,7 @@ export type AgentWhereInput = {
   retellAgentId?: Prisma.StringNullableFilter<"Agent"> | string | null
   retellLlmId?: Prisma.StringNullableFilter<"Agent"> | string | null
   published?: Prisma.BoolFilter<"Agent"> | boolean
+  archived?: Prisma.BoolFilter<"Agent"> | boolean
   userId?: Prisma.StringFilter<"Agent"> | string
   orgId?: Prisma.StringNullableFilter<"Agent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Agent"> | Date | string
@@ -474,6 +482,7 @@ export type AgentOrderByWithRelationInput = {
   retellAgentId?: Prisma.SortOrderInput | Prisma.SortOrder
   retellLlmId?: Prisma.SortOrderInput | Prisma.SortOrder
   published?: Prisma.SortOrder
+  archived?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   orgId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -515,6 +524,7 @@ export type AgentWhereUniqueInput = Prisma.AtLeast<{
   notificationPhone?: Prisma.StringNullableFilter<"Agent"> | string | null
   notificationChannels?: Prisma.JsonFilter<"Agent">
   published?: Prisma.BoolFilter<"Agent"> | boolean
+  archived?: Prisma.BoolFilter<"Agent"> | boolean
   userId?: Prisma.StringFilter<"Agent"> | string
   orgId?: Prisma.StringNullableFilter<"Agent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Agent"> | Date | string
@@ -553,6 +563,7 @@ export type AgentOrderByWithAggregationInput = {
   retellAgentId?: Prisma.SortOrderInput | Prisma.SortOrder
   retellLlmId?: Prisma.SortOrderInput | Prisma.SortOrder
   published?: Prisma.SortOrder
+  archived?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   orgId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -597,6 +608,7 @@ export type AgentScalarWhereWithAggregatesInput = {
   retellAgentId?: Prisma.StringNullableWithAggregatesFilter<"Agent"> | string | null
   retellLlmId?: Prisma.StringNullableWithAggregatesFilter<"Agent"> | string | null
   published?: Prisma.BoolWithAggregatesFilter<"Agent"> | boolean
+  archived?: Prisma.BoolWithAggregatesFilter<"Agent"> | boolean
   userId?: Prisma.StringWithAggregatesFilter<"Agent"> | string
   orgId?: Prisma.StringNullableWithAggregatesFilter<"Agent"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Agent"> | Date | string
@@ -633,6 +645,7 @@ export type AgentCreateInput = {
   retellAgentId?: string | null
   retellLlmId?: string | null
   published?: boolean
+  archived?: boolean
   orgId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -670,6 +683,7 @@ export type AgentUncheckedCreateInput = {
   retellAgentId?: string | null
   retellLlmId?: string | null
   published?: boolean
+  archived?: boolean
   userId: string
   orgId?: string | null
   createdAt?: Date | string
@@ -707,6 +721,7 @@ export type AgentUpdateInput = {
   retellAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retellLlmId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   orgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -744,6 +759,7 @@ export type AgentUncheckedUpdateInput = {
   retellAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retellLlmId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   orgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -781,6 +797,7 @@ export type AgentCreateManyInput = {
   retellAgentId?: string | null
   retellLlmId?: string | null
   published?: boolean
+  archived?: boolean
   userId: string
   orgId?: string | null
   createdAt?: Date | string
@@ -817,6 +834,7 @@ export type AgentUpdateManyMutationInput = {
   retellAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retellLlmId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   orgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -852,6 +870,7 @@ export type AgentUncheckedUpdateManyInput = {
   retellAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retellLlmId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   orgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -898,6 +917,7 @@ export type AgentCountOrderByAggregateInput = {
   retellAgentId?: Prisma.SortOrder
   retellLlmId?: Prisma.SortOrder
   published?: Prisma.SortOrder
+  archived?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   orgId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -938,6 +958,7 @@ export type AgentMaxOrderByAggregateInput = {
   retellAgentId?: Prisma.SortOrder
   retellLlmId?: Prisma.SortOrder
   published?: Prisma.SortOrder
+  archived?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   orgId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -970,6 +991,7 @@ export type AgentMinOrderByAggregateInput = {
   retellAgentId?: Prisma.SortOrder
   retellLlmId?: Prisma.SortOrder
   published?: Prisma.SortOrder
+  archived?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   orgId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -1091,6 +1113,7 @@ export type AgentCreateWithoutUserInput = {
   retellAgentId?: string | null
   retellLlmId?: string | null
   published?: boolean
+  archived?: boolean
   orgId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1127,6 +1150,7 @@ export type AgentUncheckedCreateWithoutUserInput = {
   retellAgentId?: string | null
   retellLlmId?: string | null
   published?: boolean
+  archived?: boolean
   orgId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1192,6 +1216,7 @@ export type AgentScalarWhereInput = {
   retellAgentId?: Prisma.StringNullableFilter<"Agent"> | string | null
   retellLlmId?: Prisma.StringNullableFilter<"Agent"> | string | null
   published?: Prisma.BoolFilter<"Agent"> | boolean
+  archived?: Prisma.BoolFilter<"Agent"> | boolean
   userId?: Prisma.StringFilter<"Agent"> | string
   orgId?: Prisma.StringNullableFilter<"Agent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Agent"> | Date | string
@@ -1228,6 +1253,7 @@ export type AgentCreateWithoutCampaignsInput = {
   retellAgentId?: string | null
   retellLlmId?: string | null
   published?: boolean
+  archived?: boolean
   orgId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1264,6 +1290,7 @@ export type AgentUncheckedCreateWithoutCampaignsInput = {
   retellAgentId?: string | null
   retellLlmId?: string | null
   published?: boolean
+  archived?: boolean
   userId: string
   orgId?: string | null
   createdAt?: Date | string
@@ -1316,6 +1343,7 @@ export type AgentUpdateWithoutCampaignsInput = {
   retellAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retellLlmId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   orgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1352,6 +1380,7 @@ export type AgentUncheckedUpdateWithoutCampaignsInput = {
   retellAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retellLlmId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   orgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1388,6 +1417,7 @@ export type AgentCreateManyUserInput = {
   retellAgentId?: string | null
   retellLlmId?: string | null
   published?: boolean
+  archived?: boolean
   orgId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1423,6 +1453,7 @@ export type AgentUpdateWithoutUserInput = {
   retellAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retellLlmId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   orgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1459,6 +1490,7 @@ export type AgentUncheckedUpdateWithoutUserInput = {
   retellAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retellLlmId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   orgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1495,6 +1527,7 @@ export type AgentUncheckedUpdateManyWithoutUserInput = {
   retellAgentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retellLlmId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   published?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   orgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1561,6 +1594,7 @@ export type AgentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   retellAgentId?: boolean
   retellLlmId?: boolean
   published?: boolean
+  archived?: boolean
   userId?: boolean
   orgId?: boolean
   createdAt?: boolean
@@ -1600,6 +1634,7 @@ export type AgentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   retellAgentId?: boolean
   retellLlmId?: boolean
   published?: boolean
+  archived?: boolean
   userId?: boolean
   orgId?: boolean
   createdAt?: boolean
@@ -1637,6 +1672,7 @@ export type AgentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   retellAgentId?: boolean
   retellLlmId?: boolean
   published?: boolean
+  archived?: boolean
   userId?: boolean
   orgId?: boolean
   createdAt?: boolean
@@ -1674,13 +1710,14 @@ export type AgentSelectScalar = {
   retellAgentId?: boolean
   retellLlmId?: boolean
   published?: boolean
+  archived?: boolean
   userId?: boolean
   orgId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AgentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "systemPrompt" | "firstMessage" | "firstMessageMode" | "llmModel" | "voiceId" | "voiceSpeed" | "voiceTemperature" | "language" | "maxCallDuration" | "silenceTimeout" | "endCallOnSilence" | "enableRecording" | "postCallAnalysis" | "postCallPrompt" | "postCallWebhook" | "safetyMessage" | "maxSafetyRetries" | "functions" | "mcpConfig" | "config" | "notificationEmail" | "notificationPhone" | "notificationChannels" | "retellAgentId" | "retellLlmId" | "published" | "userId" | "orgId" | "createdAt" | "updatedAt", ExtArgs["result"]["agent"]>
+export type AgentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "systemPrompt" | "firstMessage" | "firstMessageMode" | "llmModel" | "voiceId" | "voiceSpeed" | "voiceTemperature" | "language" | "maxCallDuration" | "silenceTimeout" | "endCallOnSilence" | "enableRecording" | "postCallAnalysis" | "postCallPrompt" | "postCallWebhook" | "safetyMessage" | "maxSafetyRetries" | "functions" | "mcpConfig" | "config" | "notificationEmail" | "notificationPhone" | "notificationChannels" | "retellAgentId" | "retellLlmId" | "published" | "archived" | "userId" | "orgId" | "createdAt" | "updatedAt", ExtArgs["result"]["agent"]>
 export type AgentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   campaigns?: boolean | Prisma.Agent$campaignsArgs<ExtArgs>
@@ -1729,6 +1766,7 @@ export type $AgentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     retellAgentId: string | null
     retellLlmId: string | null
     published: boolean
+    archived: boolean
     userId: string
     orgId: string | null
     createdAt: Date
@@ -2187,6 +2225,7 @@ export interface AgentFieldRefs {
   readonly retellAgentId: Prisma.FieldRef<"Agent", 'String'>
   readonly retellLlmId: Prisma.FieldRef<"Agent", 'String'>
   readonly published: Prisma.FieldRef<"Agent", 'Boolean'>
+  readonly archived: Prisma.FieldRef<"Agent", 'Boolean'>
   readonly userId: Prisma.FieldRef<"Agent", 'String'>
   readonly orgId: Prisma.FieldRef<"Agent", 'String'>
   readonly createdAt: Prisma.FieldRef<"Agent", 'DateTime'>

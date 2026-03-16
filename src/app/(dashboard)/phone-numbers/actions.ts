@@ -59,8 +59,25 @@ export async function fetchPhoneNumbers() {
   if (!hasPermission(ctx.role, "phone_numbers:read")) {
     throw new Error("Permission denied");
   }
-  const numbers = await retellListPhoneNumbers();
-  return numbers;
+
+  // Super admin sees all numbers
+  if (ctx.isSuperAdmin) {
+    const numbers = await retellListPhoneNumbers();
+    return numbers;
+  }
+
+  // Get phone numbers owned by this org
+  const orgId = ctx.orgId || ctx.userId;
+  const ownedNumbers = await prisma.phoneNumber.findMany({
+    where: { orgId },
+    select: { phoneNumber: true },
+  });
+  const ownedSet = new Set(ownedNumbers.map((n) => n.phoneNumber));
+
+  // Fetch all from Retell and filter to owned ones
+  const allNumbers = await retellListPhoneNumbers();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return allNumbers.filter((n: any) => ownedSet.has(n.phone_number));
 }
 
 export async function importPhoneNumberAction(params: {
@@ -118,6 +135,20 @@ export async function importPhoneNumberAction(params: {
       : {}),
   });
 
+  // Register phone number ownership in DB
+  const orgId = ctx.orgId || ctx.userId;
+  await prisma.phoneNumber.upsert({
+    where: { phoneNumber: params.phoneNumber },
+    update: { orgId, userId: ctx.userId, nickname: params.nickname || null, provider: params.terminationUri ? "sip" : "twilio" },
+    create: {
+      phoneNumber: params.phoneNumber,
+      orgId,
+      userId: ctx.userId,
+      nickname: params.nickname || null,
+      provider: params.terminationUri ? "sip" : "twilio",
+    },
+  });
+
   revalidatePath("/phone-numbers");
   return phoneNumber;
 }
@@ -167,6 +198,12 @@ export async function deletePhoneNumberAction(phoneNumber: string) {
     throw new Error("Permission denied");
   }
   await retellDeletePhoneNumber(phoneNumber);
+
+  // Remove ownership record
+  await prisma.phoneNumber.deleteMany({
+    where: { phoneNumber },
+  });
+
   revalidatePath("/phone-numbers");
 }
 
@@ -411,4 +448,65 @@ export async function makeOutboundCall(params: {
   }
 
   return result;
+}
+
+/**
+ * Admin: reassign a phone number to a different organization.
+ */
+export async function reassignPhoneNumber(
+  phoneNumber: string,
+  newOrgId: string
+): Promise<{ success: boolean; message: string }> {
+  const ctx = await getOrgContext();
+  if (!ctx.isSuperAdmin) {
+    throw new Error("Permission denied — super_admin only");
+  }
+
+  const existing = await prisma.phoneNumber.findUnique({
+    where: { phoneNumber },
+  });
+
+  if (!existing) {
+    await prisma.phoneNumber.create({
+      data: {
+        phoneNumber,
+        orgId: newOrgId,
+        userId: ctx.userId,
+      },
+    });
+  } else {
+    await prisma.phoneNumber.update({
+      where: { phoneNumber },
+      data: { orgId: newOrgId },
+    });
+  }
+
+  revalidatePath("/phone-numbers");
+  revalidatePath("/admin");
+  return { success: true, message: "Numéro réassigné avec succès." };
+}
+
+/**
+ * Admin: list all phone numbers with their org assignment.
+ */
+export async function fetchAllPhoneNumbersAdmin() {
+  const ctx = await getOrgContext();
+  if (!ctx.isSuperAdmin) {
+    throw new Error("Permission denied — super_admin only");
+  }
+
+  const [retellNumbers, dbNumbers] = await Promise.all([
+    retellListPhoneNumbers(),
+    prisma.phoneNumber.findMany({
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+
+  const dbMap = new Map(dbNumbers.map((n) => [n.phoneNumber, n]));
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return retellNumbers.map((rn: any) => ({
+    ...rn,
+    _db: dbMap.get(rn.phone_number) || null,
+  }));
 }

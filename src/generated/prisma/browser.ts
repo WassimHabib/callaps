@@ -68,6 +68,11 @@ export type WebhookConfig = Prisma.WebhookConfigModel
  */
 export type WebhookLog = Prisma.WebhookLogModel
 /**
+ * Model PhoneNumber
+ * 
+ */
+export type PhoneNumber = Prisma.PhoneNumberModel
+/**
  * Model Integration
  * 
  */
