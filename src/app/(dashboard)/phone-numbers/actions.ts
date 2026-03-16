@@ -500,6 +500,36 @@ export async function reassignPhoneNumber(
 /**
  * Admin: list all phone numbers with their org assignment.
  */
+/**
+ * Search contacts for outbound call picker.
+ */
+export async function searchContactsForCall(query: string) {
+  const ctx = await getOrgContext();
+  if (!hasPermission(ctx.role, "contacts:read")) {
+    throw new Error("Permission denied");
+  }
+
+  const orgF = orgFilter(ctx);
+  const contacts = await prisma.contact.findMany({
+    where: {
+      ...(orgF.orgId ? { orgId: orgF.orgId } : {}),
+      ...(query
+        ? {
+            OR: [
+              { name: { contains: query, mode: "insensitive" as const } },
+              { phone: { contains: query, mode: "insensitive" as const } },
+            ],
+          }
+        : {}),
+    },
+    select: { id: true, name: true, phone: true, company: true },
+    orderBy: { name: "asc" },
+    take: 20,
+  });
+
+  return contacts;
+}
+
 export async function fetchAllPhoneNumbersAdmin() {
   const ctx = await getOrgContext();
   if (!ctx.isSuperAdmin) {

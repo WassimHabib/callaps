@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,6 +37,7 @@ import {
   configureTwilioWebhook,
   diagnoseTwilioConfig,
   updatePhoneSipCredentials,
+  searchContactsForCall,
 } from "@/app/(dashboard)/phone-numbers/actions";
 import {
   Plus,
@@ -54,6 +55,7 @@ import {
   PhoneCall,
   Globe,
   Signal,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -137,11 +139,49 @@ export function PhoneNumbersClient({
   const [callContactName, setCallContactName] = useState("");
   const [callResult, setCallResult] = useState<{ success: boolean; message: string } | null>(null);
 
+  // Contact search for outbound call
+  const [contactSearch, setContactSearch] = useState("");
+  const [contactResults, setContactResults] = useState<{ id: string; name: string; phone: string; company: string | null }[]>([]);
+  const [showContactResults, setShowContactResults] = useState(false);
+  const [isSearchingContacts, setIsSearchingContacts] = useState(false);
+
   // Outbound agent per phone
   const [outboundAgents, setOutboundAgents] = useState<Record<string, string>>({});
 
   // Delete confirm dialog
   const [deleteTarget, setDeleteTarget] = useState<PhoneNumberItem | null>(null);
+
+  // Debounced contact search
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleContactSearch = useCallback((query: string) => {
+    setContactSearch(query);
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    if (!query || query.length < 2) {
+      setContactResults([]);
+      setShowContactResults(false);
+      return;
+    }
+    searchTimerRef.current = setTimeout(async () => {
+      setIsSearchingContacts(true);
+      try {
+        const results = await searchContactsForCall(query);
+        setContactResults(results);
+        setShowContactResults(results.length > 0);
+      } catch {
+        setContactResults([]);
+      } finally {
+        setIsSearchingContacts(false);
+      }
+    }, 300);
+  }, []);
+
+  const selectContact = (contact: { name: string; phone: string }) => {
+    setCallToNumber(contact.phone);
+    setCallContactName(contact.name);
+    setContactSearch("");
+    setContactResults([]);
+    setShowContactResults(false);
+  };
 
   const filtered = numbers.filter(
     (n) =>
@@ -740,7 +780,13 @@ export function PhoneNumbersClient({
       </Dialog>
 
       {/* Outbound Call Dialog */}
-      <Dialog open={callOpen} onOpenChange={setCallOpen}>
+      <Dialog open={callOpen} onOpenChange={(open) => {
+        setCallOpen(open);
+        if (!open) {
+          setCallToNumber(""); setCallContactName(""); setCallResult(null);
+          setContactSearch(""); setContactResults([]); setShowContactResults(false);
+        }
+      }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Appel sortant</DialogTitle>
@@ -750,6 +796,55 @@ export function PhoneNumbersClient({
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            {/* Contact search */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1.5">
+                <Users className="h-3.5 w-3.5 text-indigo-500" />
+                Rechercher un contact
+              </Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Input
+                  placeholder="Chercher par nom ou numéro..."
+                  value={contactSearch}
+                  onChange={(e) => handleContactSearch(e.target.value)}
+                  className="pl-9"
+                />
+                {isSearchingContacts && (
+                  <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-slate-400" />
+                )}
+              </div>
+              {showContactResults && (
+                <div className="max-h-48 overflow-y-auto rounded-lg border bg-white shadow-lg">
+                  {contactResults.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => selectContact(c)}
+                      className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-indigo-50"
+                    >
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">
+                        {c.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-slate-900">{c.name}</p>
+                        <p className="truncate text-xs text-slate-500">
+                          {c.phone}
+                          {c.company && <span className="ml-1.5 text-slate-400">- {c.company}</span>}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="relative flex items-center gap-3">
+              <div className="flex-1 border-t border-slate-200" />
+              <span className="text-xs text-slate-400">ou saisir manuellement</span>
+              <div className="flex-1 border-t border-slate-200" />
+            </div>
+
             <div className="space-y-2">
               <Label>Numéro à appeler</Label>
               <Input placeholder="+33612345678" value={callToNumber} onChange={(e) => setCallToNumber(e.target.value)} />
@@ -758,6 +853,16 @@ export function PhoneNumbersClient({
               <Label>Nom du contact (optionnel)</Label>
               <Input placeholder="Jean Dupont" value={callContactName} onChange={(e) => setCallContactName(e.target.value)} />
             </div>
+
+            {/* Selected contact indicator */}
+            {callToNumber && callContactName && (
+              <div className="flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-sm text-indigo-700">
+                <Phone className="h-3.5 w-3.5" />
+                <span className="font-medium">{callContactName}</span>
+                <span className="font-mono text-xs text-indigo-500">{callToNumber}</span>
+              </div>
+            )}
+
             {callResult && (
               <div className={cn("flex items-center gap-2 rounded-lg p-3 text-sm", callResult.success ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700")}>
                 {callResult.success ? <CheckCircle className="h-4 w-4 shrink-0" /> : <AlertCircle className="h-4 w-4 shrink-0" />}
@@ -766,7 +871,10 @@ export function PhoneNumbersClient({
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setCallOpen(false); setCallToNumber(""); setCallContactName(""); setCallResult(null); }} disabled={isPending}>Annuler</Button>
+            <Button variant="outline" onClick={() => {
+              setCallOpen(false); setCallToNumber(""); setCallContactName(""); setCallResult(null);
+              setContactSearch(""); setContactResults([]); setShowContactResults(false);
+            }} disabled={isPending}>Annuler</Button>
             <Button onClick={handleMakeCall} disabled={!callToNumber || isPending}
               className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white"
             >
