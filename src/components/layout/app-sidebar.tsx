@@ -25,6 +25,26 @@ import {
   Mic,
 } from "lucide-react";
 
+/**
+ * Pastel icon background colors — one per link index (cycles if more links).
+ * Keeps every row visually distinct without being loud.
+ */
+const iconColors = [
+  "bg-indigo-50  text-indigo-500",
+  "bg-violet-50  text-violet-500",
+  "bg-sky-50     text-sky-500",
+  "bg-emerald-50 text-emerald-500",
+  "bg-amber-50   text-amber-500",
+  "bg-rose-50    text-rose-500",
+  "bg-teal-50    text-teal-500",
+  "bg-fuchsia-50 text-fuchsia-500",
+  "bg-cyan-50    text-cyan-500",
+  "bg-orange-50  text-orange-500",
+  "bg-lime-50    text-lime-600",
+  "bg-pink-50    text-pink-500",
+  "bg-blue-50    text-blue-500",
+];
+
 const clientLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/agents", label: "Agents IA", icon: Bot },
@@ -63,11 +83,11 @@ export function AppSidebar({ role, showOrgSwitcher, isAdmin }: AppSidebarProps) 
   const links = role === "admin" ? adminLinks : clientLinks;
 
   return (
-    <aside className="flex h-screen w-[260px] flex-col bg-[#0f172a]">
+    <aside className="flex h-screen w-[260px] flex-col border-r border-slate-200 bg-white">
       {/* Logo */}
       <div className="flex h-[130px] shrink-0 items-center justify-center px-1">
         <Image
-          src="/logo.png"
+          src="/logo-dark.png"
           alt="Callaps"
           width={250}
           height={110}
@@ -78,16 +98,16 @@ export function AppSidebar({ role, showOrgSwitcher, isAdmin }: AppSidebarProps) 
 
       {/* Organization Switcher — only visible for super_admin */}
       {showOrgSwitcher && (
-        <div className="px-3 pb-2 [&_.cl-organizationSwitcherTrigger]:!text-white [&_.cl-organizationSwitcherTrigger]:!bg-slate-700/60 [&_.cl-organizationSwitcherTrigger]:!border-slate-600/50 [&_.cl-organizationSwitcherTrigger]:!border [&_.cl-organizationSwitcherTrigger]:rounded-xl [&_button]:!text-white [&_span]:!text-white [&_p]:!text-white [&_svg]:!text-slate-400">
+        <div className="px-3 pb-2 [&_.cl-organizationSwitcherTrigger]:!text-slate-700 [&_.cl-organizationSwitcherTrigger]:!bg-slate-50 [&_.cl-organizationSwitcherTrigger]:!border-slate-200 [&_.cl-organizationSwitcherTrigger]:!border [&_.cl-organizationSwitcherTrigger]:rounded-xl [&_button]:!text-slate-700 [&_span]:!text-slate-700 [&_p]:!text-slate-700 [&_svg]:!text-slate-400">
           <OrganizationSwitcher
             hidePersonal
             appearance={{
               elements: {
                 rootBox: "w-full",
                 organizationSwitcherTrigger:
-                  "w-full rounded-xl bg-slate-700/60 border border-slate-600/50 px-3 py-2.5 text-sm text-white hover:bg-slate-600/60",
+                  "w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-100",
                 organizationSwitcherPopoverActionButton__createOrganization: "hidden",
-                organizationPreview: "text-white",
+                organizationPreview: "text-slate-700",
                 organizationSwitcherTriggerIcon: "text-slate-400",
               },
             }}
@@ -99,7 +119,7 @@ export function AppSidebar({ role, showOrgSwitcher, isAdmin }: AppSidebarProps) 
       {isAdmin && (
         <Link
           href="/admin-portal"
-          className="mx-3 mb-3 flex items-center gap-2 rounded-lg bg-gradient-to-r from-indigo-50 to-violet-50 px-3 py-2.5 text-[13px] font-medium text-indigo-700 transition-all hover:from-indigo-100 hover:to-violet-100"
+          className="mx-3 mb-3 flex items-center gap-2 rounded-xl border border-indigo-100 bg-indigo-50/60 px-3 py-2.5 text-[13px] font-medium text-indigo-600 transition-colors hover:bg-indigo-100/60"
         >
           <Briefcase className="h-4 w-4 text-indigo-500" />
           Portail Admin
@@ -107,43 +127,39 @@ export function AppSidebar({ role, showOrgSwitcher, isAdmin }: AppSidebarProps) 
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-0.5 px-3 pt-2">
-        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 pt-2">
+        <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
           Menu
         </p>
-        {links.map((link) => {
+        {links.map((link, index) => {
           const Icon = link.icon;
           const isActive =
             pathname === link.href ||
             (link.href !== "/admin" &&
               link.href !== "/dashboard" &&
               pathname.startsWith(link.href + "/"));
+          const colorClass = iconColors[index % iconColors.length];
           return (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
-                "group flex items-center justify-between rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-200",
+                "group flex items-center justify-between rounded-xl px-3 py-2.5 text-[13px] font-medium transition-colors duration-150",
                 isActive
-                  ? "bg-gradient-to-r from-indigo-500/15 to-violet-500/10 text-white shadow-sm"
-                  : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+                  ? "bg-indigo-50 text-indigo-600"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
               )}
             >
               <div className="flex items-center gap-3">
                 <div
                   className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-200",
+                    "flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-150",
                     isActive
-                      ? "bg-gradient-to-br from-indigo-500 to-violet-500 shadow-md shadow-indigo-500/25"
-                      : "bg-slate-800/50 group-hover:bg-slate-700/50"
+                      ? "bg-indigo-100 text-indigo-600"
+                      : colorClass
                   )}
                 >
-                  <Icon
-                    className={cn(
-                      "h-4 w-4 transition-colors",
-                      isActive ? "text-white" : "text-slate-400 group-hover:text-slate-300"
-                    )}
-                  />
+                  <Icon className="h-4 w-4" />
                 </div>
                 {link.label}
               </div>
@@ -156,12 +172,12 @@ export function AppSidebar({ role, showOrgSwitcher, isAdmin }: AppSidebarProps) 
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-slate-800 p-4">
-        <div className="rounded-xl bg-gradient-to-r from-indigo-500/10 to-violet-500/10 p-3">
-          <p className="text-[11px] font-medium text-slate-300">
+      <div className="border-t border-slate-100 p-4">
+        <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+          <p className="text-[11px] font-medium text-slate-600">
             Callaps Pro
           </p>
-          <p className="mt-0.5 text-[10px] text-slate-500">
+          <p className="mt-0.5 text-[10px] text-slate-400">
             Appels illimités
           </p>
         </div>
