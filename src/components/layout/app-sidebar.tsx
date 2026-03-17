@@ -23,53 +23,42 @@ import {
   Lightbulb,
   Briefcase,
   Mic,
+  Sparkles,
 } from "lucide-react";
 
-/**
- * Pastel icon background colors — one per link index (cycles if more links).
- * Keeps every row visually distinct without being loud.
- */
-const iconColors = [
-  "bg-indigo-50  text-indigo-500",
-  "bg-violet-50  text-violet-500",
-  "bg-sky-50     text-sky-500",
-  "bg-emerald-50 text-emerald-500",
-  "bg-amber-50   text-amber-500",
-  "bg-rose-50    text-rose-500",
-  "bg-teal-50    text-teal-500",
-  "bg-fuchsia-50 text-fuchsia-500",
-  "bg-cyan-50    text-cyan-500",
-  "bg-orange-50  text-orange-500",
-  "bg-lime-50    text-lime-600",
-  "bg-pink-50    text-pink-500",
-  "bg-blue-50    text-blue-500",
+/* ── Link groups with per-item icon colors ── */
+
+const clientMainLinks = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, color: "bg-indigo-500" },
+  { href: "/agents", label: "Agents IA", icon: Bot, color: "bg-violet-500" },
+  { href: "/campaigns", label: "Campagnes", icon: Megaphone, color: "bg-amber-500" },
+  { href: "/phone-numbers", label: "Numéros", icon: Phone, color: "bg-sky-500" },
+  { href: "/contacts", label: "Contacts", icon: Contact2, color: "bg-emerald-500" },
+  { href: "/calls", label: "Appels", icon: PhoneCall, color: "bg-blue-500" },
+  { href: "/voices", label: "Voix clonées", icon: Mic, color: "bg-fuchsia-500" },
 ];
 
-const clientLinks = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/agents", label: "Agents IA", icon: Bot },
-  { href: "/campaigns", label: "Campagnes", icon: Megaphone },
-  { href: "/phone-numbers", label: "Numéros de téléphone", icon: Phone },
-  { href: "/contacts", label: "Contacts", icon: Contact2 },
-  { href: "/calls", label: "Historique appels", icon: PhoneCall },
-  { href: "/voices", label: "Voix clonées", icon: Mic },
-  { href: "/appointments", label: "Rendez-vous", icon: CalendarCheck },
-  { href: "/statistics", label: "Statistiques", icon: BarChart3 },
-  { href: "/insights", label: "Insights IA", icon: Lightbulb },
-  { href: "/billing", label: "Facturation", icon: Receipt },
-  { href: "/integrations", label: "Intégrations", icon: Plug },
-  { href: "/settings", label: "Paramètres", icon: Settings },
+const clientSecondaryLinks = [
+  { href: "/appointments", label: "Rendez-vous", icon: CalendarCheck, color: "bg-teal-500" },
+  { href: "/statistics", label: "Statistiques", icon: BarChart3, color: "bg-orange-500" },
+  { href: "/insights", label: "Insights IA", icon: Lightbulb, color: "bg-yellow-500" },
+  { href: "/billing", label: "Facturation", icon: Receipt, color: "bg-rose-500" },
+  { href: "/integrations", label: "Intégrations", icon: Plug, color: "bg-cyan-500" },
+  { href: "/settings", label: "Paramètres", icon: Settings, color: "bg-slate-500" },
 ];
 
-const adminLinks = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/organizations", label: "Organisations", icon: Building2 },
-  { href: "/admin/clients", label: "Clients", icon: Users },
-  { href: "/admin/agents", label: "Agents IA", icon: Bot },
-  { href: "/admin/campaigns", label: "Campagnes", icon: Megaphone },
-  { href: "/admin/billing", label: "Facturation", icon: Receipt },
-  { href: "/admin/statistics", label: "Statistiques", icon: BarChart3 },
-  { href: "/admin/settings", label: "Paramètres", icon: Settings },
+const adminMainLinks = [
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboard, color: "bg-indigo-500" },
+  { href: "/admin/organizations", label: "Organisations", icon: Building2, color: "bg-violet-500" },
+  { href: "/admin/clients", label: "Clients", icon: Users, color: "bg-emerald-500" },
+  { href: "/admin/agents", label: "Agents IA", icon: Bot, color: "bg-amber-500" },
+];
+
+const adminSecondaryLinks = [
+  { href: "/admin/campaigns", label: "Campagnes", icon: Megaphone, color: "bg-sky-500" },
+  { href: "/admin/billing", label: "Facturation", icon: Receipt, color: "bg-rose-500" },
+  { href: "/admin/statistics", label: "Statistiques", icon: BarChart3, color: "bg-orange-500" },
+  { href: "/admin/settings", label: "Paramètres", icon: Settings, color: "bg-slate-500" },
 ];
 
 interface AppSidebarProps {
@@ -78,90 +67,51 @@ interface AppSidebarProps {
   isAdmin?: boolean;
 }
 
-export function AppSidebar({ role, showOrgSwitcher, isAdmin }: AppSidebarProps) {
-  const pathname = usePathname();
-  const links = role === "admin" ? adminLinks : clientLinks;
-
+function NavGroup({
+  label,
+  links,
+  pathname,
+}: {
+  label: string;
+  links: { href: string; label: string; icon: React.ElementType; color: string }[];
+  pathname: string;
+}) {
   return (
-    <aside className="flex h-screen w-[260px] flex-col border-r border-slate-200 bg-white">
-      {/* Logo */}
-      <div className="flex h-[130px] shrink-0 items-center justify-center px-1">
-        <Image
-          src="/logo-dark.png"
-          alt="Callaps"
-          width={250}
-          height={110}
-          className="h-28 w-auto object-contain"
-          priority
-        />
-      </div>
-
-      {/* Organization Switcher — only visible for super_admin */}
-      {showOrgSwitcher && (
-        <div className="px-3 pb-2 [&_.cl-organizationSwitcherTrigger]:!text-slate-700 [&_.cl-organizationSwitcherTrigger]:!bg-slate-50 [&_.cl-organizationSwitcherTrigger]:!border-slate-200 [&_.cl-organizationSwitcherTrigger]:!border [&_.cl-organizationSwitcherTrigger]:rounded-xl [&_button]:!text-slate-700 [&_span]:!text-slate-700 [&_p]:!text-slate-700 [&_svg]:!text-slate-400">
-          <OrganizationSwitcher
-            hidePersonal
-            appearance={{
-              elements: {
-                rootBox: "w-full",
-                organizationSwitcherTrigger:
-                  "w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-100",
-                organizationSwitcherPopoverActionButton__createOrganization: "hidden",
-                organizationPreview: "text-slate-700",
-                organizationSwitcherTriggerIcon: "text-slate-400",
-              },
-            }}
-          />
-        </div>
-      )}
-
-      {/* Admin Portal Link */}
-      {isAdmin && (
-        <Link
-          href="/admin-portal"
-          className="mx-3 mb-3 flex items-center gap-2 rounded-xl border border-indigo-100 bg-indigo-50/60 px-3 py-2.5 text-[13px] font-medium text-indigo-600 transition-colors hover:bg-indigo-100/60"
-        >
-          <Briefcase className="h-4 w-4 text-indigo-500" />
-          Portail Admin
-        </Link>
-      )}
-
-      {/* Navigation */}
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 pt-2">
-        <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-          Menu
-        </p>
-        {links.map((link, index) => {
+    <div className="rounded-2xl border border-slate-100 bg-white p-2 shadow-sm">
+      <p className="mb-1 px-2 pt-1 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+        {label}
+      </p>
+      <div className="space-y-0.5">
+        {links.map((link) => {
           const Icon = link.icon;
           const isActive =
             pathname === link.href ||
             (link.href !== "/admin" &&
               link.href !== "/dashboard" &&
               pathname.startsWith(link.href + "/"));
-          const colorClass = iconColors[index % iconColors.length];
           return (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
-                "group flex items-center justify-between rounded-xl px-3 py-2.5 text-[13px] font-medium transition-colors duration-150",
+                "group flex items-center justify-between rounded-xl px-2.5 py-2 text-[13px] font-medium transition-all duration-150",
                 isActive
-                  ? "bg-indigo-50 text-indigo-600"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+                  ? "bg-indigo-50 text-indigo-700"
+                  : "text-slate-600 hover:bg-slate-50"
               )}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5">
                 <div
                   className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-150",
+                    "flex h-7 w-7 items-center justify-center rounded-lg transition-all duration-150",
                     isActive
-                      ? "bg-indigo-100 text-indigo-600"
-                      : colorClass
+                      ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/30"
+                      : `${link.color} text-white shadow-sm`
                   )}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-3.5 w-3.5" />
                 </div>
-                {link.label}
+                <span className={cn(isActive && "font-semibold")}>{link.label}</span>
               </div>
               {isActive && (
                 <ChevronRight className="h-3.5 w-3.5 text-indigo-400" />
@@ -169,17 +119,85 @@ export function AppSidebar({ role, showOrgSwitcher, isAdmin }: AppSidebarProps) 
             </Link>
           );
         })}
-      </nav>
+      </div>
+    </div>
+  );
+}
 
-      {/* Footer */}
-      <div className="border-t border-slate-100 p-4">
-        <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
-          <p className="text-[11px] font-medium text-slate-600">
-            Callaps Pro
-          </p>
-          <p className="mt-0.5 text-[10px] text-slate-400">
-            Appels illimités
-          </p>
+export function AppSidebar({ role, showOrgSwitcher, isAdmin }: AppSidebarProps) {
+  const pathname = usePathname();
+
+  const mainLinks = role === "admin" ? adminMainLinks : clientMainLinks;
+  const secondaryLinks = role === "admin" ? adminSecondaryLinks : clientSecondaryLinks;
+
+  return (
+    <aside className="flex h-screen w-[260px] flex-col bg-slate-50/80">
+      <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-3">
+        {/* Logo card */}
+        <div className="flex items-center justify-center rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+          <Image
+            src="/logo-dark.png"
+            alt="Callaps"
+            width={180}
+            height={50}
+            className="h-10 w-auto object-contain"
+            priority
+          />
+        </div>
+
+        {/* Organization Switcher */}
+        {showOrgSwitcher && (
+          <div className="rounded-2xl border border-slate-100 bg-white p-2 shadow-sm [&_.cl-organizationSwitcherTrigger]:!text-slate-700 [&_.cl-organizationSwitcherTrigger]:!bg-slate-50 [&_.cl-organizationSwitcherTrigger]:!border-slate-200 [&_.cl-organizationSwitcherTrigger]:!border [&_.cl-organizationSwitcherTrigger]:rounded-xl [&_button]:!text-slate-700 [&_span]:!text-slate-700 [&_p]:!text-slate-700 [&_svg]:!text-slate-400">
+            <OrganizationSwitcher
+              hidePersonal
+              appearance={{
+                elements: {
+                  rootBox: "w-full",
+                  organizationSwitcherTrigger:
+                    "w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-sm text-slate-700 hover:bg-slate-100",
+                  organizationSwitcherPopoverActionButton__createOrganization: "hidden",
+                  organizationPreview: "text-slate-700",
+                  organizationSwitcherTriggerIcon: "text-slate-400",
+                },
+              }}
+            />
+          </div>
+        )}
+
+        {/* Admin Portal Link */}
+        {isAdmin && (
+          <Link
+            href="/admin-portal"
+            className="flex items-center gap-2.5 rounded-2xl border border-indigo-100 bg-gradient-to-r from-indigo-50 to-violet-50 px-4 py-3 text-[13px] font-semibold text-indigo-600 shadow-sm transition-all hover:shadow-md"
+          >
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500 text-white shadow-sm">
+              <Briefcase className="h-3.5 w-3.5" />
+            </div>
+            Portail Admin
+          </Link>
+        )}
+
+        {/* Main navigation card */}
+        <NavGroup label="Principal" links={mainLinks} pathname={pathname} />
+
+        {/* Secondary navigation card */}
+        <NavGroup label="Outils" links={secondaryLinks} pathname={pathname} />
+
+        {/* Footer card */}
+        <div className="mt-auto rounded-2xl border border-slate-100 bg-gradient-to-br from-indigo-500 to-violet-500 p-4 shadow-sm">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20">
+              <Sparkles className="h-4 w-4 text-white" />
+            </div>
+            <div>
+              <p className="text-[12px] font-semibold text-white">
+                Callaps Pro
+              </p>
+              <p className="text-[10px] text-white/70">
+                Appels illimités
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </aside>
