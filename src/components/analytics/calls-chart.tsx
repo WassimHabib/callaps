@@ -63,7 +63,7 @@ export function CallsChart({ data }: CallsChartProps) {
                 type="monotone"
                 dataKey="total"
                 name="Total"
-                stroke="#6366f1"
+                stroke="#7B61FF"
                 strokeWidth={2}
                 dot={false}
                 activeDot={{ r: 4 }}

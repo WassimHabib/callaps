@@ -50,7 +50,7 @@ export default async function PendingPage() {
         {/* Logo */}
         <div className="mb-10 flex justify-center">
           <Image
-            src="/logo-light.png"
+            src="/logoV2.png"
             alt="Callaps"
             width={180}
             height={54}

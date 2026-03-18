@@ -27,10 +27,10 @@ export function AdminPortalSidebar({ userName }: { userName: string }) {
       {/* Header */}
       <div className="flex h-16 items-center gap-3 border-b border-slate-100 px-5">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 text-sm font-bold text-white shadow-lg shadow-indigo-500/25">
-          W
+          CP
         </div>
         <div>
-          <p className="text-sm font-semibold text-slate-900">Wevlap</p>
+          <p className="text-sm font-semibold text-slate-900">Callaps</p>
           <p className="text-[11px] text-slate-400">Portail Admin</p>
         </div>
       </div>

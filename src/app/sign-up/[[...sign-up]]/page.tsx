@@ -28,7 +28,7 @@ export default function SignUpPage() {
         {/* Content */}
         <div className="relative z-10 flex h-full flex-col justify-between p-14">
           <Image
-            src="/logo-dark.png"
+            src="/logoV2.png"
             alt="Callaps"
             width={280}
             height={84}
@@ -80,7 +80,7 @@ export default function SignUpPage() {
           {/* Mobile logo */}
           <div className="mb-10 text-center lg:hidden">
             <Image
-              src="/logo-light.png"
+              src="/logoV2.png"
               alt="Callaps"
               width={200}
               height={60}

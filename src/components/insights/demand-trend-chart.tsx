@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
+const COLORS = ["#7B61FF", "#10b981", "#f59e0b", "#ef4444", "#4DAFFF"];
 
 interface Props {
   data: Record<string, unknown>[];

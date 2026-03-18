@@ -49,7 +49,7 @@ export function DurationChart({ data }: DurationChartProps) {
               />
               <Bar
                 dataKey="count"
-                fill="#8b5cf6"
+                fill="#4DAFFF"
                 radius={[4, 4, 0, 0]}
               />
             </BarChart>

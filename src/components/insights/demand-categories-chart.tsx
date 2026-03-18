@@ -67,7 +67,7 @@ export function DemandCategoriesChart({ data }: Props) {
                 />
                 <Bar
                   dataKey="count"
-                  fill="#6366f1"
+                  fill="#7B61FF"
                   radius={[0, 6, 6, 0]}
                   barSize={24}
                 />

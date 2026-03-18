@@ -57,7 +57,7 @@ export function HoursChart({ data }: HoursChartProps) {
               />
               <Bar
                 dataKey="total"
-                fill="#6366f1"
+                fill="#7B61FF"
                 radius={[4, 4, 0, 0]}
                 name="total"
               />
