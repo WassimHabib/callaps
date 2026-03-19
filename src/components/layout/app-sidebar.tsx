@@ -134,9 +134,9 @@ export function AppSidebar({ role, showOrgSwitcher, isAdmin }: AppSidebarProps) 
     <aside className="flex h-screen w-[260px] flex-col bg-slate-50/80">
       <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-3">
         {/* Logo card */}
-        <div className="flex items-center justify-center rounded-2xl bg-gradient-to-br from-[#0B0B0F] to-[#1a1a2e] p-5 shadow-sm">
+        <div className="flex items-center justify-center rounded-2xl bg-white border border-slate-100 p-5 shadow-sm">
           <Image
-            src="/logo.png"
+            src="/logoV2.png"
             alt="Callaps"
             width={220}
             height={90}
