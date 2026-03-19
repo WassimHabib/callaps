@@ -2,6 +2,7 @@ import { getOrgContext, orgFilter } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { Header } from "@/components/layout/header";
+import { PageNav } from "@/components/layout/page-nav";
 import { IntegrationCards } from "./integration-cards";
 import { WebhooksSection } from "./webhooks-section";
 
@@ -41,6 +42,10 @@ export default async function IntegrationsPage() {
   return (
     <div className="min-h-screen bg-slate-50/50">
       <Header title="Integrations" description="Connectez vos outils et CRM" />
+      <PageNav items={[
+        { href: "/settings", label: "Paramètres" },
+        { href: "/integrations", label: "Intégrations" },
+      ]} />
       <div className="p-8 space-y-8">
         <IntegrationCards
           connectedIntegrations={userIntegrations}

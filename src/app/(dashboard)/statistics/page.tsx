@@ -1,5 +1,6 @@
 import { getOrgContext, orgFilter } from "@/lib/auth";
 import { Header } from "@/components/layout/header";
+import { PageNav } from "@/components/layout/page-nav";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   getOrgStats,
@@ -85,6 +86,10 @@ export default async function StatisticsPage() {
   return (
     <div className="min-h-screen bg-slate-50/50">
       <Header title="Statistiques" description="Performance de vos campagnes" />
+      <PageNav items={[
+        { href: "/statistics", label: "Statistiques" },
+        { href: "/insights", label: "Insights IA" },
+      ]} />
       <div className="space-y-6 p-8">
         {/* KPI Row */}
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">

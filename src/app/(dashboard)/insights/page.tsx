@@ -1,5 +1,6 @@
 import { getOrgContext, orgFilter } from "@/lib/auth";
 import { Header } from "@/components/layout/header";
+import { PageNav } from "@/components/layout/page-nav";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   getDemandsByCategory,
@@ -117,6 +118,10 @@ export default async function InsightsPage({ searchParams }: InsightsPageProps) 
         title="Insights"
         description="Analyse des demandes et recommandations IA"
       />
+      <PageNav items={[
+        { href: "/statistics", label: "Statistiques" },
+        { href: "/insights", label: "Insights IA" },
+      ]} />
       <div className="space-y-6 p-8">
         {/* Tab Selector */}
         <div className="flex items-center gap-4">

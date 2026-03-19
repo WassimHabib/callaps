@@ -1,6 +1,7 @@
 import { getOrgContext, orgFilter } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Header } from "@/components/layout/header";
+import { PageNav } from "@/components/layout/page-nav";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -97,6 +98,10 @@ export default async function AgentsPage() {
         title="Agents IA"
         description="Configurez vos agents d'appels intelligents"
       />
+      <PageNav items={[
+        { href: "/agents", label: "Agents" },
+        { href: "/voices", label: "Voix clonées" },
+      ]} />
       <div className="p-8">
         <div className="mb-6 flex items-center justify-between">
           <p className="text-sm text-slate-500">

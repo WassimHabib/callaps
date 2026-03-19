@@ -1,6 +1,7 @@
 import { requireAuth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Header } from "@/components/layout/header";
+import { PageNav } from "@/components/layout/page-nav";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +18,10 @@ export default async function SettingsPage() {
   return (
     <div className="min-h-screen bg-slate-50/50">
       <Header title="Parametres" description="Gerez votre compte et votre entreprise" />
+      <PageNav items={[
+        { href: "/settings", label: "Paramètres" },
+        { href: "/integrations", label: "Intégrations" },
+      ]} />
       <div className="mx-auto max-w-2xl space-y-6 p-8">
         <Tabs defaultValue="company" className="w-full">
           <TabsList className="mb-6 grid w-full grid-cols-2">
