@@ -9,7 +9,7 @@ export default function SignInPage() {
       {/* Left - Animated gradient + bold typography */}
       <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden lg:flex">
         {/* Animated gradient background */}
-        <div className="absolute inset-0 animate-gradient bg-gradient-to-br from-indigo-600 via-violet-600 to-blue-600 bg-[length:200%_200%]" />
+        <div className="absolute inset-0 animate-gradient bg-gradient-to-br from-[#4f46e5] via-[#7c3aed] to-[#2563eb] bg-[length:200%_200%]" />
 
         {/* Subtle grid overlay */}
         <div
@@ -62,7 +62,7 @@ export default function SignInPage() {
                   key={i}
                   src={src}
                   alt=""
-                  className="h-8 w-8 rounded-full border-2 border-indigo-600 object-cover"
+                  className="h-8 w-8 rounded-full border-2 border-[#4f46e5] object-cover"
                 />
               ))}
             </div>
@@ -76,8 +76,8 @@ export default function SignInPage() {
       {/* Right - Form */}
       <div className="relative flex w-full items-center justify-center bg-slate-50 px-6 lg:w-1/2">
         {/* Decorative shapes */}
-        <div className="absolute -left-32 top-1/4 h-64 w-64 rounded-full bg-indigo-100/50 blur-3xl" />
-        <div className="absolute -right-20 bottom-1/4 h-48 w-48 rounded-full bg-violet-100/40 blur-3xl" />
+        <div className="absolute -left-32 top-1/4 h-64 w-64 rounded-full bg-[#e0e7ff]/50 blur-3xl" />
+        <div className="absolute -right-20 bottom-1/4 h-48 w-48 rounded-full bg-[#ede9fe]/40 blur-3xl" />
 
         <div className="relative z-10 w-full max-w-md">
           {/* Mobile logo */}

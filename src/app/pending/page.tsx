@@ -43,8 +43,8 @@ export default async function PendingPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Decorative background */}
-      <div className="absolute -left-40 top-1/4 h-80 w-80 rounded-full bg-indigo-100/40 blur-3xl" />
-      <div className="absolute -right-40 bottom-1/4 h-80 w-80 rounded-full bg-violet-100/30 blur-3xl" />
+      <div className="absolute -left-40 top-1/4 h-80 w-80 rounded-full bg-[#e0e7ff]/40 blur-3xl" />
+      <div className="absolute -right-40 bottom-1/4 h-80 w-80 rounded-full bg-[#ede9fe]/30 blur-3xl" />
 
       <div className="relative z-10 mx-4 w-full max-w-lg">
         {/* Logo */}
@@ -118,7 +118,7 @@ export default async function PendingPage() {
         {/* Footer */}
         <p className="mt-8 text-center text-xs text-slate-400">
           Besoin d&apos;aide ? Contactez-nous à{" "}
-          <a href="mailto:support@callaps.ai" className="text-indigo-500 hover:underline">
+          <a href="mailto:support@callaps.ai" className="text-[#6366f1] hover:underline">
             support@callaps.ai
           </a>
         </p>
