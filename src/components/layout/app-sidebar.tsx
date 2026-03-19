@@ -31,33 +31,33 @@ import {
 const clientMainLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, color: "bg-indigo-500" },
   { href: "/agents", label: "Agents IA", icon: Bot, color: "bg-violet-500" },
-  { href: "/campaigns", label: "Campagnes", icon: Megaphone, color: "bg-amber-500" },
-  { href: "/phone-numbers", label: "Numéros", icon: Phone, color: "bg-sky-500" },
-  { href: "/contacts", label: "Contacts", icon: Contact2, color: "bg-emerald-500" },
-  { href: "/calls", label: "Appels", icon: PhoneCall, color: "bg-blue-500" },
-  { href: "/voices", label: "Voix clonées", icon: Mic, color: "bg-fuchsia-500" },
+  { href: "/campaigns", label: "Campagnes", icon: Megaphone, color: "bg-indigo-400" },
+  { href: "/phone-numbers", label: "Numéros", icon: Phone, color: "bg-violet-400" },
+  { href: "/contacts", label: "Contacts", icon: Contact2, color: "bg-indigo-600" },
+  { href: "/calls", label: "Appels", icon: PhoneCall, color: "bg-violet-600" },
+  { href: "/voices", label: "Voix clonées", icon: Mic, color: "bg-indigo-500" },
 ];
 
 const clientSecondaryLinks = [
-  { href: "/appointments", label: "Rendez-vous", icon: CalendarCheck, color: "bg-teal-500" },
-  { href: "/statistics", label: "Statistiques", icon: BarChart3, color: "bg-orange-500" },
-  { href: "/insights", label: "Insights IA", icon: Lightbulb, color: "bg-yellow-500" },
-  { href: "/billing", label: "Facturation", icon: Receipt, color: "bg-rose-500" },
-  { href: "/integrations", label: "Intégrations", icon: Plug, color: "bg-cyan-500" },
+  { href: "/appointments", label: "Rendez-vous", icon: CalendarCheck, color: "bg-violet-500" },
+  { href: "/statistics", label: "Statistiques", icon: BarChart3, color: "bg-indigo-400" },
+  { href: "/insights", label: "Insights IA", icon: Lightbulb, color: "bg-violet-400" },
+  { href: "/billing", label: "Facturation", icon: Receipt, color: "bg-indigo-600" },
+  { href: "/integrations", label: "Intégrations", icon: Plug, color: "bg-violet-600" },
   { href: "/settings", label: "Paramètres", icon: Settings, color: "bg-slate-500" },
 ];
 
 const adminMainLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, color: "bg-indigo-500" },
   { href: "/admin/organizations", label: "Organisations", icon: Building2, color: "bg-violet-500" },
-  { href: "/admin/clients", label: "Clients", icon: Users, color: "bg-emerald-500" },
-  { href: "/admin/agents", label: "Agents IA", icon: Bot, color: "bg-amber-500" },
+  { href: "/admin/clients", label: "Clients", icon: Users, color: "bg-indigo-400" },
+  { href: "/admin/agents", label: "Agents IA", icon: Bot, color: "bg-violet-400" },
 ];
 
 const adminSecondaryLinks = [
-  { href: "/admin/campaigns", label: "Campagnes", icon: Megaphone, color: "bg-sky-500" },
-  { href: "/admin/billing", label: "Facturation", icon: Receipt, color: "bg-rose-500" },
-  { href: "/admin/statistics", label: "Statistiques", icon: BarChart3, color: "bg-orange-500" },
+  { href: "/admin/campaigns", label: "Campagnes", icon: Megaphone, color: "bg-indigo-600" },
+  { href: "/admin/billing", label: "Facturation", icon: Receipt, color: "bg-violet-600" },
+  { href: "/admin/statistics", label: "Statistiques", icon: BarChart3, color: "bg-indigo-400" },
   { href: "/admin/settings", label: "Paramètres", icon: Settings, color: "bg-slate-500" },
 ];
 
@@ -134,13 +134,19 @@ export function AppSidebar({ role, showOrgSwitcher, isAdmin }: AppSidebarProps) 
     <aside className="flex h-screen w-[260px] flex-col bg-slate-50/80">
       <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-3">
         {/* Logo card */}
-        <div className="flex items-center justify-center rounded-2xl bg-white border border-slate-100 p-5 shadow-sm">
+        <div className="relative flex items-center justify-center overflow-hidden rounded-2xl border border-indigo-100/50 bg-white p-5 shadow-sm">
+          <Image
+            src="/glow-bg.png"
+            alt=""
+            fill
+            className="pointer-events-none object-cover opacity-30"
+          />
           <Image
             src="/logoV2.png"
             alt="Callaps"
             width={220}
             height={90}
-            className="h-16 w-auto object-contain"
+            className="relative z-10 h-16 w-auto object-contain"
             priority
           />
         </div>

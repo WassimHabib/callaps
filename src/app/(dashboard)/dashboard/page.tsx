@@ -224,16 +224,16 @@ export default async function DashboardPage() {
               value: activeCalls.toLocaleString("fr-FR"),
               sub: "Appels actifs",
               icon: PhoneCall,
-              iconBg: "bg-amber-50",
-              iconColor: "text-amber-500",
+              iconBg: "bg-violet-50",
+              iconColor: "text-violet-500",
             },
             {
               title: "Taux de réussite",
               value: `${conversionRate}%`,
               sub: `${completedCalls} complétés`,
               icon: TrendingUp,
-              iconBg: "bg-emerald-50",
-              iconColor: "text-emerald-500",
+              iconBg: "bg-indigo-50",
+              iconColor: "text-indigo-600",
             },
             {
               title: "Durée moyenne",
@@ -241,7 +241,7 @@ export default async function DashboardPage() {
               sub: `Total : ${formatTotalDuration(totalDuration)}`,
               icon: Clock,
               iconBg: "bg-violet-50",
-              iconColor: "text-violet-500",
+              iconColor: "text-violet-600",
             },
             {
               title: "Aujourd'hui",
@@ -250,8 +250,8 @@ export default async function DashboardPage() {
                 ? `${activeCalls} en cours`
                 : "appels passés",
               icon: CheckCircle,
-              iconBg: "bg-rose-50",
-              iconColor: "text-rose-500",
+              iconBg: "bg-indigo-50",
+              iconColor: "text-indigo-400",
             },
           ].map((stat) => {
             const Icon = stat.icon;
@@ -597,22 +597,22 @@ export default async function DashboardPage() {
                       label: "Appels",
                       href: "/calls",
                       icon: PhoneCall,
-                      iconBg: "bg-blue-50",
-                      iconColor: "text-blue-500",
+                      iconBg: "bg-violet-50",
+                      iconColor: "text-violet-500",
                     },
                     {
                       label: "Campagnes",
                       href: "/campaigns",
                       icon: Megaphone,
-                      iconBg: "bg-amber-50",
-                      iconColor: "text-amber-500",
+                      iconBg: "bg-indigo-50",
+                      iconColor: "text-indigo-400",
                     },
                     {
                       label: "Intégrations",
                       href: "/integrations",
                       icon: Plug,
-                      iconBg: "bg-emerald-50",
-                      iconColor: "text-emerald-500",
+                      iconBg: "bg-violet-50",
+                      iconColor: "text-violet-400",
                     },
                   ].map((link) => {
                     const Icon = link.icon;
