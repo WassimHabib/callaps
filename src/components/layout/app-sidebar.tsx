@@ -11,18 +11,13 @@ import {
   Megaphone,
   BarChart3,
   Phone,
-  Plug,
   Settings,
   Users,
   Building2,
   ChevronRight,
   Contact2,
-  PhoneCall,
-  CalendarCheck,
   Receipt,
-  Lightbulb,
   Briefcase,
-  Mic,
   Sparkles,
 } from "lucide-react";
 
@@ -34,16 +29,11 @@ const clientMainLinks = [
   { href: "/campaigns", label: "Campagnes", icon: Megaphone, color: "bg-indigo-400" },
   { href: "/phone-numbers", label: "Numéros", icon: Phone, color: "bg-violet-400" },
   { href: "/contacts", label: "Contacts", icon: Contact2, color: "bg-indigo-600" },
-  { href: "/calls", label: "Appels", icon: PhoneCall, color: "bg-violet-600" },
-  { href: "/voices", label: "Voix clonées", icon: Mic, color: "bg-indigo-500" },
 ];
 
 const clientSecondaryLinks = [
-  { href: "/appointments", label: "Rendez-vous", icon: CalendarCheck, color: "bg-violet-500" },
   { href: "/statistics", label: "Statistiques", icon: BarChart3, color: "bg-indigo-400" },
-  { href: "/insights", label: "Insights IA", icon: Lightbulb, color: "bg-violet-400" },
-  { href: "/billing", label: "Facturation", icon: Receipt, color: "bg-indigo-600" },
-  { href: "/integrations", label: "Intégrations", icon: Plug, color: "bg-violet-600" },
+  { href: "/billing", label: "Facturation", icon: Receipt, color: "bg-violet-500" },
   { href: "/settings", label: "Paramètres", icon: Settings, color: "bg-slate-500" },
 ];
 
@@ -56,7 +46,7 @@ const adminMainLinks = [
 
 const adminSecondaryLinks = [
   { href: "/admin/campaigns", label: "Campagnes", icon: Megaphone, color: "bg-indigo-600" },
-  { href: "/admin/billing", label: "Facturation", icon: Receipt, color: "bg-violet-600" },
+  { href: "/admin/billing", label: "Facturation", icon: Receipt, color: "bg-violet-500" },
   { href: "/admin/statistics", label: "Statistiques", icon: BarChart3, color: "bg-indigo-400" },
   { href: "/admin/settings", label: "Paramètres", icon: Settings, color: "bg-slate-500" },
 ];
