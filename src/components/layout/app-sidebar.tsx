@@ -174,8 +174,14 @@ export function AppSidebar({ role, showOrgSwitcher, isAdmin }: AppSidebarProps) 
         <NavGroup label="Outils" links={secondaryLinks} pathname={pathname} />
 
         {/* Footer card */}
-        <div className="mt-auto rounded-2xl border border-slate-100 bg-gradient-to-br from-indigo-500 to-violet-500 p-4 shadow-sm">
-          <div className="flex items-center gap-2.5">
+        <div className="relative mt-auto overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-indigo-500 to-violet-500 p-4 shadow-sm">
+          <Image
+            src="/glow-bg.png"
+            alt=""
+            fill
+            className="pointer-events-none object-cover opacity-20 mix-blend-overlay"
+          />
+          <div className="relative z-10 flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20">
               <Sparkles className="h-4 w-4 text-white" />
             </div>

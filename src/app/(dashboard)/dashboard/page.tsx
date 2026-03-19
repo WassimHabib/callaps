@@ -182,7 +182,8 @@ export default async function DashboardPage() {
 
       <div className="p-8 space-y-8">
         {/* Top row: Greeting + Quick actions */}
-        <div className="flex items-end justify-between">
+        <div className="relative flex items-end justify-between">
+          <img src="/glow-bg.png" alt="" className="pointer-events-none absolute -left-20 -top-16 h-64 w-64 opacity-20" />
           <div>
             <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
               Bonjour, {ctx.userName?.split(" ")[0] ?? ""}
