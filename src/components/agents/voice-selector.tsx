@@ -106,7 +106,7 @@ export function VoiceSelector({ value, provider, onSelect, clonedVoices = [] }: 
         )}
       </DialogTrigger>
 
-      <DialogContent className="max-h-[85vh] max-w-3xl overflow-hidden p-0" showCloseButton={false}>
+      <DialogContent className="max-h-[85vh] max-w-5xl overflow-hidden p-0" showCloseButton={false}>
         <DialogHeader className="border-b border-slate-100 px-6 pt-6 pb-4">
           <DialogTitle className="text-lg font-semibold text-slate-900">
             Sélectionner une voix
