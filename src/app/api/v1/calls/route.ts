@@ -109,6 +109,11 @@ export async function POST(req: NextRequest) {
 
   try {
     // Create call via Retell
+    const dynamicVars = {
+      ...(name ? { name } : {}),
+      ...variables,
+    };
+    console.log("[API v1/calls] Dynamic variables sent to Retell:", dynamicVars);
     const retellCall = await createPhoneCall({
       from_number: callerNumber!,
       to_number,
@@ -121,10 +126,7 @@ export async function POST(req: NextRequest) {
         direction: "outbound",
         ...metadata,
       },
-      retell_llm_dynamic_variables: {
-        ...(name ? { name } : {}),
-        ...variables,
-      },
+      retell_llm_dynamic_variables: dynamicVars,
     });
 
     // Create call record in DB
