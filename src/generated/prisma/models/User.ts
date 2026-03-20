@@ -225,6 +225,7 @@ export type UserWhereInput = {
   agents?: Prisma.AgentListRelationFilter
   campaigns?: Prisma.CampaignListRelationFilter
   integrations?: Prisma.IntegrationListRelationFilter
+  apiKeys?: Prisma.ApiKeyListRelationFilter
   adminClients?: Prisma.AdminClientListRelationFilter
   clientOfAdmin?: Prisma.AdminClientListRelationFilter
   sharedClients?: Prisma.AdminClientShareListRelationFilter
@@ -247,6 +248,7 @@ export type UserOrderByWithRelationInput = {
   agents?: Prisma.AgentOrderByRelationAggregateInput
   campaigns?: Prisma.CampaignOrderByRelationAggregateInput
   integrations?: Prisma.IntegrationOrderByRelationAggregateInput
+  apiKeys?: Prisma.ApiKeyOrderByRelationAggregateInput
   adminClients?: Prisma.AdminClientOrderByRelationAggregateInput
   clientOfAdmin?: Prisma.AdminClientOrderByRelationAggregateInput
   sharedClients?: Prisma.AdminClientShareOrderByRelationAggregateInput
@@ -272,6 +274,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   agents?: Prisma.AgentListRelationFilter
   campaigns?: Prisma.CampaignListRelationFilter
   integrations?: Prisma.IntegrationListRelationFilter
+  apiKeys?: Prisma.ApiKeyListRelationFilter
   adminClients?: Prisma.AdminClientListRelationFilter
   clientOfAdmin?: Prisma.AdminClientListRelationFilter
   sharedClients?: Prisma.AdminClientShareListRelationFilter
@@ -326,6 +329,7 @@ export type UserCreateInput = {
   agents?: Prisma.AgentCreateNestedManyWithoutUserInput
   campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
   integrations?: Prisma.IntegrationCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
   adminClients?: Prisma.AdminClientCreateNestedManyWithoutAdminInput
   clientOfAdmin?: Prisma.AdminClientCreateNestedManyWithoutClientInput
   sharedClients?: Prisma.AdminClientShareCreateNestedManyWithoutSharedWithInput
@@ -348,6 +352,7 @@ export type UserUncheckedCreateInput = {
   agents?: Prisma.AgentUncheckedCreateNestedManyWithoutUserInput
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
   integrations?: Prisma.IntegrationUncheckedCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
   adminClients?: Prisma.AdminClientUncheckedCreateNestedManyWithoutAdminInput
   clientOfAdmin?: Prisma.AdminClientUncheckedCreateNestedManyWithoutClientInput
   sharedClients?: Prisma.AdminClientShareUncheckedCreateNestedManyWithoutSharedWithInput
@@ -370,6 +375,7 @@ export type UserUpdateInput = {
   agents?: Prisma.AgentUpdateManyWithoutUserNestedInput
   campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
   integrations?: Prisma.IntegrationUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
   adminClients?: Prisma.AdminClientUpdateManyWithoutAdminNestedInput
   clientOfAdmin?: Prisma.AdminClientUpdateManyWithoutClientNestedInput
   sharedClients?: Prisma.AdminClientShareUpdateManyWithoutSharedWithNestedInput
@@ -392,6 +398,7 @@ export type UserUncheckedUpdateInput = {
   agents?: Prisma.AgentUncheckedUpdateManyWithoutUserNestedInput
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
   integrations?: Prisma.IntegrationUncheckedUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
   adminClients?: Prisma.AdminClientUncheckedUpdateManyWithoutAdminNestedInput
   clientOfAdmin?: Prisma.AdminClientUncheckedUpdateManyWithoutClientNestedInput
   sharedClients?: Prisma.AdminClientShareUncheckedUpdateManyWithoutSharedWithNestedInput
@@ -636,6 +643,20 @@ export type UserUpdateOneRequiredWithoutProspectActivitiesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutProspectActivitiesInput, Prisma.UserUpdateWithoutProspectActivitiesInput>, Prisma.UserUncheckedUpdateWithoutProspectActivitiesInput>
 }
 
+export type UserCreateNestedOneWithoutApiKeysInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutApiKeysInput, Prisma.UserUncheckedCreateWithoutApiKeysInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutApiKeysInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutApiKeysNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutApiKeysInput, Prisma.UserUncheckedCreateWithoutApiKeysInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutApiKeysInput
+  upsert?: Prisma.UserUpsertWithoutApiKeysInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutApiKeysInput, Prisma.UserUpdateWithoutApiKeysInput>, Prisma.UserUncheckedUpdateWithoutApiKeysInput>
+}
+
 export type UserCreateWithoutAgentsInput = {
   id?: string
   clerkId: string
@@ -649,6 +670,7 @@ export type UserCreateWithoutAgentsInput = {
   updatedAt?: Date | string
   campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
   integrations?: Prisma.IntegrationCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
   adminClients?: Prisma.AdminClientCreateNestedManyWithoutAdminInput
   clientOfAdmin?: Prisma.AdminClientCreateNestedManyWithoutClientInput
   sharedClients?: Prisma.AdminClientShareCreateNestedManyWithoutSharedWithInput
@@ -670,6 +692,7 @@ export type UserUncheckedCreateWithoutAgentsInput = {
   updatedAt?: Date | string
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
   integrations?: Prisma.IntegrationUncheckedCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
   adminClients?: Prisma.AdminClientUncheckedCreateNestedManyWithoutAdminInput
   clientOfAdmin?: Prisma.AdminClientUncheckedCreateNestedManyWithoutClientInput
   sharedClients?: Prisma.AdminClientShareUncheckedCreateNestedManyWithoutSharedWithInput
@@ -707,6 +730,7 @@ export type UserUpdateWithoutAgentsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
   integrations?: Prisma.IntegrationUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
   adminClients?: Prisma.AdminClientUpdateManyWithoutAdminNestedInput
   clientOfAdmin?: Prisma.AdminClientUpdateManyWithoutClientNestedInput
   sharedClients?: Prisma.AdminClientShareUpdateManyWithoutSharedWithNestedInput
@@ -728,6 +752,7 @@ export type UserUncheckedUpdateWithoutAgentsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
   integrations?: Prisma.IntegrationUncheckedUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
   adminClients?: Prisma.AdminClientUncheckedUpdateManyWithoutAdminNestedInput
   clientOfAdmin?: Prisma.AdminClientUncheckedUpdateManyWithoutClientNestedInput
   sharedClients?: Prisma.AdminClientShareUncheckedUpdateManyWithoutSharedWithNestedInput
@@ -749,6 +774,7 @@ export type UserCreateWithoutCampaignsInput = {
   updatedAt?: Date | string
   agents?: Prisma.AgentCreateNestedManyWithoutUserInput
   integrations?: Prisma.IntegrationCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
   adminClients?: Prisma.AdminClientCreateNestedManyWithoutAdminInput
   clientOfAdmin?: Prisma.AdminClientCreateNestedManyWithoutClientInput
   sharedClients?: Prisma.AdminClientShareCreateNestedManyWithoutSharedWithInput
@@ -770,6 +796,7 @@ export type UserUncheckedCreateWithoutCampaignsInput = {
   updatedAt?: Date | string
   agents?: Prisma.AgentUncheckedCreateNestedManyWithoutUserInput
   integrations?: Prisma.IntegrationUncheckedCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
   adminClients?: Prisma.AdminClientUncheckedCreateNestedManyWithoutAdminInput
   clientOfAdmin?: Prisma.AdminClientUncheckedCreateNestedManyWithoutClientInput
   sharedClients?: Prisma.AdminClientShareUncheckedCreateNestedManyWithoutSharedWithInput
@@ -807,6 +834,7 @@ export type UserUpdateWithoutCampaignsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   agents?: Prisma.AgentUpdateManyWithoutUserNestedInput
   integrations?: Prisma.IntegrationUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
   adminClients?: Prisma.AdminClientUpdateManyWithoutAdminNestedInput
   clientOfAdmin?: Prisma.AdminClientUpdateManyWithoutClientNestedInput
   sharedClients?: Prisma.AdminClientShareUpdateManyWithoutSharedWithNestedInput
@@ -828,6 +856,7 @@ export type UserUncheckedUpdateWithoutCampaignsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   agents?: Prisma.AgentUncheckedUpdateManyWithoutUserNestedInput
   integrations?: Prisma.IntegrationUncheckedUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
   adminClients?: Prisma.AdminClientUncheckedUpdateManyWithoutAdminNestedInput
   clientOfAdmin?: Prisma.AdminClientUncheckedUpdateManyWithoutClientNestedInput
   sharedClients?: Prisma.AdminClientShareUncheckedUpdateManyWithoutSharedWithNestedInput
@@ -849,6 +878,7 @@ export type UserCreateWithoutIntegrationsInput = {
   updatedAt?: Date | string
   agents?: Prisma.AgentCreateNestedManyWithoutUserInput
   campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
   adminClients?: Prisma.AdminClientCreateNestedManyWithoutAdminInput
   clientOfAdmin?: Prisma.AdminClientCreateNestedManyWithoutClientInput
   sharedClients?: Prisma.AdminClientShareCreateNestedManyWithoutSharedWithInput
@@ -870,6 +900,7 @@ export type UserUncheckedCreateWithoutIntegrationsInput = {
   updatedAt?: Date | string
   agents?: Prisma.AgentUncheckedCreateNestedManyWithoutUserInput
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
   adminClients?: Prisma.AdminClientUncheckedCreateNestedManyWithoutAdminInput
   clientOfAdmin?: Prisma.AdminClientUncheckedCreateNestedManyWithoutClientInput
   sharedClients?: Prisma.AdminClientShareUncheckedCreateNestedManyWithoutSharedWithInput
@@ -907,6 +938,7 @@ export type UserUpdateWithoutIntegrationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   agents?: Prisma.AgentUpdateManyWithoutUserNestedInput
   campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
   adminClients?: Prisma.AdminClientUpdateManyWithoutAdminNestedInput
   clientOfAdmin?: Prisma.AdminClientUpdateManyWithoutClientNestedInput
   sharedClients?: Prisma.AdminClientShareUpdateManyWithoutSharedWithNestedInput
@@ -928,6 +960,7 @@ export type UserUncheckedUpdateWithoutIntegrationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   agents?: Prisma.AgentUncheckedUpdateManyWithoutUserNestedInput
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
   adminClients?: Prisma.AdminClientUncheckedUpdateManyWithoutAdminNestedInput
   clientOfAdmin?: Prisma.AdminClientUncheckedUpdateManyWithoutClientNestedInput
   sharedClients?: Prisma.AdminClientShareUncheckedUpdateManyWithoutSharedWithNestedInput
@@ -950,6 +983,7 @@ export type UserCreateWithoutAdminClientsInput = {
   agents?: Prisma.AgentCreateNestedManyWithoutUserInput
   campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
   integrations?: Prisma.IntegrationCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
   clientOfAdmin?: Prisma.AdminClientCreateNestedManyWithoutClientInput
   sharedClients?: Prisma.AdminClientShareCreateNestedManyWithoutSharedWithInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutAdminInput
@@ -971,6 +1005,7 @@ export type UserUncheckedCreateWithoutAdminClientsInput = {
   agents?: Prisma.AgentUncheckedCreateNestedManyWithoutUserInput
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
   integrations?: Prisma.IntegrationUncheckedCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
   clientOfAdmin?: Prisma.AdminClientUncheckedCreateNestedManyWithoutClientInput
   sharedClients?: Prisma.AdminClientShareUncheckedCreateNestedManyWithoutSharedWithInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutAdminInput
@@ -997,6 +1032,7 @@ export type UserCreateWithoutClientOfAdminInput = {
   agents?: Prisma.AgentCreateNestedManyWithoutUserInput
   campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
   integrations?: Prisma.IntegrationCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
   adminClients?: Prisma.AdminClientCreateNestedManyWithoutAdminInput
   sharedClients?: Prisma.AdminClientShareCreateNestedManyWithoutSharedWithInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutAdminInput
@@ -1018,6 +1054,7 @@ export type UserUncheckedCreateWithoutClientOfAdminInput = {
   agents?: Prisma.AgentUncheckedCreateNestedManyWithoutUserInput
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
   integrations?: Prisma.IntegrationUncheckedCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
   adminClients?: Prisma.AdminClientUncheckedCreateNestedManyWithoutAdminInput
   sharedClients?: Prisma.AdminClientShareUncheckedCreateNestedManyWithoutSharedWithInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutAdminInput
@@ -1055,6 +1092,7 @@ export type UserUpdateWithoutAdminClientsInput = {
   agents?: Prisma.AgentUpdateManyWithoutUserNestedInput
   campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
   integrations?: Prisma.IntegrationUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
   clientOfAdmin?: Prisma.AdminClientUpdateManyWithoutClientNestedInput
   sharedClients?: Prisma.AdminClientShareUpdateManyWithoutSharedWithNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutAdminNestedInput
@@ -1076,6 +1114,7 @@ export type UserUncheckedUpdateWithoutAdminClientsInput = {
   agents?: Prisma.AgentUncheckedUpdateManyWithoutUserNestedInput
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
   integrations?: Prisma.IntegrationUncheckedUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
   clientOfAdmin?: Prisma.AdminClientUncheckedUpdateManyWithoutClientNestedInput
   sharedClients?: Prisma.AdminClientShareUncheckedUpdateManyWithoutSharedWithNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutAdminNestedInput
@@ -1108,6 +1147,7 @@ export type UserUpdateWithoutClientOfAdminInput = {
   agents?: Prisma.AgentUpdateManyWithoutUserNestedInput
   campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
   integrations?: Prisma.IntegrationUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
   adminClients?: Prisma.AdminClientUpdateManyWithoutAdminNestedInput
   sharedClients?: Prisma.AdminClientShareUpdateManyWithoutSharedWithNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutAdminNestedInput
@@ -1129,6 +1169,7 @@ export type UserUncheckedUpdateWithoutClientOfAdminInput = {
   agents?: Prisma.AgentUncheckedUpdateManyWithoutUserNestedInput
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
   integrations?: Prisma.IntegrationUncheckedUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
   adminClients?: Prisma.AdminClientUncheckedUpdateManyWithoutAdminNestedInput
   sharedClients?: Prisma.AdminClientShareUncheckedUpdateManyWithoutSharedWithNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutAdminNestedInput
@@ -1150,6 +1191,7 @@ export type UserCreateWithoutSharedClientsInput = {
   agents?: Prisma.AgentCreateNestedManyWithoutUserInput
   campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
   integrations?: Prisma.IntegrationCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
   adminClients?: Prisma.AdminClientCreateNestedManyWithoutAdminInput
   clientOfAdmin?: Prisma.AdminClientCreateNestedManyWithoutClientInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutAdminInput
@@ -1171,6 +1213,7 @@ export type UserUncheckedCreateWithoutSharedClientsInput = {
   agents?: Prisma.AgentUncheckedCreateNestedManyWithoutUserInput
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
   integrations?: Prisma.IntegrationUncheckedCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
   adminClients?: Prisma.AdminClientUncheckedCreateNestedManyWithoutAdminInput
   clientOfAdmin?: Prisma.AdminClientUncheckedCreateNestedManyWithoutClientInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutAdminInput
@@ -1208,6 +1251,7 @@ export type UserUpdateWithoutSharedClientsInput = {
   agents?: Prisma.AgentUpdateManyWithoutUserNestedInput
   campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
   integrations?: Prisma.IntegrationUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
   adminClients?: Prisma.AdminClientUpdateManyWithoutAdminNestedInput
   clientOfAdmin?: Prisma.AdminClientUpdateManyWithoutClientNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutAdminNestedInput
@@ -1229,6 +1273,7 @@ export type UserUncheckedUpdateWithoutSharedClientsInput = {
   agents?: Prisma.AgentUncheckedUpdateManyWithoutUserNestedInput
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
   integrations?: Prisma.IntegrationUncheckedUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
   adminClients?: Prisma.AdminClientUncheckedUpdateManyWithoutAdminNestedInput
   clientOfAdmin?: Prisma.AdminClientUncheckedUpdateManyWithoutClientNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutAdminNestedInput
@@ -1250,6 +1295,7 @@ export type UserCreateWithoutProspectsInput = {
   agents?: Prisma.AgentCreateNestedManyWithoutUserInput
   campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
   integrations?: Prisma.IntegrationCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
   adminClients?: Prisma.AdminClientCreateNestedManyWithoutAdminInput
   clientOfAdmin?: Prisma.AdminClientCreateNestedManyWithoutClientInput
   sharedClients?: Prisma.AdminClientShareCreateNestedManyWithoutSharedWithInput
@@ -1271,6 +1317,7 @@ export type UserUncheckedCreateWithoutProspectsInput = {
   agents?: Prisma.AgentUncheckedCreateNestedManyWithoutUserInput
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
   integrations?: Prisma.IntegrationUncheckedCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
   adminClients?: Prisma.AdminClientUncheckedCreateNestedManyWithoutAdminInput
   clientOfAdmin?: Prisma.AdminClientUncheckedCreateNestedManyWithoutClientInput
   sharedClients?: Prisma.AdminClientShareUncheckedCreateNestedManyWithoutSharedWithInput
@@ -1297,6 +1344,7 @@ export type UserCreateWithoutConvertedProspectsInput = {
   agents?: Prisma.AgentCreateNestedManyWithoutUserInput
   campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
   integrations?: Prisma.IntegrationCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
   adminClients?: Prisma.AdminClientCreateNestedManyWithoutAdminInput
   clientOfAdmin?: Prisma.AdminClientCreateNestedManyWithoutClientInput
   sharedClients?: Prisma.AdminClientShareCreateNestedManyWithoutSharedWithInput
@@ -1318,6 +1366,7 @@ export type UserUncheckedCreateWithoutConvertedProspectsInput = {
   agents?: Prisma.AgentUncheckedCreateNestedManyWithoutUserInput
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
   integrations?: Prisma.IntegrationUncheckedCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
   adminClients?: Prisma.AdminClientUncheckedCreateNestedManyWithoutAdminInput
   clientOfAdmin?: Prisma.AdminClientUncheckedCreateNestedManyWithoutClientInput
   sharedClients?: Prisma.AdminClientShareUncheckedCreateNestedManyWithoutSharedWithInput
@@ -1355,6 +1404,7 @@ export type UserUpdateWithoutProspectsInput = {
   agents?: Prisma.AgentUpdateManyWithoutUserNestedInput
   campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
   integrations?: Prisma.IntegrationUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
   adminClients?: Prisma.AdminClientUpdateManyWithoutAdminNestedInput
   clientOfAdmin?: Prisma.AdminClientUpdateManyWithoutClientNestedInput
   sharedClients?: Prisma.AdminClientShareUpdateManyWithoutSharedWithNestedInput
@@ -1376,6 +1426,7 @@ export type UserUncheckedUpdateWithoutProspectsInput = {
   agents?: Prisma.AgentUncheckedUpdateManyWithoutUserNestedInput
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
   integrations?: Prisma.IntegrationUncheckedUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
   adminClients?: Prisma.AdminClientUncheckedUpdateManyWithoutAdminNestedInput
   clientOfAdmin?: Prisma.AdminClientUncheckedUpdateManyWithoutClientNestedInput
   sharedClients?: Prisma.AdminClientShareUncheckedUpdateManyWithoutSharedWithNestedInput
@@ -1408,6 +1459,7 @@ export type UserUpdateWithoutConvertedProspectsInput = {
   agents?: Prisma.AgentUpdateManyWithoutUserNestedInput
   campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
   integrations?: Prisma.IntegrationUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
   adminClients?: Prisma.AdminClientUpdateManyWithoutAdminNestedInput
   clientOfAdmin?: Prisma.AdminClientUpdateManyWithoutClientNestedInput
   sharedClients?: Prisma.AdminClientShareUpdateManyWithoutSharedWithNestedInput
@@ -1429,6 +1481,7 @@ export type UserUncheckedUpdateWithoutConvertedProspectsInput = {
   agents?: Prisma.AgentUncheckedUpdateManyWithoutUserNestedInput
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
   integrations?: Prisma.IntegrationUncheckedUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
   adminClients?: Prisma.AdminClientUncheckedUpdateManyWithoutAdminNestedInput
   clientOfAdmin?: Prisma.AdminClientUncheckedUpdateManyWithoutClientNestedInput
   sharedClients?: Prisma.AdminClientShareUncheckedUpdateManyWithoutSharedWithNestedInput
@@ -1450,6 +1503,7 @@ export type UserCreateWithoutProspectActivitiesInput = {
   agents?: Prisma.AgentCreateNestedManyWithoutUserInput
   campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
   integrations?: Prisma.IntegrationCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
   adminClients?: Prisma.AdminClientCreateNestedManyWithoutAdminInput
   clientOfAdmin?: Prisma.AdminClientCreateNestedManyWithoutClientInput
   sharedClients?: Prisma.AdminClientShareCreateNestedManyWithoutSharedWithInput
@@ -1471,6 +1525,7 @@ export type UserUncheckedCreateWithoutProspectActivitiesInput = {
   agents?: Prisma.AgentUncheckedCreateNestedManyWithoutUserInput
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
   integrations?: Prisma.IntegrationUncheckedCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
   adminClients?: Prisma.AdminClientUncheckedCreateNestedManyWithoutAdminInput
   clientOfAdmin?: Prisma.AdminClientUncheckedCreateNestedManyWithoutClientInput
   sharedClients?: Prisma.AdminClientShareUncheckedCreateNestedManyWithoutSharedWithInput
@@ -1508,6 +1563,7 @@ export type UserUpdateWithoutProspectActivitiesInput = {
   agents?: Prisma.AgentUpdateManyWithoutUserNestedInput
   campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
   integrations?: Prisma.IntegrationUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
   adminClients?: Prisma.AdminClientUpdateManyWithoutAdminNestedInput
   clientOfAdmin?: Prisma.AdminClientUpdateManyWithoutClientNestedInput
   sharedClients?: Prisma.AdminClientShareUpdateManyWithoutSharedWithNestedInput
@@ -1529,10 +1585,115 @@ export type UserUncheckedUpdateWithoutProspectActivitiesInput = {
   agents?: Prisma.AgentUncheckedUpdateManyWithoutUserNestedInput
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
   integrations?: Prisma.IntegrationUncheckedUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
   adminClients?: Prisma.AdminClientUncheckedUpdateManyWithoutAdminNestedInput
   clientOfAdmin?: Prisma.AdminClientUncheckedUpdateManyWithoutClientNestedInput
   sharedClients?: Prisma.AdminClientShareUncheckedUpdateManyWithoutSharedWithNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutAdminNestedInput
+  convertedProspects?: Prisma.ProspectUncheckedUpdateManyWithoutConvertedToNestedInput
+}
+
+export type UserCreateWithoutApiKeysInput = {
+  id?: string
+  clerkId: string
+  email: string
+  name: string
+  role?: $Enums.UserRole
+  approved?: boolean
+  company?: string | null
+  phone?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  agents?: Prisma.AgentCreateNestedManyWithoutUserInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
+  integrations?: Prisma.IntegrationCreateNestedManyWithoutUserInput
+  adminClients?: Prisma.AdminClientCreateNestedManyWithoutAdminInput
+  clientOfAdmin?: Prisma.AdminClientCreateNestedManyWithoutClientInput
+  sharedClients?: Prisma.AdminClientShareCreateNestedManyWithoutSharedWithInput
+  prospects?: Prisma.ProspectCreateNestedManyWithoutAdminInput
+  prospectActivities?: Prisma.ProspectActivityCreateNestedManyWithoutAuthorInput
+  convertedProspects?: Prisma.ProspectCreateNestedManyWithoutConvertedToInput
+}
+
+export type UserUncheckedCreateWithoutApiKeysInput = {
+  id?: string
+  clerkId: string
+  email: string
+  name: string
+  role?: $Enums.UserRole
+  approved?: boolean
+  company?: string | null
+  phone?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  agents?: Prisma.AgentUncheckedCreateNestedManyWithoutUserInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
+  integrations?: Prisma.IntegrationUncheckedCreateNestedManyWithoutUserInput
+  adminClients?: Prisma.AdminClientUncheckedCreateNestedManyWithoutAdminInput
+  clientOfAdmin?: Prisma.AdminClientUncheckedCreateNestedManyWithoutClientInput
+  sharedClients?: Prisma.AdminClientShareUncheckedCreateNestedManyWithoutSharedWithInput
+  prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutAdminInput
+  prospectActivities?: Prisma.ProspectActivityUncheckedCreateNestedManyWithoutAuthorInput
+  convertedProspects?: Prisma.ProspectUncheckedCreateNestedManyWithoutConvertedToInput
+}
+
+export type UserCreateOrConnectWithoutApiKeysInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutApiKeysInput, Prisma.UserUncheckedCreateWithoutApiKeysInput>
+}
+
+export type UserUpsertWithoutApiKeysInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutApiKeysInput, Prisma.UserUncheckedUpdateWithoutApiKeysInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutApiKeysInput, Prisma.UserUncheckedCreateWithoutApiKeysInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutApiKeysInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutApiKeysInput, Prisma.UserUncheckedUpdateWithoutApiKeysInput>
+}
+
+export type UserUpdateWithoutApiKeysInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  agents?: Prisma.AgentUpdateManyWithoutUserNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
+  integrations?: Prisma.IntegrationUpdateManyWithoutUserNestedInput
+  adminClients?: Prisma.AdminClientUpdateManyWithoutAdminNestedInput
+  clientOfAdmin?: Prisma.AdminClientUpdateManyWithoutClientNestedInput
+  sharedClients?: Prisma.AdminClientShareUpdateManyWithoutSharedWithNestedInput
+  prospects?: Prisma.ProspectUpdateManyWithoutAdminNestedInput
+  prospectActivities?: Prisma.ProspectActivityUpdateManyWithoutAuthorNestedInput
+  convertedProspects?: Prisma.ProspectUpdateManyWithoutConvertedToNestedInput
+}
+
+export type UserUncheckedUpdateWithoutApiKeysInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  agents?: Prisma.AgentUncheckedUpdateManyWithoutUserNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
+  integrations?: Prisma.IntegrationUncheckedUpdateManyWithoutUserNestedInput
+  adminClients?: Prisma.AdminClientUncheckedUpdateManyWithoutAdminNestedInput
+  clientOfAdmin?: Prisma.AdminClientUncheckedUpdateManyWithoutClientNestedInput
+  sharedClients?: Prisma.AdminClientShareUncheckedUpdateManyWithoutSharedWithNestedInput
+  prospects?: Prisma.ProspectUncheckedUpdateManyWithoutAdminNestedInput
+  prospectActivities?: Prisma.ProspectActivityUncheckedUpdateManyWithoutAuthorNestedInput
   convertedProspects?: Prisma.ProspectUncheckedUpdateManyWithoutConvertedToNestedInput
 }
 
@@ -1545,6 +1706,7 @@ export type UserCountOutputType = {
   agents: number
   campaigns: number
   integrations: number
+  apiKeys: number
   adminClients: number
   clientOfAdmin: number
   sharedClients: number
@@ -1557,6 +1719,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   agents?: boolean | UserCountOutputTypeCountAgentsArgs
   campaigns?: boolean | UserCountOutputTypeCountCampaignsArgs
   integrations?: boolean | UserCountOutputTypeCountIntegrationsArgs
+  apiKeys?: boolean | UserCountOutputTypeCountApiKeysArgs
   adminClients?: boolean | UserCountOutputTypeCountAdminClientsArgs
   clientOfAdmin?: boolean | UserCountOutputTypeCountClientOfAdminArgs
   sharedClients?: boolean | UserCountOutputTypeCountSharedClientsArgs
@@ -1594,6 +1757,13 @@ export type UserCountOutputTypeCountCampaignsArgs<ExtArgs extends runtime.Types.
  */
 export type UserCountOutputTypeCountIntegrationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.IntegrationWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountApiKeysArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ApiKeyWhereInput
 }
 
 /**
@@ -1653,6 +1823,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   agents?: boolean | Prisma.User$agentsArgs<ExtArgs>
   campaigns?: boolean | Prisma.User$campaignsArgs<ExtArgs>
   integrations?: boolean | Prisma.User$integrationsArgs<ExtArgs>
+  apiKeys?: boolean | Prisma.User$apiKeysArgs<ExtArgs>
   adminClients?: boolean | Prisma.User$adminClientsArgs<ExtArgs>
   clientOfAdmin?: boolean | Prisma.User$clientOfAdminArgs<ExtArgs>
   sharedClients?: boolean | Prisma.User$sharedClientsArgs<ExtArgs>
@@ -1706,6 +1877,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   agents?: boolean | Prisma.User$agentsArgs<ExtArgs>
   campaigns?: boolean | Prisma.User$campaignsArgs<ExtArgs>
   integrations?: boolean | Prisma.User$integrationsArgs<ExtArgs>
+  apiKeys?: boolean | Prisma.User$apiKeysArgs<ExtArgs>
   adminClients?: boolean | Prisma.User$adminClientsArgs<ExtArgs>
   clientOfAdmin?: boolean | Prisma.User$clientOfAdminArgs<ExtArgs>
   sharedClients?: boolean | Prisma.User$sharedClientsArgs<ExtArgs>
@@ -1723,6 +1895,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     agents: Prisma.$AgentPayload<ExtArgs>[]
     campaigns: Prisma.$CampaignPayload<ExtArgs>[]
     integrations: Prisma.$IntegrationPayload<ExtArgs>[]
+    apiKeys: Prisma.$ApiKeyPayload<ExtArgs>[]
     adminClients: Prisma.$AdminClientPayload<ExtArgs>[]
     clientOfAdmin: Prisma.$AdminClientPayload<ExtArgs>[]
     sharedClients: Prisma.$AdminClientSharePayload<ExtArgs>[]
@@ -2138,6 +2311,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   agents<T extends Prisma.User$agentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$agentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AgentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   campaigns<T extends Prisma.User$campaignsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$campaignsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   integrations<T extends Prisma.User$integrationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$integrationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IntegrationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  apiKeys<T extends Prisma.User$apiKeysArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$apiKeysArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   adminClients<T extends Prisma.User$adminClientsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$adminClientsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdminClientPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   clientOfAdmin<T extends Prisma.User$clientOfAdminArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$clientOfAdminArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdminClientPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sharedClients<T extends Prisma.User$sharedClientsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sharedClientsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdminClientSharePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2640,6 +2814,30 @@ export type User$integrationsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.IntegrationScalarFieldEnum | Prisma.IntegrationScalarFieldEnum[]
+}
+
+/**
+ * User.apiKeys
+ */
+export type User$apiKeysArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ApiKey
+   */
+  select?: Prisma.ApiKeySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ApiKey
+   */
+  omit?: Prisma.ApiKeyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ApiKeyInclude<ExtArgs> | null
+  where?: Prisma.ApiKeyWhereInput
+  orderBy?: Prisma.ApiKeyOrderByWithRelationInput | Prisma.ApiKeyOrderByWithRelationInput[]
+  cursor?: Prisma.ApiKeyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ApiKeyScalarFieldEnum | Prisma.ApiKeyScalarFieldEnum[]
 }
 
 /**

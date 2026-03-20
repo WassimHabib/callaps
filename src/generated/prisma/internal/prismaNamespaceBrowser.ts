@@ -70,7 +70,8 @@ export const ModelName = {
   AdminClientShare: 'AdminClientShare',
   Prospect: 'Prospect',
   ProspectActivity: 'ProspectActivity',
-  ClonedVoice: 'ClonedVoice'
+  ClonedVoice: 'ClonedVoice',
+  ApiKey: 'ApiKey'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -481,6 +482,20 @@ export const ClonedVoiceScalarFieldEnum = {
 } as const
 
 export type ClonedVoiceScalarFieldEnum = (typeof ClonedVoiceScalarFieldEnum)[keyof typeof ClonedVoiceScalarFieldEnum]
+
+
+export const ApiKeyScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  key: 'key',
+  orgId: 'orgId',
+  userId: 'userId',
+  active: 'active',
+  lastUsed: 'lastUsed',
+  createdAt: 'createdAt'
+} as const
+
+export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
 
 
 export const SortOrder = {

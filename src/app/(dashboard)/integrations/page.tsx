@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/header";
 import { PageNav } from "@/components/layout/page-nav";
 import { IntegrationCards } from "./integration-cards";
 import { WebhooksSection } from "./webhooks-section";
+import { ApiKeysSection } from "./apikeys-section";
 
 export default async function IntegrationsPage() {
   const ctx = await getOrgContext();
@@ -39,6 +40,20 @@ export default async function IntegrationsPage() {
     lastDelivery: lastLogMap.get(w.id) || null,
   }));
 
+  // Fetch API keys for current user/org
+  const apiKeys = await prisma.apiKey.findMany({
+    where: { ...orgFilter(ctx), userId: ctx.userId },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      key: true,
+      active: true,
+      lastUsed: true,
+      createdAt: true,
+    },
+  });
+
   return (
     <div className="min-h-screen bg-slate-50/50">
       <Header title="Integrations" description="Connectez vos outils et CRM" />
@@ -49,6 +64,11 @@ export default async function IntegrationsPage() {
       <div className="p-8 space-y-8">
         <IntegrationCards
           connectedIntegrations={userIntegrations}
+          canManage={canManage}
+        />
+
+        <ApiKeysSection
+          initialApiKeys={apiKeys}
           canManage={canManage}
         />
 

@@ -45,6 +45,8 @@ model User {
   campaigns Campaign[]
   integrations Integration[]
 
+  apiKeys    ApiKey[]
+
   adminClients       AdminClient[]       @relation("AdminClients")
   clientOfAdmin      AdminClient[]       @relation("ClientOfAdmin")
   sharedClients      AdminClientShare[]  @relation("SharedAdminClients")
@@ -487,4 +489,20 @@ model ClonedVoice {
 
   @@index([orgId])
   @@map("cloned_voices")
+}
+
+model ApiKey {
+  id        String   @id @default(cuid())
+  name      String
+  key       String   @unique
+  orgId     String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  active    Boolean  @default(true)
+  lastUsed  DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([key])
+  @@index([orgId])
+  @@map("api_keys")
 }

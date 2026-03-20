@@ -117,3 +117,8 @@ export type ProspectActivity = Prisma.ProspectActivityModel
  * 
  */
 export type ClonedVoice = Prisma.ClonedVoiceModel
+/**
+ * Model ApiKey
+ * 
+ */
+export type ApiKey = Prisma.ApiKeyModel
