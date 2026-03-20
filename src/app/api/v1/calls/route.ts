@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
     name?: string;
     from_number?: string;
     metadata?: Record<string, unknown>;
+    variables?: Record<string, string>;
   };
 
   try {
@@ -34,7 +35,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { agent_id, to_number, name, from_number, metadata } = body;
+  const { agent_id, to_number, name, from_number, metadata, variables } = body;
 
   if (!agent_id || !to_number) {
     return NextResponse.json(
@@ -120,13 +121,10 @@ export async function POST(req: NextRequest) {
         direction: "outbound",
         ...metadata,
       },
-      ...(name
-        ? {
-            retell_llm_dynamic_variables: {
-              contact_name: name,
-            },
-          }
-        : {}),
+      retell_llm_dynamic_variables: {
+        ...(name ? { name } : {}),
+        ...variables,
+      },
     });
 
     // Create call record in DB
