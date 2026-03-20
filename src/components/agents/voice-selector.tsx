@@ -106,7 +106,7 @@ export function VoiceSelector({ value, provider, onSelect, clonedVoices = [] }: 
         )}
       </DialogTrigger>
 
-      <DialogContent className="max-h-[85vh] max-w-5xl overflow-hidden p-0" showCloseButton={false}>
+      <DialogContent className="max-h-[90vh] max-w-5xl overflow-hidden p-0" showCloseButton={false}>
         <DialogHeader className="border-b border-slate-100 px-6 pt-6 pb-4">
           <DialogTitle className="text-lg font-semibold text-slate-900">
             Sélectionner une voix
@@ -194,7 +194,7 @@ export function VoiceSelector({ value, provider, onSelect, clonedVoices = [] }: 
         </div>
 
         {/* Voice list */}
-        <div className="max-h-[50vh] overflow-y-auto">
+        <div className="max-h-[65vh] overflow-y-auto">
           <table className="w-full">
             <thead className="sticky top-0 bg-white">
               <tr className="border-b border-slate-100 text-left text-[11px] font-medium text-slate-500">
