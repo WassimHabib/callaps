@@ -7,7 +7,7 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
   const user = await prisma.user.update({
-    where: { clerkId: "user_3AgW2NOzNiaE89Y9U9G8ahNDzlb" },
+    where: { email: "admin@wevlap.fr" },
     data: { email: "wh.consultingpro@gmail.com" },
   });
   console.log("Email mis à jour:", user.email);

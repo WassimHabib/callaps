@@ -1,6 +1,8 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 export async function sendInviteEmail({
   to,
@@ -16,7 +18,7 @@ export async function sendInviteEmail({
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const inviteUrl = `${baseUrl}/invite/${inviteToken}`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from: "Callaps <noreply@callaps.ai>",
     to,
     subject: "Vous avez été invité sur Callaps",

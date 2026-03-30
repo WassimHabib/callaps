@@ -1,6 +1,8 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 export async function sendResetPasswordEmail({
   to,
@@ -12,7 +14,7 @@ export async function sendResetPasswordEmail({
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const resetUrl = `${baseUrl}/reset-password/${resetToken}`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from: "Callaps <noreply@callaps.ai>",
     to,
     subject: "Réinitialisation de votre mot de passe",
