@@ -400,7 +400,7 @@ export function CampaignForm({
           <CardContent className="pt-6 space-y-5">
             <Label className="flex items-center gap-1.5 text-base font-semibold">
               <Clock className="h-4 w-4 text-slate-400" />
-              Planification
+              Quand les appels vont passer ?
             </Label>
 
             {/* Days as pill toggles */}
@@ -489,6 +489,53 @@ export function CampaignForm({
                 </div>
               )}
             </div>
+
+            {/* Summary banner */}
+            {leads.length > 0 && callDays.length > 0 && (
+              <div className="rounded-2xl bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-100 p-5">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-100">
+                    <Calendar className="h-5 w-5 text-indigo-600" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <p className="text-sm font-semibold text-slate-900">
+                      Recapitulatif de votre campagne
+                    </p>
+                    <div className="space-y-1 text-sm text-slate-600">
+                      <p>
+                        <span className="font-medium text-indigo-700">{leads.length} contact{leads.length > 1 ? "s" : ""}</span>{" "}
+                        seront appeles a partir du{" "}
+                        <span className="font-medium text-indigo-700">
+                          {new Date(startDate + "T00:00:00").toLocaleDateString("fr-FR", {
+                            weekday: "long",
+                            day: "numeric",
+                            month: "long",
+                          })}
+                        </span>
+                      </p>
+                      <p>
+                        Les appels passeront les{" "}
+                        <span className="font-medium text-indigo-700">
+                          {DAYS.filter((d) => callDays.includes(d.value))
+                            .map((d) => d.label)
+                            .join(", ")}
+                        </span>{" "}
+                        entre{" "}
+                        <span className="font-medium text-indigo-700">{callStartTime}</span>{" "}
+                        et{" "}
+                        <span className="font-medium text-indigo-700">{callEndTime}</span>{" "}
+                        <span className="text-slate-500">({timezone.replace("Europe/", "").replace("_", " ")})</span>
+                      </p>
+                      {maxRetries > 0 && (
+                        <p className="text-slate-500">
+                          Si un contact ne repond pas, jusqu&apos;a {maxRetries} relance{maxRetries > 1 ? "s" : ""} automatique{maxRetries > 1 ? "s" : ""} (toutes les {retryIntervalH}h)
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -596,11 +643,14 @@ export function CampaignForm({
       <div className="fixed bottom-0 left-0 right-0 z-40 border-t bg-white/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-4">
           <div className="text-sm text-slate-500">
-            {leads.length > 0 && (
+            {leads.length > 0 ? (
               <span>
-                <strong className="text-slate-900">{leads.length}</strong> contact
-                {leads.length > 1 ? "s" : ""} a appeler
+                <strong className="text-slate-900">{leads.length}</strong> contact{leads.length > 1 ? "s" : ""}{" "}
+                &middot; {DAYS.filter((d) => callDays.includes(d.value)).map((d) => d.label).join(", ")}{" "}
+                &middot; {callStartTime}-{callEndTime}
               </span>
+            ) : (
+              <span className="text-slate-400">Importez des contacts pour commencer</span>
             )}
           </div>
           <div className="flex gap-3">
