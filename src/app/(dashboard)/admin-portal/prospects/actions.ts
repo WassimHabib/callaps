@@ -2,7 +2,9 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import crypto from "crypto";
 import { requireAdminPortal } from "@/lib/admin-access";
+import { sendInviteEmail } from "@/lib/email/invite";
 
 const STAGES = [
   "prospect",
@@ -282,17 +284,31 @@ export async function convertProspectToClient(prospectId: string) {
   }
 
   if (!clientUser) {
+    const inviteToken = crypto.randomUUID();
+    const inviteExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+
     clientUser = await prisma.user.create({
       data: {
-        clerkId: `pending_${Date.now()}_${Math.random().toString(36).slice(2)}`,
         email: prospect.email || `prospect_${prospectId}@placeholder.local`,
         name: prospect.name,
         role: "client",
         approved: true,
         company: prospect.company || null,
         phone: prospect.phone || null,
+        inviteToken,
+        inviteExpiresAt,
       },
     });
+
+    // Send invitation email if prospect has a real email
+    if (prospect.email) {
+      await sendInviteEmail({
+        to: prospect.email,
+        userName: prospect.name,
+        inviteToken,
+        adminName: ctx.userName,
+      });
+    }
   }
 
   await prisma.$transaction([

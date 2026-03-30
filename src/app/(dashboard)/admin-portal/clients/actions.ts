@@ -2,12 +2,14 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import crypto from "crypto";
 import {
   requireAdminPortal,
   canAccessClient,
   hasMinPermission,
   getAccessibleClientIds,
 } from "@/lib/admin-access";
+import { sendInviteEmail } from "@/lib/email/invite";
 
 // ---------- List ----------
 export async function fetchAdminClients(search?: string, status?: string) {
@@ -109,17 +111,29 @@ export async function createAdminClient(data: {
     }
     clientUser = existingUser;
   } else {
-    // Create new user
+    // Create new user with invitation token
+    const inviteToken = crypto.randomUUID();
+    const inviteExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48h
+
     clientUser = await prisma.user.create({
       data: {
-        clerkId: `pending_${Date.now()}_${Math.random().toString(36).slice(2)}`,
         email: data.email,
         name: data.name,
         role: "client",
         approved: true,
         company: data.company || null,
         phone: data.phone || null,
+        inviteToken,
+        inviteExpiresAt,
       },
+    });
+
+    // Send invitation email
+    await sendInviteEmail({
+      to: data.email,
+      userName: data.name,
+      inviteToken,
+      adminName: ctx.userName,
     });
   }
 
@@ -313,4 +327,36 @@ export async function removeClientShare(shareId: string) {
 
   await prisma.adminClientShare.delete({ where: { id: shareId } });
   revalidatePath(`/admin-portal/clients/${share.adminClient.clientId}`);
+}
+
+// ---------- Resend invite ----------
+export async function resendClientInvite(clientId: string) {
+  const ctx = await requireAdminPortal();
+  const access = await canAccessClient(
+    ctx.userId,
+    clientId,
+    ctx.userRole === "super_admin"
+  );
+  if (!access.access) throw new Error("Accès refusé");
+
+  const user = await prisma.user.findUnique({ where: { id: clientId } });
+  if (!user) throw new Error("Client non trouvé");
+  if (user.passwordHash) throw new Error("Ce client a déjà activé son compte");
+
+  const inviteToken = crypto.randomUUID();
+  const inviteExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+
+  await prisma.user.update({
+    where: { id: clientId },
+    data: { inviteToken, inviteExpiresAt },
+  });
+
+  await sendInviteEmail({
+    to: user.email,
+    userName: user.name,
+    inviteToken,
+    adminName: ctx.userName,
+  });
+
+  revalidatePath(`/admin-portal/clients/${clientId}`);
 }
