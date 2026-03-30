@@ -3,17 +3,10 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { ImpersonationBanner } from "@/components/layout/impersonation-banner";
-import { clerkClient } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 
 async function getImpersonationLabel(orgId: string): Promise<string> {
   try {
-    // Clerk org ID (starts with org_)
-    if (orgId.startsWith("org_")) {
-      const client = await clerkClient();
-      const org = await client.organizations.getOrganization({ organizationId: orgId });
-      return org.name;
-    }
     // Client user ID (cuid)
     const user = await prisma.user.findUnique({
       where: { id: orgId },
@@ -34,14 +27,14 @@ export default async function DashboardLayout({
   try {
     ctx = await getOrgContext();
   } catch {
-    redirect("/pending");
+    redirect("/sign-in");
   }
 
   const role = ctx.userRole;
 
-  // Redirect unapproved users to pending page
+  // Redirect unapproved users to sign-in page
   if (!ctx.approved) {
-    redirect("/pending");
+    redirect("/sign-in");
   }
 
   // Only super_admin sees admin sidebar. admin = client with full permissions.
@@ -61,7 +54,6 @@ export default async function DashboardLayout({
     <div className="flex h-screen overflow-hidden">
       <AppSidebar
         role={sidebarRole as "admin" | "client"}
-        showOrgSwitcher={role === "super_admin"}
         isAdmin={role === "admin" || role === "super_admin"}
       />
       <div className="flex flex-1 flex-col overflow-auto">

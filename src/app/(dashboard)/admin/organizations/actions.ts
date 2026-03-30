@@ -1,112 +1,79 @@
 "use server";
 
 import { requireSuperAdmin } from "@/lib/auth";
-import { clerkClient } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function getOrganizations() {
   await requireSuperAdmin();
-  const client = await clerkClient();
-  const { data: orgs } = await client.organizations.getOrganizationList({
-    limit: 100,
-    orderBy: "-created_at",
+  const users = await prisma.user.findMany({
+    where: { approved: true, role: { in: ["client", "admin"] } },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      company: true,
+      email: true,
+      createdAt: true,
+    },
   });
-  return orgs.map((org) => ({
-    id: org.id,
-    name: org.name,
-    slug: org.slug,
-    membersCount: org.membersCount,
-    createdAt: org.createdAt,
-    imageUrl: org.imageUrl,
+  return users.map((u) => ({
+    id: u.id,
+    name: u.company ?? u.name,
+    slug: null,
+    membersCount: 1,
+    createdAt: u.createdAt,
+    imageUrl: "",
   }));
 }
 
-export async function createOrganization(formData: FormData) {
+export async function createOrganization(_formData: FormData) {
   await requireSuperAdmin();
-  const client = await clerkClient();
-
-  const name = formData.get("name") as string;
-  if (!name?.trim()) throw new Error("Le nom est requis");
-
-  const org = await client.organizations.createOrganization({
-    name: name.trim(),
-    createdBy: undefined as unknown as string, // Admin-created, no specific owner
-  });
-
-  revalidatePath("/admin/organizations");
-  return { id: org.id, name: org.name, slug: org.slug };
+  throw new Error("Utilisez le portail admin pour créer des clients");
 }
 
 export async function deleteOrganization(orgId: string) {
   await requireSuperAdmin();
-  const client = await clerkClient();
-  await client.organizations.deleteOrganization(orgId);
+  await prisma.user.delete({ where: { id: orgId } });
   revalidatePath("/admin/organizations");
 }
 
 export async function getOrganizationMembers(orgId: string) {
   await requireSuperAdmin();
-  const client = await clerkClient();
-  const { data: members } = await client.organizations.getOrganizationMembershipList({
-    organizationId: orgId,
-    limit: 100,
+  const user = await prisma.user.findUnique({
+    where: { id: orgId },
+    select: { id: true, name: true, email: true, role: true, createdAt: true },
   });
-  return members.map((m) => ({
-    id: m.id,
-    userId: m.publicUserData?.userId ?? "",
-    email: m.publicUserData?.identifier ?? "",
-    firstName: m.publicUserData?.firstName ?? "",
-    lastName: m.publicUserData?.lastName ?? "",
-    imageUrl: m.publicUserData?.imageUrl ?? "",
-    role: m.role,
-    createdAt: m.createdAt,
-  }));
+  if (!user) return [];
+  return [
+    {
+      id: user.id,
+      userId: user.id,
+      email: user.email,
+      firstName: user.name.split(" ")[0] ?? user.name,
+      lastName: user.name.split(" ").slice(1).join(" ") ?? "",
+      imageUrl: "",
+      role: user.role,
+      createdAt: user.createdAt,
+    },
+  ];
 }
 
-export async function addMemberToOrganization(orgId: string, formData: FormData) {
+export async function addMemberToOrganization(_orgId: string, _formData: FormData) {
   await requireSuperAdmin();
-  const client = await clerkClient();
-
-  const email = formData.get("email") as string;
-  const role = (formData.get("role") as string) || "org:viewer";
-
-  if (!email?.trim()) throw new Error("L'email est requis");
-
-  // Find user by email in Clerk
-  const { data: users } = await client.users.getUserList({
-    emailAddress: [email.trim()],
-  });
-
-  if (users.length === 0) {
-    throw new Error("Aucun utilisateur trouvé avec cet email. L'utilisateur doit d'abord créer un compte.");
-  }
-
-  await client.organizations.createOrganizationMembership({
-    organizationId: orgId,
-    userId: users[0].id,
-    role,
-  });
-
-  revalidatePath(`/admin/organizations/${orgId}`);
+  throw new Error("Utilisez le portail admin pour gérer les accès");
 }
 
-export async function removeMemberFromOrganization(orgId: string, userId: string) {
+export async function removeMemberFromOrganization(_orgId: string, _userId: string) {
   await requireSuperAdmin();
-  const client = await clerkClient();
-  await client.organizations.deleteOrganizationMembership({
-    organizationId: orgId,
-    userId,
-  });
-  revalidatePath(`/admin/organizations/${orgId}`);
+  throw new Error("Utilisez le portail admin pour gérer les accès");
 }
 
 export async function updateMemberRole(orgId: string, userId: string, role: string) {
   await requireSuperAdmin();
-  const client = await clerkClient();
-  await client.organizations.updateOrganizationMembership({
-    organizationId: orgId,
-    userId,
-    role,
+  await prisma.user.update({
+    where: { id: userId },
+    data: { role: role as "client" | "admin" | "super_admin" },
   });
   revalidatePath(`/admin/organizations/${orgId}`);
 }

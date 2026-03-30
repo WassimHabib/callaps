@@ -1,12 +1,12 @@
-import { auth } from "@clerk/nextjs/server";
+import { verifySession } from "@/lib/jwt";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { BillingAdmin } from "./billing-admin";
 
 async function requireSuperAdmin() {
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
-  const user = await prisma.user.findFirst({ where: { clerkId: userId } });
+  const session = await verifySession();
+  if (!session) redirect("/sign-in");
+  const user = await prisma.user.findUnique({ where: { id: session.userId } });
   if (!user || user.role !== "super_admin") redirect("/dashboard");
   return user;
 }
@@ -26,16 +26,17 @@ export default async function AdminBillingPage() {
     }),
   ]);
 
-  const { clerkClient } = await import("@clerk/nextjs/server");
-  const clerk = await clerkClient();
-  const orgsResponse = await clerk.organizations.getOrganizationList({ limit: 100 });
-  const organizations = orgsResponse.data.map((o) => ({ id: o.id, name: o.name }));
+  const organizations = await prisma.user.findMany({
+    where: { approved: true, role: { in: ["client", "admin"] } },
+    select: { id: true, name: true, company: true },
+    orderBy: { name: "asc" },
+  });
 
   return (
     <BillingAdmin
       subscriptions={JSON.parse(JSON.stringify(subscriptions))}
       invoices={JSON.parse(JSON.stringify(invoices))}
-      organizations={organizations}
+      organizations={organizations.map((u) => ({ id: u.id, name: u.company ?? u.name }))}
     />
   );
 }

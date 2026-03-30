@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { OrganizationSwitcher } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import {
@@ -53,7 +52,6 @@ const adminSecondaryLinks = [
 
 interface AppSidebarProps {
   role: "admin" | "client";
-  showOrgSwitcher?: boolean;
   isAdmin?: boolean;
 }
 
@@ -114,7 +112,7 @@ function NavGroup({
   );
 }
 
-export function AppSidebar({ role, showOrgSwitcher, isAdmin }: AppSidebarProps) {
+export function AppSidebar({ role, isAdmin }: AppSidebarProps) {
   const pathname = usePathname();
 
   const mainLinks = role === "admin" ? adminMainLinks : clientMainLinks;
@@ -134,25 +132,6 @@ export function AppSidebar({ role, showOrgSwitcher, isAdmin }: AppSidebarProps) 
             priority
           />
         </div>
-
-        {/* Organization Switcher */}
-        {showOrgSwitcher && (
-          <div className="rounded-2xl border border-slate-100 bg-white p-2 shadow-sm [&_.cl-organizationSwitcherTrigger]:!text-slate-700 [&_.cl-organizationSwitcherTrigger]:!bg-slate-50 [&_.cl-organizationSwitcherTrigger]:!border-slate-200 [&_.cl-organizationSwitcherTrigger]:!border [&_.cl-organizationSwitcherTrigger]:rounded-xl [&_button]:!text-slate-700 [&_span]:!text-slate-700 [&_p]:!text-slate-700 [&_svg]:!text-slate-400">
-            <OrganizationSwitcher
-              hidePersonal
-              appearance={{
-                elements: {
-                  rootBox: "w-full",
-                  organizationSwitcherTrigger:
-                    "w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-sm text-slate-700 hover:bg-slate-100",
-                  organizationSwitcherPopoverActionButton__createOrganization: "hidden",
-                  organizationPreview: "text-slate-700",
-                  organizationSwitcherTriggerIcon: "text-slate-400",
-                },
-              }}
-            />
-          </div>
-        )}
 
         {/* Admin Portal Link */}
         {isAdmin && (

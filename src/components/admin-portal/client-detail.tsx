@@ -63,7 +63,6 @@ interface ClientDetailProps {
       email: string;
       company: string | null;
       phone: string | null;
-      clerkId: string;
       role: string;
       approved: boolean;
       createdAt: Date;

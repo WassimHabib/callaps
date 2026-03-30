@@ -11,8 +11,8 @@ import { CompanyProfileForm } from "@/components/settings/company-profile-form";
 import { getCompanyProfile } from "./actions";
 
 export default async function SettingsPage() {
-  const clerkId = await requireAuth();
-  const user = await prisma.user.findUnique({ where: { clerkId } });
+  const userId = await requireAuth();
+  const user = await prisma.user.findUnique({ where: { id: userId } });
   const companyProfile = await getCompanyProfile();
 
   return (

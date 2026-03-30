@@ -5,8 +5,8 @@ import { CampaignForm } from "@/components/campaigns/campaign-form";
 import { listPhoneNumbers } from "@/lib/retell";
 
 export default async function NewCampaignPage() {
-  const clerkId = await requireAuth();
-  const user = await prisma.user.findUnique({ where: { clerkId } });
+  const userId = await requireAuth();
+  const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new Error("User not found");
 
   const agents = await prisma.agent.findMany({

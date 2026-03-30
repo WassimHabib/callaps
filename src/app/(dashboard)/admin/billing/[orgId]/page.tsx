@@ -1,13 +1,13 @@
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { verifySession } from "@/lib/jwt";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { getCurrentMonthUsage } from "@/lib/billing";
 import { OrgBillingDetail } from "./org-billing-detail";
 
 async function requireSuperAdmin() {
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
-  const user = await prisma.user.findFirst({ where: { clerkId: userId } });
+  const session = await verifySession();
+  if (!session) redirect("/sign-in");
+  const user = await prisma.user.findUnique({ where: { id: session.userId } });
   if (!user || user.role !== "super_admin") redirect("/dashboard");
   return user;
 }
@@ -21,24 +21,25 @@ export default async function OrgBillingPage({
 
   const { orgId } = await params;
 
-  const [subscription, invoices, usage] = await Promise.all([
+  const [subscription, invoices, usage, orgUser] = await Promise.all([
     prisma.subscription.findUnique({ where: { orgId } }),
     prisma.invoice.findMany({
       where: { orgId },
       orderBy: { createdAt: "desc" },
     }),
     getCurrentMonthUsage(orgId),
+    prisma.user.findUnique({
+      where: { id: orgId },
+      select: { name: true, company: true },
+    }),
   ]);
 
-  const clerk = await clerkClient();
-  const org = await clerk.organizations.getOrganization({
-    organizationId: orgId,
-  });
+  const orgName = orgUser?.company ?? orgUser?.name ?? orgId;
 
   return (
     <OrgBillingDetail
       orgId={orgId}
-      orgName={org.name}
+      orgName={orgName}
       subscription={JSON.parse(JSON.stringify(subscription))}
       invoices={JSON.parse(JSON.stringify(invoices))}
       usage={usage}

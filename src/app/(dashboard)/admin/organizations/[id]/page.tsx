@@ -1,4 +1,5 @@
 import { requireSuperAdmin } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { Header } from "@/components/layout/header";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,19 +13,15 @@ import {
 } from "@/components/ui/table";
 import { Building2, Users } from "lucide-react";
 import { getOrganizationMembers } from "../actions";
-import { clerkClient } from "@clerk/nextjs/server";
 import { OrgMemberActions } from "@/components/admin/org-member-actions";
 import { AddMemberForm } from "@/components/admin/add-member-form";
 import { DeleteOrgButton } from "@/components/admin/delete-org-button";
 import { ImpersonateButton } from "@/components/admin/impersonate-button";
 
 const ROLE_LABELS: Record<string, string> = {
-  "org:admin": "Admin",
-  "org:org_admin": "Admin",
-  "org:manager": "Manager",
-  "org:operator": "Opérateur",
-  "org:viewer": "Lecteur",
-  "org:member": "Membre",
+  super_admin: "Super Admin",
+  admin: "Admin",
+  client: "Client",
 };
 
 export default async function OrgDetailPage({
@@ -35,14 +32,21 @@ export default async function OrgDetailPage({
   await requireSuperAdmin();
   const { id } = await params;
 
-  const client = await clerkClient();
-  const org = await client.organizations.getOrganization({ organizationId: id });
-  const members = await getOrganizationMembers(id);
+  const [members, orgUser] = await Promise.all([
+    getOrganizationMembers(id),
+    prisma.user.findUnique({
+      where: { id },
+      select: { name: true, company: true, createdAt: true },
+    }),
+  ]);
+
+  const orgName = orgUser?.company ?? orgUser?.name ?? id;
+  const orgCreatedAt = orgUser?.createdAt ?? new Date();
 
   return (
     <div className="min-h-screen bg-slate-50/50">
       <Header
-        title={org.name}
+        title={orgName}
         description={`Organisation · ${members.length} membre${members.length > 1 ? "s" : ""}`}
       />
       <div className="p-6">
@@ -54,8 +58,8 @@ export default async function OrgDetailPage({
                 <Building2 className="h-5 w-5 text-violet-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-900">{org.name}</p>
-                <p className="text-xs text-slate-400">{org.slug || "—"}</p>
+                <p className="text-sm font-medium text-slate-900">{orgName}</p>
+                <p className="text-xs text-slate-400">{id}</p>
               </div>
             </div>
           </Card>
@@ -76,7 +80,7 @@ export default async function OrgDetailPage({
             <div className="flex items-center gap-3">
               <p className="text-xs text-slate-400">
                 Créée le{" "}
-                {new Date(org.createdAt).toLocaleDateString("fr-FR", {
+                {new Date(orgCreatedAt).toLocaleDateString("fr-FR", {
                   day: "numeric",
                   month: "long",
                   year: "numeric",
@@ -89,7 +93,7 @@ export default async function OrgDetailPage({
                 label="Se connecter en tant que"
                 alwaysVisible
               />
-              <DeleteOrgButton orgId={id} orgName={org.name} />
+              <DeleteOrgButton orgId={id} orgName={orgName} />
             </div>
           </Card>
         </div>

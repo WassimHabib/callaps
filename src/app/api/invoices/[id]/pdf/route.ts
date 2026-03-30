@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { verifySession } from "@/lib/jwt";
 import { jsPDF } from "jspdf";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
@@ -28,8 +28,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   // 1. Auth check
-  const { userId: clerkId, orgId: clerkOrgId } = await auth();
-  if (!clerkId) {
+  const session = await verifySession();
+  if (!session) {
     return new Response(JSON.stringify({ error: "Non authentifié" }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
@@ -51,7 +51,7 @@ export async function GET(
   }
 
   // 3. Permission check: super_admin OR orgId matches
-  const user = await prisma.user.findUnique({ where: { clerkId } });
+  const user = await prisma.user.findUnique({ where: { id: session.userId } });
   if (!user) {
     return new Response(JSON.stringify({ error: "Utilisateur introuvable" }), {
       status: 401,
@@ -60,7 +60,7 @@ export async function GET(
   }
 
   const isSuperAdmin = user.role === "super_admin";
-  const orgMatches = clerkOrgId && clerkOrgId === invoice.orgId;
+  const orgMatches = user.id === invoice.orgId;
 
   if (!isSuperAdmin && !orgMatches) {
     return new Response(JSON.stringify({ error: "Accès interdit" }), {
