@@ -1,6 +1,6 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { verifySession } from "@/lib/jwt";
 import type { OrgRole } from "@/lib/permissions";
 import { cache } from "react";
 
@@ -8,11 +8,10 @@ export type UserRole = "admin" | "client" | "super_admin";
 export type EffectiveRole = OrgRole | "super_admin";
 
 export interface OrgContext {
-  userId: string;       // DB user ID
-  clerkId: string;      // Clerk user ID
-  userName: string;     // DB user name
-  userRole: UserRole;   // DB user role (admin/client/super_admin)
-  orgId: string | null; // Clerk org ID (null for super_admin without impersonation)
+  userId: string;
+  userName: string;
+  userRole: UserRole;
+  orgId: string | null;
   role: EffectiveRole;
   isImpersonating: boolean;
   isSuperAdmin: boolean;
@@ -24,34 +23,17 @@ export interface OrgContext {
  * One single DB query for the entire request lifecycle.
  */
 export const getOrgContext = cache(async (): Promise<OrgContext> => {
-  const { userId: clerkId, orgId: clerkOrgId, orgRole } = await auth();
-
-  if (!clerkId) {
+  const session = await verifySession();
+  if (!session) {
     throw new Error("Unauthorized");
   }
 
-  let user = await prisma.user.findUnique({ where: { clerkId } });
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+  });
 
-  // Auto-create user if they exist in Clerk but not in DB
   if (!user) {
-    const clerkUser = await currentUser();
-    if (!clerkUser) throw new Error("User not found");
-
-    const email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
-    const name = `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() || "Utilisateur";
-
-    // Check if email already exists (previous account with different clerkId)
-    const existingByEmail = await prisma.user.findUnique({ where: { email } });
-    if (existingByEmail) {
-      user = await prisma.user.update({
-        where: { email },
-        data: { clerkId, name },
-      });
-    } else {
-      user = await prisma.user.create({
-        data: { clerkId, email, name, role: "client", approved: false },
-      });
-    }
+    throw new Error("User not found");
   }
 
   // Super admin
@@ -61,7 +43,6 @@ export const getOrgContext = cache(async (): Promise<OrgContext> => {
 
     return {
       userId: user.id,
-      clerkId,
       userName: user.name,
       userRole: "super_admin",
       orgId: impersonatedOrg || null,
@@ -76,10 +57,9 @@ export const getOrgContext = cache(async (): Promise<OrgContext> => {
   if (user.role === "admin") {
     return {
       userId: user.id,
-      clerkId,
       userName: user.name,
       userRole: "admin",
-      orgId: clerkOrgId || user.id,
+      orgId: user.id,
       role: "org_admin",
       isImpersonating: false,
       isSuperAdmin: false,
@@ -87,21 +67,13 @@ export const getOrgContext = cache(async (): Promise<OrgContext> => {
     };
   }
 
-  // Regular user — use Clerk org if available, else legacy mode
-  const orgId = clerkOrgId || user.id;
-  // Clerk roles have "org:" prefix (e.g. "org:org_admin") — strip it
-  const rawRole = orgRole ? String(orgRole).replace(/^org:/, "") : null;
-  // Only accept known roles, fallback to org_admin for unknown/missing roles
-  const VALID_ROLES: string[] = ["org_admin", "manager", "operator", "viewer"];
-  const role = (rawRole && VALID_ROLES.includes(rawRole) ? rawRole : "org_admin") as OrgRole;
-
+  // Regular client
   return {
     userId: user.id,
-    clerkId,
     userName: user.name,
     userRole: "client",
-    orgId,
-    role,
+    orgId: user.id,
+    role: "org_admin",
     isImpersonating: false,
     isSuperAdmin: false,
     approved: user.approved,
@@ -112,14 +84,8 @@ export const getOrgContext = cache(async (): Promise<OrgContext> => {
  * Get user role — uses cached getOrgContext (no extra DB query).
  */
 export async function getUserRole(): Promise<UserRole> {
-  try {
-    const ctx = await getOrgContext();
-    return ctx.userRole;
-  } catch {
-    // Fallback if getOrgContext fails (e.g., user not authenticated)
-    const { sessionClaims } = await auth();
-    return (sessionClaims?.metadata as { role?: UserRole })?.role || "client";
-  }
+  const ctx = await getOrgContext();
+  return ctx.userRole;
 }
 
 export async function requireAdmin() {
@@ -136,12 +102,15 @@ export async function requireSuperAdmin() {
   }
 }
 
-export async function requireAuth() {
-  const { userId } = await auth();
-  if (!userId) {
+/**
+ * Require authenticated user — returns DB user ID.
+ */
+export async function requireAuth(): Promise<string> {
+  const session = await verifySession();
+  if (!session) {
     throw new Error("Unauthorized");
   }
-  return userId;
+  return session.userId;
 }
 
 /**
