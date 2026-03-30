@@ -37,13 +37,14 @@ export default async function DashboardLayout({
     redirect("/sign-in");
   }
 
-  // Only super_admin sees admin sidebar. admin = client with full permissions.
-  const sidebarRole = role === "super_admin" ? "admin" : "client";
-
   const cookieStore = await cookies();
   const impersonatedOrg = role === "super_admin"
     ? cookieStore.get("impersonate_org")?.value
     : null;
+
+  // When impersonating, show client sidebar and hide admin features
+  const isImpersonating = !!impersonatedOrg;
+  const sidebarRole = (role === "super_admin" && !isImpersonating) ? "admin" : "client";
 
   let impersonationLabel: string | undefined;
   if (impersonatedOrg) {
@@ -54,7 +55,7 @@ export default async function DashboardLayout({
     <div className="flex h-screen overflow-hidden">
       <AppSidebar
         role={sidebarRole as "admin" | "client"}
-        isAdmin={role === "admin" || role === "super_admin"}
+        isAdmin={!isImpersonating && (role === "admin" || role === "super_admin")}
       />
       <div className="flex flex-1 flex-col overflow-auto">
         {impersonatedOrg && (
