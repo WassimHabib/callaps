@@ -10,6 +10,7 @@ import {
   getAccessibleClientIds,
 } from "@/lib/admin-access";
 import { sendInviteEmail } from "@/lib/email/invite";
+import { sendResetPasswordEmail } from "@/lib/email/reset-password";
 
 // ---------- List ----------
 export async function fetchAdminClients(search?: string, status?: string) {
@@ -357,6 +358,32 @@ export async function resendClientInvite(clientId: string) {
     inviteToken,
     adminName: ctx.userName,
   });
+
+  revalidatePath(`/admin-portal/clients/${clientId}`);
+}
+
+// ---------- Send password reset email (admin-triggered) ----------
+export async function sendClientResetEmail(clientId: string) {
+  const ctx = await requireAdminPortal();
+  const access = await canAccessClient(
+    ctx.userId,
+    clientId,
+    ctx.userRole === "super_admin"
+  );
+  if (!access.access) throw new Error("Accès refusé");
+
+  const user = await prisma.user.findUnique({ where: { id: clientId } });
+  if (!user) throw new Error("Client non trouvé");
+
+  const resetToken = crypto.randomUUID();
+  const resetExpiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1h
+
+  await prisma.user.update({
+    where: { id: clientId },
+    data: { resetToken, resetExpiresAt },
+  });
+
+  await sendResetPasswordEmail({ to: user.email, resetToken });
 
   revalidatePath(`/admin-portal/clients/${clientId}`);
 }

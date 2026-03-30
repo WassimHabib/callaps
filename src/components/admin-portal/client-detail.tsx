@@ -28,6 +28,8 @@ import {
   deleteAdminClient,
   shareClientAccess,
   removeClientShare,
+  resendClientInvite,
+  sendClientResetEmail,
 } from "@/app/(dashboard)/admin-portal/clients/actions";
 import { startAdminImpersonation } from "@/app/(dashboard)/admin-portal/impersonation-actions";
 function formatCentimes(centimes: number): string {
@@ -65,6 +67,7 @@ interface ClientDetailProps {
       phone: string | null;
       role: string;
       approved: boolean;
+      passwordHash: string | null;
       createdAt: Date;
       updatedAt: Date;
     };
@@ -121,6 +124,7 @@ export function ClientDetail({
   const [error, setError] = useState<string | null>(null);
   const [shareError, setShareError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [emailSent, setEmailSent] = useState(false);
 
   const { client } = adminClient;
   const currentStatus = statusConfig[status] ?? {
@@ -209,6 +213,23 @@ export function ClientDetail({
     });
   }
 
+  async function handleSendAccessEmail() {
+    setError(null);
+    setEmailSent(false);
+    startTransition(async () => {
+      try {
+        if (client.passwordHash) {
+          await sendClientResetEmail(adminClient.clientId);
+        } else {
+          await resendClientInvite(adminClient.clientId);
+        }
+        setEmailSent(true);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Erreur lors de l'envoi de l'email.");
+      }
+    });
+  }
+
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
@@ -220,15 +241,29 @@ export function ClientDetail({
               {currentStatus.label}
             </Badge>
           </div>
-          <p className="text-muted-foreground">
-            {client.company && <span>{client.company} &middot; </span>}
-            {client.email}
-            {client.phone && <span> &middot; {client.phone}</span>}
-          </p>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <span>
+              {client.company && <>{client.company} &middot; </>}
+              {client.email}
+              {client.phone && <> &middot; {client.phone}</>}
+            </span>
+            {!client.passwordHash && (
+              <Badge className="bg-amber-50 text-amber-700">Invitation en attente</Badge>
+            )}
+          </div>
         </div>
-        <Button onClick={handleImpersonate} disabled={isPending}>
-          Accéder à l&apos;espace
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={handleSendAccessEmail}
+            disabled={isPending}
+          >
+            {client.passwordHash ? "Envoyer reset mot de passe" : "Renvoyer l'invitation"}
+          </Button>
+          <Button onClick={handleImpersonate} disabled={isPending}>
+            Accéder à l&apos;espace
+          </Button>
+        </div>
       </div>
 
       {error && (
@@ -236,6 +271,9 @@ export function ClientDetail({
       )}
       {successMessage && (
         <p className="text-sm text-emerald-600">{successMessage}</p>
+      )}
+      {emailSent && (
+        <p className="text-sm text-emerald-600">Email envoyé à {client.email}</p>
       )}
 
       {/* Section 1 — Status & Contract */}
