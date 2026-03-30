@@ -1,17 +1,54 @@
 "use client";
 
-import { SignIn } from "@clerk/nextjs";
 import Image from "next/image";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SignInPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Erreur de connexion");
+        return;
+      }
+
+      if (data.role === "super_admin") {
+        router.push("/admin");
+      } else if (data.role === "admin") {
+        router.push("/admin-portal");
+      } else {
+        router.push("/dashboard");
+      }
+    } catch {
+      setError("Erreur de connexion");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="flex min-h-screen overflow-hidden">
       {/* Left - Animated gradient + bold typography */}
       <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden lg:flex">
-        {/* Animated gradient background */}
         <div className="absolute inset-0 animate-gradient bg-gradient-to-br from-[#4f46e5] via-[#7c3aed] to-[#2563eb] bg-[length:200%_200%]" />
-
-        {/* Subtle grid overlay */}
         <div
           className="absolute inset-0 opacity-10"
           style={{
@@ -20,12 +57,8 @@ export default function SignInPage() {
             backgroundSize: "60px 60px",
           }}
         />
-
-        {/* Floating shapes */}
         <div className="absolute -left-20 top-1/4 h-72 w-72 animate-float rounded-full bg-white/5 blur-3xl" />
         <div className="absolute -right-10 bottom-1/3 h-56 w-56 animate-float-delayed rounded-full bg-white/10 blur-3xl" />
-
-        {/* Content */}
         <div className="relative z-10 flex h-full flex-col justify-between p-14">
           <Image
             src="/logoV2.png"
@@ -35,7 +68,6 @@ export default function SignInPage() {
             className="object-contain drop-shadow-lg"
             priority
           />
-
           <div className="-mt-6">
             <h1 className="text-6xl font-black leading-[1.05] tracking-tight text-white">
               Appels.
@@ -49,7 +81,6 @@ export default function SignInPage() {
               vos conversions.
             </p>
           </div>
-
           <div className="flex items-center gap-6">
             <div className="flex -space-x-2">
               {[
@@ -73,14 +104,12 @@ export default function SignInPage() {
         </div>
       </div>
 
-      {/* Right - Form */}
+      {/* Right - Login Form */}
       <div className="relative flex w-full items-center justify-center bg-slate-50 px-6 lg:w-1/2">
-        {/* Decorative shapes */}
         <div className="absolute -left-32 top-1/4 h-64 w-64 rounded-full bg-[#e0e7ff]/50 blur-3xl" />
         <div className="absolute -right-20 bottom-1/4 h-48 w-48 rounded-full bg-[#ede9fe]/40 blur-3xl" />
 
         <div className="relative z-10 w-full max-w-md">
-          {/* Mobile logo */}
           <div className="mb-10 text-center lg:hidden">
             <Image
               src="/logoV2.png"
@@ -102,17 +131,60 @@ export default function SignInPage() {
             </p>
           </div>
 
-          <SignIn
-            appearance={{
-              elements: {
-                rootBox: "w-full",
-                cardBox: "w-full shadow-none",
-                card: "w-full shadow-none border-0 bg-transparent p-0",
-                headerTitle: "hidden",
-                headerSubtitle: "hidden",
-              },
-            }}
-          />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600 ring-1 ring-red-200/50">
+                {error}
+              </div>
+            )}
+
+            <div>
+              <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                placeholder="vous@entreprise.com"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-slate-700">
+                Mot de passe
+              </label>
+              <input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-50"
+            >
+              {loading ? "Connexion..." : "Se connecter"}
+            </button>
+
+            <div className="text-center">
+              <a
+                href="/forgot-password"
+                className="text-sm text-indigo-600 hover:underline"
+              >
+                Mot de passe oublié ?
+              </a>
+            </div>
+          </form>
         </div>
       </div>
 
