@@ -30,11 +30,15 @@ enum CallStatus {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  clerkId   String   @unique
-  email     String   @unique
-  name      String
-  role      UserRole @default(client)
+  id               String    @id @default(cuid())
+  email            String    @unique
+  name             String
+  passwordHash     String?
+  inviteToken      String?   @unique
+  inviteExpiresAt  DateTime?
+  resetToken       String?   @unique
+  resetExpiresAt   DateTime?
+  role             UserRole  @default(client)
   approved  Boolean  @default(false)
   company   String?
   phone     String?

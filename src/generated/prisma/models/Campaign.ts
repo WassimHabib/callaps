@@ -866,10 +866,6 @@ export type EnumCampaignStatusFieldUpdateOperationsInput = {
   set?: $Enums.CampaignStatus
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type CampaignCreateNestedOneWithoutContactsInput = {
   create?: Prisma.XOR<Prisma.CampaignCreateWithoutContactsInput, Prisma.CampaignUncheckedCreateWithoutContactsInput>
   connectOrCreate?: Prisma.CampaignCreateOrConnectWithoutContactsInput

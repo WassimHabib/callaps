@@ -26,9 +26,13 @@ export type AggregateUser = {
 
 export type UserMinAggregateOutputType = {
   id: string | null
-  clerkId: string | null
   email: string | null
   name: string | null
+  passwordHash: string | null
+  inviteToken: string | null
+  inviteExpiresAt: Date | null
+  resetToken: string | null
+  resetExpiresAt: Date | null
   role: $Enums.UserRole | null
   approved: boolean | null
   company: string | null
@@ -39,9 +43,13 @@ export type UserMinAggregateOutputType = {
 
 export type UserMaxAggregateOutputType = {
   id: string | null
-  clerkId: string | null
   email: string | null
   name: string | null
+  passwordHash: string | null
+  inviteToken: string | null
+  inviteExpiresAt: Date | null
+  resetToken: string | null
+  resetExpiresAt: Date | null
   role: $Enums.UserRole | null
   approved: boolean | null
   company: string | null
@@ -52,9 +60,13 @@ export type UserMaxAggregateOutputType = {
 
 export type UserCountAggregateOutputType = {
   id: number
-  clerkId: number
   email: number
   name: number
+  passwordHash: number
+  inviteToken: number
+  inviteExpiresAt: number
+  resetToken: number
+  resetExpiresAt: number
   role: number
   approved: number
   company: number
@@ -67,9 +79,13 @@ export type UserCountAggregateOutputType = {
 
 export type UserMinAggregateInputType = {
   id?: true
-  clerkId?: true
   email?: true
   name?: true
+  passwordHash?: true
+  inviteToken?: true
+  inviteExpiresAt?: true
+  resetToken?: true
+  resetExpiresAt?: true
   role?: true
   approved?: true
   company?: true
@@ -80,9 +96,13 @@ export type UserMinAggregateInputType = {
 
 export type UserMaxAggregateInputType = {
   id?: true
-  clerkId?: true
   email?: true
   name?: true
+  passwordHash?: true
+  inviteToken?: true
+  inviteExpiresAt?: true
+  resetToken?: true
+  resetExpiresAt?: true
   role?: true
   approved?: true
   company?: true
@@ -93,9 +113,13 @@ export type UserMaxAggregateInputType = {
 
 export type UserCountAggregateInputType = {
   id?: true
-  clerkId?: true
   email?: true
   name?: true
+  passwordHash?: true
+  inviteToken?: true
+  inviteExpiresAt?: true
+  resetToken?: true
+  resetExpiresAt?: true
   role?: true
   approved?: true
   company?: true
@@ -179,9 +203,13 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 
 export type UserGroupByOutputType = {
   id: string
-  clerkId: string
   email: string
   name: string
+  passwordHash: string | null
+  inviteToken: string | null
+  inviteExpiresAt: Date | null
+  resetToken: string | null
+  resetExpiresAt: Date | null
   role: $Enums.UserRole
   approved: boolean
   company: string | null
@@ -213,9 +241,13 @@ export type UserWhereInput = {
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   id?: Prisma.StringFilter<"User"> | string
-  clerkId?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringFilter<"User"> | string
   name?: Prisma.StringFilter<"User"> | string
+  passwordHash?: Prisma.StringNullableFilter<"User"> | string | null
+  inviteToken?: Prisma.StringNullableFilter<"User"> | string | null
+  inviteExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  resetToken?: Prisma.StringNullableFilter<"User"> | string | null
+  resetExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   approved?: Prisma.BoolFilter<"User"> | boolean
   company?: Prisma.StringNullableFilter<"User"> | string | null
@@ -236,9 +268,13 @@ export type UserWhereInput = {
 
 export type UserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  clerkId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  inviteToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  inviteExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  resetToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  resetExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   approved?: Prisma.SortOrder
   company?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -259,12 +295,16 @@ export type UserOrderByWithRelationInput = {
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  clerkId?: string
   email?: string
+  inviteToken?: string
+  resetToken?: string
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   name?: Prisma.StringFilter<"User"> | string
+  passwordHash?: Prisma.StringNullableFilter<"User"> | string | null
+  inviteExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  resetExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   approved?: Prisma.BoolFilter<"User"> | boolean
   company?: Prisma.StringNullableFilter<"User"> | string | null
@@ -281,13 +321,17 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   prospects?: Prisma.ProspectListRelationFilter
   prospectActivities?: Prisma.ProspectActivityListRelationFilter
   convertedProspects?: Prisma.ProspectListRelationFilter
-}, "id" | "clerkId" | "email">
+}, "id" | "email" | "inviteToken" | "resetToken">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  clerkId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  inviteToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  inviteExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  resetToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  resetExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   approved?: Prisma.SortOrder
   company?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -304,9 +348,13 @@ export type UserScalarWhereWithAggregatesInput = {
   OR?: Prisma.UserScalarWhereWithAggregatesInput[]
   NOT?: Prisma.UserScalarWhereWithAggregatesInput | Prisma.UserScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"User"> | string
-  clerkId?: Prisma.StringWithAggregatesFilter<"User"> | string
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
   name?: Prisma.StringWithAggregatesFilter<"User"> | string
+  passwordHash?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  inviteToken?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  inviteExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  resetToken?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  resetExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   role?: Prisma.EnumUserRoleWithAggregatesFilter<"User"> | $Enums.UserRole
   approved?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   company?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -317,9 +365,13 @@ export type UserScalarWhereWithAggregatesInput = {
 
 export type UserCreateInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -340,9 +392,13 @@ export type UserCreateInput = {
 
 export type UserUncheckedCreateInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -363,9 +419,13 @@ export type UserUncheckedCreateInput = {
 
 export type UserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -386,9 +446,13 @@ export type UserUpdateInput = {
 
 export type UserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -409,9 +473,13 @@ export type UserUncheckedUpdateInput = {
 
 export type UserCreateManyInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -422,9 +490,13 @@ export type UserCreateManyInput = {
 
 export type UserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -435,9 +507,13 @@ export type UserUpdateManyMutationInput = {
 
 export type UserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -448,9 +524,13 @@ export type UserUncheckedUpdateManyInput = {
 
 export type UserCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  clerkId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
+  inviteToken?: Prisma.SortOrder
+  inviteExpiresAt?: Prisma.SortOrder
+  resetToken?: Prisma.SortOrder
+  resetExpiresAt?: Prisma.SortOrder
   role?: Prisma.SortOrder
   approved?: Prisma.SortOrder
   company?: Prisma.SortOrder
@@ -461,9 +541,13 @@ export type UserCountOrderByAggregateInput = {
 
 export type UserMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  clerkId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
+  inviteToken?: Prisma.SortOrder
+  inviteExpiresAt?: Prisma.SortOrder
+  resetToken?: Prisma.SortOrder
+  resetExpiresAt?: Prisma.SortOrder
   role?: Prisma.SortOrder
   approved?: Prisma.SortOrder
   company?: Prisma.SortOrder
@@ -474,9 +558,13 @@ export type UserMaxOrderByAggregateInput = {
 
 export type UserMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  clerkId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
+  inviteToken?: Prisma.SortOrder
+  inviteExpiresAt?: Prisma.SortOrder
+  resetToken?: Prisma.SortOrder
+  resetExpiresAt?: Prisma.SortOrder
   role?: Prisma.SortOrder
   approved?: Prisma.SortOrder
   company?: Prisma.SortOrder
@@ -499,16 +587,20 @@ export type StringFieldUpdateOperationsInput = {
   set?: string
 }
 
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type EnumUserRoleFieldUpdateOperationsInput = {
   set?: $Enums.UserRole
 }
 
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
-}
-
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -659,9 +751,13 @@ export type UserUpdateOneRequiredWithoutApiKeysNestedInput = {
 
 export type UserCreateWithoutAgentsInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -681,9 +777,13 @@ export type UserCreateWithoutAgentsInput = {
 
 export type UserUncheckedCreateWithoutAgentsInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -719,9 +819,13 @@ export type UserUpdateToOneWithWhereWithoutAgentsInput = {
 
 export type UserUpdateWithoutAgentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -741,9 +845,13 @@ export type UserUpdateWithoutAgentsInput = {
 
 export type UserUncheckedUpdateWithoutAgentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -763,9 +871,13 @@ export type UserUncheckedUpdateWithoutAgentsInput = {
 
 export type UserCreateWithoutCampaignsInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -785,9 +897,13 @@ export type UserCreateWithoutCampaignsInput = {
 
 export type UserUncheckedCreateWithoutCampaignsInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -823,9 +939,13 @@ export type UserUpdateToOneWithWhereWithoutCampaignsInput = {
 
 export type UserUpdateWithoutCampaignsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -845,9 +965,13 @@ export type UserUpdateWithoutCampaignsInput = {
 
 export type UserUncheckedUpdateWithoutCampaignsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -867,9 +991,13 @@ export type UserUncheckedUpdateWithoutCampaignsInput = {
 
 export type UserCreateWithoutIntegrationsInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -889,9 +1017,13 @@ export type UserCreateWithoutIntegrationsInput = {
 
 export type UserUncheckedCreateWithoutIntegrationsInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -927,9 +1059,13 @@ export type UserUpdateToOneWithWhereWithoutIntegrationsInput = {
 
 export type UserUpdateWithoutIntegrationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -949,9 +1085,13 @@ export type UserUpdateWithoutIntegrationsInput = {
 
 export type UserUncheckedUpdateWithoutIntegrationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -971,9 +1111,13 @@ export type UserUncheckedUpdateWithoutIntegrationsInput = {
 
 export type UserCreateWithoutAdminClientsInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -993,9 +1137,13 @@ export type UserCreateWithoutAdminClientsInput = {
 
 export type UserUncheckedCreateWithoutAdminClientsInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -1020,9 +1168,13 @@ export type UserCreateOrConnectWithoutAdminClientsInput = {
 
 export type UserCreateWithoutClientOfAdminInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -1042,9 +1194,13 @@ export type UserCreateWithoutClientOfAdminInput = {
 
 export type UserUncheckedCreateWithoutClientOfAdminInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -1080,9 +1236,13 @@ export type UserUpdateToOneWithWhereWithoutAdminClientsInput = {
 
 export type UserUpdateWithoutAdminClientsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1102,9 +1262,13 @@ export type UserUpdateWithoutAdminClientsInput = {
 
 export type UserUncheckedUpdateWithoutAdminClientsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1135,9 +1299,13 @@ export type UserUpdateToOneWithWhereWithoutClientOfAdminInput = {
 
 export type UserUpdateWithoutClientOfAdminInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1157,9 +1325,13 @@ export type UserUpdateWithoutClientOfAdminInput = {
 
 export type UserUncheckedUpdateWithoutClientOfAdminInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1179,9 +1351,13 @@ export type UserUncheckedUpdateWithoutClientOfAdminInput = {
 
 export type UserCreateWithoutSharedClientsInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -1201,9 +1377,13 @@ export type UserCreateWithoutSharedClientsInput = {
 
 export type UserUncheckedCreateWithoutSharedClientsInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -1239,9 +1419,13 @@ export type UserUpdateToOneWithWhereWithoutSharedClientsInput = {
 
 export type UserUpdateWithoutSharedClientsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1261,9 +1445,13 @@ export type UserUpdateWithoutSharedClientsInput = {
 
 export type UserUncheckedUpdateWithoutSharedClientsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1283,9 +1471,13 @@ export type UserUncheckedUpdateWithoutSharedClientsInput = {
 
 export type UserCreateWithoutProspectsInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -1305,9 +1497,13 @@ export type UserCreateWithoutProspectsInput = {
 
 export type UserUncheckedCreateWithoutProspectsInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -1332,9 +1528,13 @@ export type UserCreateOrConnectWithoutProspectsInput = {
 
 export type UserCreateWithoutConvertedProspectsInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -1354,9 +1554,13 @@ export type UserCreateWithoutConvertedProspectsInput = {
 
 export type UserUncheckedCreateWithoutConvertedProspectsInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -1392,9 +1596,13 @@ export type UserUpdateToOneWithWhereWithoutProspectsInput = {
 
 export type UserUpdateWithoutProspectsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1414,9 +1622,13 @@ export type UserUpdateWithoutProspectsInput = {
 
 export type UserUncheckedUpdateWithoutProspectsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1447,9 +1659,13 @@ export type UserUpdateToOneWithWhereWithoutConvertedProspectsInput = {
 
 export type UserUpdateWithoutConvertedProspectsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1469,9 +1685,13 @@ export type UserUpdateWithoutConvertedProspectsInput = {
 
 export type UserUncheckedUpdateWithoutConvertedProspectsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1491,9 +1711,13 @@ export type UserUncheckedUpdateWithoutConvertedProspectsInput = {
 
 export type UserCreateWithoutProspectActivitiesInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -1513,9 +1737,13 @@ export type UserCreateWithoutProspectActivitiesInput = {
 
 export type UserUncheckedCreateWithoutProspectActivitiesInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -1551,9 +1779,13 @@ export type UserUpdateToOneWithWhereWithoutProspectActivitiesInput = {
 
 export type UserUpdateWithoutProspectActivitiesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1573,9 +1805,13 @@ export type UserUpdateWithoutProspectActivitiesInput = {
 
 export type UserUncheckedUpdateWithoutProspectActivitiesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1595,9 +1831,13 @@ export type UserUncheckedUpdateWithoutProspectActivitiesInput = {
 
 export type UserCreateWithoutApiKeysInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -1617,9 +1857,13 @@ export type UserCreateWithoutApiKeysInput = {
 
 export type UserUncheckedCreateWithoutApiKeysInput = {
   id?: string
-  clerkId: string
   email: string
   name: string
+  passwordHash?: string | null
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  resetToken?: string | null
+  resetExpiresAt?: Date | string | null
   role?: $Enums.UserRole
   approved?: boolean
   company?: string | null
@@ -1655,9 +1899,13 @@ export type UserUpdateToOneWithWhereWithoutApiKeysInput = {
 
 export type UserUpdateWithoutApiKeysInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1677,9 +1925,13 @@ export type UserUpdateWithoutApiKeysInput = {
 
 export type UserUncheckedUpdateWithoutApiKeysInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   company?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1811,9 +2063,13 @@ export type UserCountOutputTypeCountConvertedProspectsArgs<ExtArgs extends runti
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  clerkId?: boolean
   email?: boolean
   name?: boolean
+  passwordHash?: boolean
+  inviteToken?: boolean
+  inviteExpiresAt?: boolean
+  resetToken?: boolean
+  resetExpiresAt?: boolean
   role?: boolean
   approved?: boolean
   company?: boolean
@@ -1835,9 +2091,13 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 
 export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  clerkId?: boolean
   email?: boolean
   name?: boolean
+  passwordHash?: boolean
+  inviteToken?: boolean
+  inviteExpiresAt?: boolean
+  resetToken?: boolean
+  resetExpiresAt?: boolean
   role?: boolean
   approved?: boolean
   company?: boolean
@@ -1848,9 +2108,13 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  clerkId?: boolean
   email?: boolean
   name?: boolean
+  passwordHash?: boolean
+  inviteToken?: boolean
+  inviteExpiresAt?: boolean
+  resetToken?: boolean
+  resetExpiresAt?: boolean
   role?: boolean
   approved?: boolean
   company?: boolean
@@ -1861,9 +2125,13 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 
 export type UserSelectScalar = {
   id?: boolean
-  clerkId?: boolean
   email?: boolean
   name?: boolean
+  passwordHash?: boolean
+  inviteToken?: boolean
+  inviteExpiresAt?: boolean
+  resetToken?: boolean
+  resetExpiresAt?: boolean
   role?: boolean
   approved?: boolean
   company?: boolean
@@ -1872,7 +2140,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clerkId" | "email" | "name" | "role" | "approved" | "company" | "phone" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "passwordHash" | "inviteToken" | "inviteExpiresAt" | "resetToken" | "resetExpiresAt" | "role" | "approved" | "company" | "phone" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   agents?: boolean | Prisma.User$agentsArgs<ExtArgs>
   campaigns?: boolean | Prisma.User$campaignsArgs<ExtArgs>
@@ -1905,9 +2173,13 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    clerkId: string
     email: string
     name: string
+    passwordHash: string | null
+    inviteToken: string | null
+    inviteExpiresAt: Date | null
+    resetToken: string | null
+    resetExpiresAt: Date | null
     role: $Enums.UserRole
     approved: boolean
     company: string | null
@@ -2348,9 +2620,13 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
  */
 export interface UserFieldRefs {
   readonly id: Prisma.FieldRef<"User", 'String'>
-  readonly clerkId: Prisma.FieldRef<"User", 'String'>
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly name: Prisma.FieldRef<"User", 'String'>
+  readonly passwordHash: Prisma.FieldRef<"User", 'String'>
+  readonly inviteToken: Prisma.FieldRef<"User", 'String'>
+  readonly inviteExpiresAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly resetToken: Prisma.FieldRef<"User", 'String'>
+  readonly resetExpiresAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly role: Prisma.FieldRef<"User", 'UserRole'>
   readonly approved: Prisma.FieldRef<"User", 'Boolean'>
   readonly company: Prisma.FieldRef<"User", 'String'>
