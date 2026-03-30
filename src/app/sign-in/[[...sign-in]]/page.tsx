@@ -60,14 +60,7 @@ export default function SignInPage() {
         <div className="absolute -left-20 top-1/4 h-72 w-72 animate-float rounded-full bg-white/5 blur-3xl" />
         <div className="absolute -right-10 bottom-1/3 h-56 w-56 animate-float-delayed rounded-full bg-white/10 blur-3xl" />
         <div className="relative z-10 flex h-full flex-col justify-between p-14">
-          <Image
-            src="/logoV2.png"
-            alt="Callaps"
-            width={280}
-            height={84}
-            className="object-contain drop-shadow-lg"
-            priority
-          />
+          <div className="h-16" />
           <div className="-mt-6">
             <h1 className="text-6xl font-black leading-[1.05] tracking-tight text-white">
               Appels.
@@ -125,6 +118,14 @@ export default function SignInPage() {
           </div>
 
           <div className="hidden lg:block mb-8">
+            <Image
+              src="/logoV2.png"
+              alt="Callaps"
+              width={200}
+              height={60}
+              className="object-contain mb-6"
+              priority
+            />
             <h2 className="text-2xl font-bold text-slate-900">Connexion</h2>
             <p className="mt-1 text-slate-500">
               Accédez à votre tableau de bord
