@@ -703,7 +703,7 @@ export function AgentSettings({ agent, clonedVoices = [] }: AgentSettingsProps) 
               ) : (
                 <>
                   <Rocket className="mr-2 h-3.5 w-3.5" />
-                  Publier
+                  Sauvegarder & Publier
                 </>
               )}
             </Button>
