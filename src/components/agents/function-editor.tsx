@@ -254,68 +254,99 @@ function FunctionDialog({
             <>
               {/* Transfer phone */}
               <div className="space-y-1.5">
-                <Label className="text-[12px] font-semibold text-slate-700">Transférer vers</Label>
-                <p className="text-[11px] text-slate-400">
-                  Saisissez un numéro de téléphone statique.
-                </p>
+                <Label className="text-[12px] font-semibold text-slate-700">Numero de destination</Label>
                 <Input
                   value={fn.transferPhone ?? ""}
                   onChange={(e) => setFn({ ...fn, transferPhone: e.target.value })}
-                  placeholder="+33651370395"
+                  placeholder="+33 6 51 37 03 95"
                   className="h-9 rounded-lg border-slate-200 bg-slate-50 text-[13px]"
                 />
               </div>
 
-              {/* Transfer type */}
-              <div className="space-y-1.5">
-                <Label className="text-[12px] font-semibold text-slate-700">Type de transfert</Label>
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2.5">
-                    <input
-                      type="radio"
-                      name="transferType"
-                      checked={fn.transferType === "cold_transfer"}
-                      onChange={() => setFn({ ...fn, transferType: "cold_transfer" })}
-                      className="h-4 w-4 accent-indigo-500"
-                    />
-                    <span className="text-[12px] text-slate-700">Transfert à froid</span>
-                  </label>
-                  <label className="flex items-center gap-2.5">
-                    <input
-                      type="radio"
-                      name="transferType"
-                      checked={fn.transferType !== "cold_transfer"}
-                      onChange={() => setFn({ ...fn, transferType: "warm_transfer" })}
-                      className="h-4 w-4 accent-indigo-500"
-                    />
-                    <span className="text-[12px] text-slate-700">Transfert à chaud</span>
-                  </label>
+              {/* Transfer type — visual cards */}
+              <div className="space-y-2">
+                <Label className="text-[12px] font-semibold text-slate-700">Mode de transfert</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setFn({ ...fn, transferType: "cold_transfer", transferMessage: undefined, speakDuring: false })}
+                    className={cn(
+                      "rounded-xl border-2 p-3 text-left transition-all",
+                      fn.transferType === "cold_transfer"
+                        ? "border-indigo-500 bg-indigo-50/50 ring-1 ring-indigo-500/20"
+                        : "border-slate-200 bg-white hover:border-slate-300"
+                    )}
+                  >
+                    <p className="text-[12px] font-semibold text-slate-800">Direct</p>
+                    <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">
+                      L&apos;appel est transféré immédiatement, l&apos;agent raccroche.
+                    </p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFn({ ...fn, transferType: "warm_transfer", speakDuring: true })}
+                    className={cn(
+                      "rounded-xl border-2 p-3 text-left transition-all",
+                      fn.transferType !== "cold_transfer"
+                        ? "border-indigo-500 bg-indigo-50/50 ring-1 ring-indigo-500/20"
+                        : "border-slate-200 bg-white hover:border-slate-300"
+                    )}
+                  >
+                    <p className="text-[12px] font-semibold text-slate-800">Accompagné</p>
+                    <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">
+                      L&apos;agent présente le contexte au destinataire avant de raccrocher.
+                    </p>
+                  </button>
                 </div>
               </div>
 
-              {/* Transfer message (warm only) */}
+              {/* Warm transfer message */}
               {fn.transferType !== "cold_transfer" && (
-                <div className="space-y-1.5">
-                  <Label className="text-[12px] font-semibold text-slate-700">Message de transfert</Label>
-                  <Select
-                    value={fn.speakDuring ? "prompt" : "static"}
-                    onValueChange={(v) => setFn({ ...fn, speakDuring: v === "prompt" })}
-                  >
-                    <SelectTrigger className="h-9 rounded-lg border-slate-200 bg-slate-50 text-[12px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="prompt">Rapide</SelectItem>
-                      <SelectItem value="static">Texte statique</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="space-y-2">
+                  <Label className="text-[12px] font-semibold text-slate-700">
+                    Message de présentation
+                  </Label>
+                  <div className="flex gap-1 rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setFn({ ...fn, speakDuring: true })}
+                      className={cn(
+                        "flex-1 rounded-md px-3 py-1.5 text-[11px] font-medium transition-all",
+                        fn.speakDuring
+                          ? "bg-white text-slate-800 shadow-sm"
+                          : "text-slate-500 hover:text-slate-700"
+                      )}
+                    >
+                      IA (automatique)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFn({ ...fn, speakDuring: false })}
+                      className={cn(
+                        "flex-1 rounded-md px-3 py-1.5 text-[11px] font-medium transition-all",
+                        !fn.speakDuring
+                          ? "bg-white text-slate-800 shadow-sm"
+                          : "text-slate-500 hover:text-slate-700"
+                      )}
+                    >
+                      Texte fixe
+                    </button>
+                  </div>
                   <Textarea
                     value={fn.transferMessage ?? ""}
                     onChange={(e) => setFn({ ...fn, transferMessage: e.target.value })}
                     rows={2}
-                    placeholder="Dites bonjour à l'agent et résumez-lui le problème de l'utilisateur."
+                    placeholder={fn.speakDuring
+                      ? "Présentez le contexte de l'appel et résumez la demande du client."
+                      : "Bonjour, je vous transfère M. Dupont qui souhaite..."
+                    }
                     className="rounded-lg border-slate-200 bg-slate-50 text-[12px] transition-colors focus:bg-white"
                   />
+                  <p className="text-[10px] text-slate-400">
+                    {fn.speakDuring
+                      ? "L'IA générera un message contextuel basé sur cette consigne."
+                      : "Ce texte sera lu tel quel au destinataire."}
+                  </p>
                 </div>
               )}
             </>
