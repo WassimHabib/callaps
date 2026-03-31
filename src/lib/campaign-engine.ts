@@ -282,6 +282,8 @@ export async function processCampaignBatch(campaignId: string): Promise<{
           status: "pending",
           campaignId,
           contactId: contact.id,
+          userId: campaign.userId,
+          orgId: campaign.userId,
         },
       });
 
@@ -292,6 +294,8 @@ export async function processCampaignBatch(campaignId: string): Promise<{
           status: "failed",
           campaignId,
           contactId: contact.id,
+          userId: campaign.userId,
+          orgId: campaign.userId,
           metadata: { error: String(error) },
         },
       });
