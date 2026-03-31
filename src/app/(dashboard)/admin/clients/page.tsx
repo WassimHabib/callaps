@@ -16,6 +16,7 @@ import { Users, Bot, Megaphone, Eye, Phone, CheckCircle2, XCircle } from "lucide
 import Link from "next/link";
 import { ImpersonateButton } from "@/components/admin/impersonate-button";
 import { ApproveButton } from "./approve-button";
+import { SendAccessButton } from "./send-access-button";
 
 export default async function AdminClientsPage() {
   await requireSuperAdmin();
@@ -166,6 +167,7 @@ export default async function AdminClientsPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
+                        <SendAccessButton clientId={client.id} hasPassword={!!client.passwordHash} />
                         <ImpersonateButton clientId={client.id} />
                         <Link href={`/admin/clients/${client.id}`}>
                           <Button

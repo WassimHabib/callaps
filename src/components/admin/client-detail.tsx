@@ -38,6 +38,8 @@ import {
   deleteClient,
   deleteClientAgent,
   deleteClientCampaign,
+  sendClientInvite,
+  sendClientReset,
 } from "@/app/(dashboard)/admin/actions";
 
 interface Agent {
@@ -69,6 +71,7 @@ interface ClientData {
   company: string | null;
   phone: string | null;
   role: string;
+  passwordHash: string | null;
   createdAt: Date;
   agents: Agent[];
   campaigns: Campaign[];
@@ -95,7 +98,26 @@ export function AdminClientDetail({
     name: string;
   } | null>(null);
   const [activeTab, setActiveTab] = useState<"agents" | "campaigns">("agents");
+  const [emailSent, setEmailSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  const handleSendAccessEmail = () => {
+    setError(null);
+    setEmailSent(false);
+    startTransition(async () => {
+      try {
+        if (client.passwordHash) {
+          await sendClientReset(client.id);
+        } else {
+          await sendClientInvite(client.id);
+        }
+        setEmailSent(true);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Erreur lors de l'envoi de l'email.");
+      }
+    });
+  };
 
   const handleDelete = () => {
     if (!deleteConfirm) return;
@@ -137,22 +159,36 @@ export function AdminClientDetail({
             Retour aux clients
           </Button>
         </Link>
-        <Button
-          variant="outline"
-          size="sm"
-          className="rounded-lg text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
-          onClick={() =>
-            setDeleteConfirm({
-              type: "client",
-              id: client.id,
-              name: client.name,
-            })
-          }
-        >
-          <Trash2 className="h-3.5 w-3.5 mr-1" />
-          Supprimer le client
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-lg text-xs"
+            onClick={handleSendAccessEmail}
+            disabled={isPending}
+          >
+            {client.passwordHash ? "Envoyer reset mot de passe" : "Renvoyer l'invitation"}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-lg text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
+            onClick={() =>
+              setDeleteConfirm({
+                type: "client",
+                id: client.id,
+                name: client.name,
+              })
+            }
+          >
+            <Trash2 className="h-3.5 w-3.5 mr-1" />
+            Supprimer le client
+          </Button>
+        </div>
       </div>
+
+      {error && <p className="text-sm text-red-600">{error}</p>}
+      {emailSent && <p className="text-sm text-emerald-600">Email envoyé a {client.email}</p>}
 
       {/* Stats cards */}
       <div className="grid gap-4 md:grid-cols-4">

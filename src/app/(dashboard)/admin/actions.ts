@@ -8,6 +8,8 @@ import {
   deleteAgent as deleteRetellAgent,
   deleteRetellLlm,
 } from "@/lib/retell";
+import { sendInviteEmail } from "@/lib/email/invite";
+import { sendResetPasswordEmail } from "@/lib/email/reset-password";
 
 export async function getAdminStats() {
   await requireSuperAdmin();
@@ -146,5 +148,49 @@ export async function updateClientRole(clientId: string, role: "admin" | "client
     data: { role },
   });
   revalidatePath("/admin/clients");
+  revalidatePath(`/admin/clients/${clientId}`);
+}
+
+export async function sendClientInvite(clientId: string) {
+  await requireSuperAdmin();
+
+  const user = await prisma.user.findUnique({ where: { id: clientId } });
+  if (!user) throw new Error("Client non trouvé");
+  if (user.passwordHash) throw new Error("Ce client a déjà activé son compte");
+
+  const inviteToken = crypto.randomUUID();
+  const inviteExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+
+  await prisma.user.update({
+    where: { id: clientId },
+    data: { inviteToken, inviteExpiresAt },
+  });
+
+  await sendInviteEmail({
+    to: user.email,
+    userName: user.name,
+    inviteToken,
+    adminName: "Admin",
+  });
+
+  revalidatePath(`/admin/clients/${clientId}`);
+}
+
+export async function sendClientReset(clientId: string) {
+  await requireSuperAdmin();
+
+  const user = await prisma.user.findUnique({ where: { id: clientId } });
+  if (!user) throw new Error("Client non trouvé");
+
+  const resetToken = crypto.randomUUID();
+  const resetExpiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+  await prisma.user.update({
+    where: { id: clientId },
+    data: { resetToken, resetExpiresAt },
+  });
+
+  await sendResetPasswordEmail({ to: user.email, resetToken });
+
   revalidatePath(`/admin/clients/${clientId}`);
 }
